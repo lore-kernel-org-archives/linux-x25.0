@@ -1,28 +1,121 @@
-From: Neal Norwitz <neal@metaslash.com>
-Subject: X.25 crashes in 2.4.20
-Date: Fri, 06 Jun 2003 10:07:09 -0400
-Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <20030606140709.GA15818@epoch.metaslash.com>
-Reply-To: neal@metaslash.com
+From: Yuan ChunYang <cyyuanml@sonata.iscas.ac.cn>
+Subject: Difference of building modules between kernel 2.4.XX and 2.5.XX ???
+Date: 07 Jul 2003 20:46:49 +0800
+Sender: lartc-admin@mailman.ds9a.nl
+Message-ID: <1057582009.1172.16.camel@sonata>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-x25-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Return-path: <lartc-admin@mailman.ds9a.nl>
+Errors-To: lartc-admin@mailman.ds9a.nl
+List-Help: <mailto:lartc-request@mailman.ds9a.nl?subject=help>
+List-Post: <mailto:lartc@mailman.ds9a.nl>
+List-Subscribe: <http://mailman.ds9a.nl/mailman/listinfo/lartc>,
+	<mailto:lartc-request@mailman.ds9a.nl?subject=subscribe>
 List-Id: <linux-x25.vger.kernel.org>
+List-Unsubscribe: <http://mailman.ds9a.nl/mailman/listinfo/lartc>,
+	<mailto:lartc-request@mailman.ds9a.nl?subject=unsubscribe>
+List-Archive: <http://mailman.ds9a.nl/pipermail/lartc/>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-x25@vger.kernel.org
-Cc: eis@baty.hanse.de
+To: ml_users <users@lists.freeswan.org>, design_lsm_bounces <linux-security-module-bounces@wirex.com>, ml_design-request <design-request@lists.freeswan.org>, ml_lartc <lartc@mailman.ds9a.nl>, ml_linux-net <linux-net@vger.kernel.org>, ml_linux-x25 <linux-x25@vger.kernel.org>
 
-I'm using X.25 on 2.4.20 User Mode Linux (UML) with Henner Eisen's
-loopback patch.  The reason I'm using UML is that in the past, I've
-heard of crashes due to X.25.  But I am also experiencing crashes
-within UML.  The crashes have almost always occurred when doing
-netstat -Ax25.
+In kernel 2.5, the implementation of building modules  must be changed.
+As fellow, i programed a test .
+In kernel 2.4.20 ,it's OK! 
+But in kenel 2.5.72,you can see:
 
-Is this the correct place to discuss these issues?
-Has there been any progress made on X.25 stability or features?
+# insmod testdemo.o
+Error inserting 'testdemo.o': -1 Unknown symbol in module
 
-I can try to help develop/debug if someone can provide more info.
+demo: no version magic, tainting kernel.
+demo: Unknown symbol myprintk
 
-Thanks,
-Neal
+Now i already installed module_init_tools 0.9.12.
+
+can somebody tell me why?
+how to resolve this problem.
+thanx firstly. :)
+                                                        yuan
+                                        
+
+
+#################################################################################
+# Makefile:
+#
+LINUX_DIR = /usr/src/lsm-2.5
+#LINUX_DIR = /usr/src/linux-2.4.20-8
+CC=gcc
+
+MODCFLAGS       = -D__KERNEL__ -I$(LINUX_DIR)/include
+-I$(LINUX_DIR)/include/asm-i386/mach-default -Wall -DMODULE -O2 
+-DKBUILD_MODNAME=$* -DKBUILD_BASENAME=$*  -Wstrict-prototypes -o $*.o
+
+testdemo.o:	demo.o myprintk.o
+	ld -m elf_i386 -r -o testdemo.o demo.o myprintk.o
+demo.o:		demo.c myprintkp.c $(LINUX_DIR)/include/linux/version.h
+	$(CC) $(MODCFLAGS) -c demo.c 
+myprintk.o:	myprintk.c myprintk.h $(LINUX_DIR)/include/linux/version.h
+	$(CC) $(MODCFLAGS) -c myprintk.c
+
+clean:
+	rm -f *.o  *.o.d
+
+#######################################################################
+/*
+ * demo.c
+ */
+
+
+#include <linux/config.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+
+
+extern int myprintk (void);
+
+static int __init demo_init(void) {
+        printk("initializing..\n");
+	myprintk();
+        return 0;
+}
+
+static void __exit demo_exit(void) {
+        printk("goodbye!\n");
+}
+
+module_init(demo_init);
+module_exit(demo_exit);
+MODULE_LICENSE("GPL");
+###################################################################################
+/*
+* myprintk.c
+*/
+
+#include <linux/version.h>
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+
+#include "myprintk.h"
+
+static int myprintk (void)
+{
+	printk(KERN_INFO "This is my printk!\n");				
+
+	return 0;
+}
+
+##################################################################################
+/*
+* myprintk.h
+*/
+#define MODULE_NAME   "HELLO"
+static int myprintk (void);
+
+
+###########################################################################
+
+_______________________________________________
+LARTC mailing list / LARTC@mailman.ds9a.nl
+http://mailman.ds9a.nl/mailman/listinfo/lartc HOWTO: http://lartc.org/
