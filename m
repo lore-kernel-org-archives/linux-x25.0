@@ -1,55 +1,63 @@
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: [PATCH] (3/5) remove X25 pre-existing device discovery loop
-Date: Tue, 13 Jan 2004 11:01:03 -0800
-Sender: netdev-bounce@oss.sgi.com
-Message-ID: <20040113110103.4a36c0d1.shemminger@osdl.org>
+From: Frederico Faria <frederico@ati.com.br>
+Subject: XOT Configuration
+Date: Fri, 16 Jan 2004 08:50:16 -0200
+Sender: linux-x25-owner@vger.kernel.org
+Message-ID: <4007C1E8.7040003@ati.com.br>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-bounce@oss.sgi.com>
-Errors-to: netdev-bounce@oss.sgi.com
+Return-path: <linux-x25-owner@vger.kernel.org>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: "David S. Miller" <davem@redhat.com>
-Cc: netdev@oss.sgi.com, Henner Eisen <eis@baty.hanse.de>, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: linux-x25@vger.kernel.org
 
-Remove duplicate/conflicting code 
-now that netdev_register_notifier replays the device registration events.
 
-diff -Nru a/net/x25/af_x25.c b/net/x25/af_x25.c
---- a/net/x25/af_x25.c	Mon Jan 12 14:22:07 2004
-+++ b/net/x25/af_x25.c	Mon Jan 12 14:22:07 2004
-@@ -1372,9 +1372,6 @@
- 
- static int __init x25_init(void)
- {
--#ifdef MODULE
--	struct net_device *dev;
--#endif /* MODULE */
- 	sock_register(&x25_family_ops);
- 
- 	dev_add_pack(&x25_packet_type);
-@@ -1386,23 +1383,7 @@
- #ifdef CONFIG_SYSCTL
- 	x25_register_sysctl();
- #endif
--
- 	x25_proc_init();
--#ifdef MODULE
--	/*
--	 *	Register any pre existing devices.
--	 */
--	read_lock(&dev_base_lock);
--	for (dev = dev_base; dev; dev = dev->next) {
--		if ((dev->flags & IFF_UP) && (dev->type == ARPHRD_X25
--#if defined(CONFIG_LLC) || defined(CONFIG_LLC_MODULE)
--					   || dev->type == ARPHRD_ETHER
--#endif
--			))
--			x25_link_device_up(dev);
--	}
--	read_unlock(&dev_base_lock);
--#endif /* MODULE */
- 	return 0;
- }
- module_init(x25_init);
+  Hi,
+
+   I have two linux box that communicate using X25 sockets over 
+lapb-ethernet.  The hostA runs the  X25 socket client application and 
+hostB runs  the x25 server socket application:
+
+     hostA --------- LAPB ( ethernet )--------hostB.
+
+This configuration  is working fine!
+
+
+Now I want to configure the XOT ( using xotd daemon ) for the link 
+between hostA and hostB.
+
+My X25 route configured in "hostA" is:
+
+  route add -Ax25 33/2 lapb0  //33 is the X25 addr. of server in "hostB"
+
+Then I run xotd in "hostA" as:
+
+  xotd -v lapb0  IP-HOSTB   // IP-HOSTB is the IP address of "hostB"
+
+The X25 route in "hostB" is:
+
+  route add -Ax25 0/0 lapb0
+
+In "hostB" I didn't run the xotd daemon.
+
+Then I run again the sockets applications and everything continues 
+working fine,  but nothing to appear in xotd debug. Then I think that 
+the XOT  isn't being used.
+
+My doubt is How configure the two x25 linux box above to use the XOT.
+  Is the hostA xotd configuration correct  ? do I need to run the xotd 
+daemon in host B ?  is it necessary some modification in X25 socket 
+applications ?   Is there any configuration example ?
+
+
+Thank you,
+
+Faria
+
+
+-- 
+Frederico Charles S. Faria
+ATI / ATITEL  Ltda
+www.ati.com.br
+(31) - 3275-3100
+
 
