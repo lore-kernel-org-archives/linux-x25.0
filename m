@@ -1,27 +1,41 @@
-From: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [2.6 patch] net/x25/: some cleanups
-Date: Mon, 27 Dec 2004 18:59:55 -0800
-Message-ID: <20041227185955.132a8693.davem@davemloft.net>
-References: <20041212212318.GB22324@stusta.de>
+From: Herbert Poetzl <herbert@13thfloor.at>
+Subject: x25_create initializing socket data twice ...
+Date: Thu, 3 Mar 2005 02:14:13 +0100
+Message-ID: <20050303011413.GB11516@mail.13thfloor.at>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-bounce@oss.sgi.com>
-In-Reply-To: <20041212212318.GB22324@stusta.de>
-Sender: netdev-bounce@oss.sgi.com
-Errors-to: netdev-bounce@oss.sgi.com
+Content-Disposition: inline
+Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Adrian Bunk <bunk@stusta.de>
-Cc: eis@baty.hanse.de, linux-x25@vger.kernel.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: eis@baty.hanse.de, linux-x25@vger.kernel.org
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
 
-On Sun, 12 Dec 2004 22:23:18 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
 
-> The patch below includes the following cleanups:
-> - make some needlessly global code static
-> - remove the following unused global functions:
->   - net/x25/x25_dev.c: x25_llc_receive_frame
->   - net/x25/x25_link.c: x25_transmit_diagnostic
+Hi Folks!
 
-Applied, thanks Adrian.
+x25_create() [net/x25/af_x25.c] is calling sock_init_data()
+twice ... once indirectly via x25_alloc_socket() and a
+second time directly via sock_init_data(sock, sk);
+
+while this might not look as critical as it seems, it can
+easily break stuff which assumes that sock_init_data()
+isn't called twice on the same socket ...
+
+maybe something like this might be appropriate?
+
+--- ./net/x25/af_x25.c.orig	2005-03-02 12:39:11 +0100
++++ ./net/x25/af_x25.c	2005-03-03 02:12:11 +0100
+@@ -490,7 +490,6 @@ static int x25_create(struct socket *soc
+ 
+ 	x25 = x25_sk(sk);
+ 
+-	sock_init_data(sock, sk);
+ 	sk_set_owner(sk, THIS_MODULE);
+ 
+ 	x25_init_timers(sk);
+
+
+best,
+Herbert
 
