@@ -1,27 +1,30 @@
-From: Neal Norwitz <neal@metaslash.com>
-Subject: Re: X25 Hardware
-Date: Thu, 15 Apr 2004 09:33:15 -0400
+From: "un@roo" <un@rootelecom.ru>
+Subject: Null X.25 cable?
+Date: Fri, 14 May 2004 12:22:13 +0400
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <20040415133313.GN22725@epoch.metaslash.com>
-References: <200404151516.44459.Jakub.Kocyk@comarch.com>
-Reply-To: neal@metaslash.com
+Message-ID: <129179533859.20040514122213@rootelecom.ru>
+Reply-To: "un@roo" <un@rootelecom.ru>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200404151516.44459.Jakub.Kocyk@comarch.com>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Jakub Kocyk <Jakub.Kocyk@comarch.com>
-Cc: linux-x25@vger.kernel.org
+To: linux-x25@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 03:16:44PM +0200, Jakub Kocyk wrote:
-> What hardware (with resonable price) can be used under linux to provide x.25?
+Hello linux-x25,
 
-I preferred the Farsite (FarSync) card.  It had a decent API and
-the module was easy to build.  Doc was light, but more than adequate.
+  Hello All!
 
-	http://farsite.co.uk/
+  Is there any way to connect two X.25 card directly via cable (may be
+  NULL MODEM)?
+  If yes, what configuration of connectors it must have?
+  Will two cards (configured as DTE) work together?
 
-Neal
+  If anyone knows, please help!
+  
+  
+
+-- 
+Best regards,
+ un                          mailto:un@rootelecom.ru
 
