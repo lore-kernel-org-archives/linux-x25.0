@@ -1,16 +1,22 @@
-From: "John Hughes" <John@Calva.COM>
-Subject: Trying to use xotd-0.04 on linux-2.4.19
-Date: Thu, 29 Aug 2002 18:21:22 +0200
+From: Jan Oldak <oldakj@psary.tpsa.pl>
+Subject: X3
+Date: Tue, 30 Jul 2002 09:20:55 +0100
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <005901c24f78$1db70a40$f70127d5@britannic>
+Message-ID: <3D464C67.1010303@psary.tpsa.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
 To: linux-x25@vger.kernel.org
 
-I'm confused, what combination of netlink/tap stuff do I need
-to configure?  Do I need the "x25tap.diff" stuff?
+Hi all
 
+I`m interested if it possible to do X3  profiles on the Linux async 
+ports, and then XOT over ethernet?
+Any ideas?
+
+Regards.
+
+Jan Oldak
 
