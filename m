@@ -1,42 +1,34 @@
-From: Bill Lynn <blynn@gwdi.com>
-Subject: Re: Buggy kernel header
-Date: Fri, 19 Jul 2002 08:25:33 +0000
+From: "=?iso-8859-1?Q?Alejandro_N=E9stor_Vargas?=" <anv@xnetcuyo.com.ar>
+Subject: linux <--> cisco
+Date: Mon, 22 Jul 2002 20:11:55 -0300 (ART)
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <3D37CCFD.6F2504F0@gwdi.com>
-References: <Pine.GS4.4.33.0207191509050.10877-100000@lutra.sztaki.hu>
+Message-ID: <63834.200.69.146.66.1027379515.squirrel@webmail.xnetcuyo.com.ar>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-x25-owner@vger.kernel.org>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: 
-Cc: linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+To: linux-x25@vger.kernel.org
 
-Gabor,
+Hello.
 
-   Thanks! I'll make the change to my source right away. I'm not currently using
-any Cisco routers but this will head off any future Cisco hardware.
+I need to connect a program to an x25 address. The destination address =
+must
+be reached through a tcp/ip connection. The routing is being done now w=
+ith 2
+cisco routers that encapsulates X25 over TCP/IP. I think the best way f=
+or
+doingthe connection in my program is connecting directly to the destina=
+tion cisco
+using XOT on the linux box.
 
-Regards,
-Bill
+Somebody can tell me something of how to do this (if it is possible)?
 
-"Gabor Kiss [Bitman]" wrote:
+--=20
+Alejandro N=E9stor Vargas
+anv@xnetcuyo.com.ar
+ICQ: 20528995.
+Departamento de Desarrollo
+X Net Cuyo S.A.
 
-> You can found in many (all?) kernel version in file include/net/x25.h:
->
-> #define X25_DEFAULT_THROUGHPUT  0x0A                    /* Deafult Throughput */
->
-> This constant should be 0xAA. The lower nibble describes the troughput class
-> from caller to called DTE, meanwhile the upper nibble does the same
-> in opposite direction. Value 0 for this is makes Cisco routers unhappy. ;-)
->
-> I listen the zero traffic of this list for weeks.
-> Is anobody here at all? ;-)
->
-> Gabor
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-x25" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
