@@ -1,23 +1,41 @@
-From: "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] make lapbether work on 2.6.0-test3
-Date: Wed, 13 Aug 2003 03:57:59 -0700
-Sender: netdev-bounce@oss.sgi.com
-Message-ID: <20030813035759.66dc9bf6.davem@redhat.com>
-References: <20030812170741.40608f59.shemminger@osdl.org>
+From: Jerzy Tryjarski <jurekt@pkp.com.pl>
+Subject: ip over x.25
+Date: Mon, 18 Aug 2003 15:06:10 +0200
+Sender: linux-x25-owner@vger.kernel.org
+Message-ID: <3F40CF42.2020001@pkp.com.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-bounce@oss.sgi.com>
-In-Reply-To: <20030812170741.40608f59.shemminger@osdl.org>
-Errors-to: netdev-bounce@oss.sgi.com
+Return-path: <linux-x25-owner@vger.kernel.org>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: eis@baty.hanse.de, linux-x25@vger.kernel.org, netdev@oss.sgi.com
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: linux-x25@vger.kernel.org
 
-On Tue, 12 Aug 2003 17:07:41 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+Hi,
+  I want to connect my PC under linux RH 9 with e-mail server  via X.25 
+packet network.
+                                                                                                                        
+ 
+IP datagrams are encapsulated inside packets on an X.25 virtual circuit.
+                                                                                                                        
+ 
+Mail server is connected to X.25 network via Cisco router. So I use the 
+IETF standard encapsulation, as specified by RFC
+1356, set X.121 address, set IP address and I map between X.121 address 
+and IP address.
+                                                                                                                        
+ 
+Finaly in my pc It must be additional software for rs232 and user 
+application to be abble to configure the interface with such as 
+functions as assigning IP address, assigning X.121 address, mapping, pad 
+and other specific for X.25 network functions.
+                                                                                                                        
+ 
+Are there products just for Linux ?
+                                                                                                                        
+ 
+Can anybody recommend the best solution ?
+                                                                                                                        
+ 
+Jurek
 
-> Lapbether needed work to get it up on 2.6.0-test3;
-
-Applied, thanks Stephen.
 
