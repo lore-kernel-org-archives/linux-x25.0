@@ -1,34 +1,31 @@
-From: Steve Schefter <steve@wanware.com>
-Subject: Re: Newbie: X.25 on Linux over Ethernet & Cisco?
-Date: Tue, 03 Aug 2004 09:18:08 -0400
+From: Ferenci Daniel <Daniel.Ferenci@siemens.com>
+Subject: BUG in X25 stack
+Date: Fri, 06 Aug 2004 16:59:01 +0200
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <410F9090.8000806@wanware.com>
-References: <001f01c4793f$5d898290$2b02010a@w8x00020>
+Message-ID: <41139CB5.9050100@siemens.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <001f01c4793f$5d898290$2b02010a@w8x00020>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Bernhard Roth <Bernhard.Roth@pwrnet.de>
-Cc: linux-x25@vger.kernel.org
+To: linux-x25@vger.kernel.org
 
-Hi Bernhard.
+Hi List,
 
-> - Do I receive only the userdata or do I need to decode the X.25 packets (I
-> mean connecting phase etc...)
+I found bug in X25 linux stack.
 
-If you are not stuck on Cisco, we offer an alternative which does
-not require an X.25 packet layer in your client:
+It is in x25.h file
+define value X25_DEFAULT_THROUGHPUT had default value 0x0A.
+But 0 is not allowed Troughput facility number and CISCO router uses to 
+drop the connection.
 
-http://www.wanware.com/index.php?page=products/wan/ss&menu=products
+The rigth value can be for example
+#define    X25_DEFAULT_THROUGHPUT    0xAA
+Then I was able to route x25 connection from Linux trough CISCO.
 
-Regards,
-	Steve
+Regards
+Daniel Ferenci.
 
-------------------------------------------------------------------------
-Steve Schefter                               phone: +1 705 725 9999 x26
-The Software Group Limited		       fax: +1 705 725 9666
-642 Welham Road, 			     email: steve@wanware.com
-Barrie, Ontario CANADA  L4N 9A1 	       Web: www.wanware.com
+
+
 
