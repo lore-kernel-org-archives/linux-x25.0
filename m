@@ -1,67 +1,37 @@
-From: Ferenci Daniel <Daniel.Ferenci@siemens.com>
-Subject: Re: hello?  XOT? tuntap?
-Date: Tue, 27 Jul 2004 10:17:55 +0200
+From: "Bernhard Roth" <Bernhard.Roth@pwrnet.de>
+Subject: Newbie: X.25 on Linux over Ethernet & Cisco?
+Date: Tue, 3 Aug 2004 11:50:52 +0200
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <41060FB3.7060406@siemens.com>
-References: <200407262100.44988.peter@bsqt.homeip.net>
+Message-ID: <001f01c4793f$5d898290$2b02010a@w8x00020>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <200407262100.44988.peter@bsqt.homeip.net>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 To: linux-x25@vger.kernel.org
 
-Hi Peter,
+Hello!
 
-I have new x25tap patch for 2.4.25 kernel.
-You can find the patch at http://www.dafe.net/x25/
+I hope somebody can give me some hints using X.25.
 
-You have to:
-1. Patch the kernel
-2. during kernel configuration set up x25 stack,  net link sockets, 
-x25tap devices
-3. compile kernel
-4. compile xot daemon
-5. boot new kernel and load appropriate modules (/sbin/modprobe x25tap 
-unit=0)
-6. up the x25tun0 device (ifconfig x25tap0 up)
-6. update x25 route (route --x25 add 0/0 x25tap0)
-7. run xotd and it may work (./xotd -v x25tap0 ipaddr)
+The basic task is to write a linux program which can receive and send X.25
+packets to the public X.25 network.
+I wanted to use a Cisco router to interface the X.25 side (X.31) to
+ethernet.
+Unfortunately I'm quite unexperienced doing this so I have some questions:
 
-It works for me within two Linux maschines.
-But I haven't tested it with the CISCO yet.
+- Which protocol shall be used on the Linux-Box' site to communicate with
+the Cisco
+- How is the X.25 routing working? Is it possible to forward and received
+X.25 packets to the Linux-Box?
+- Do I receive only the userdata or do I need to decode the X.25 packets (I
+mean connecting phase etc...)
+- XOT seems to be fine (isn't it?) but cannot find as all URL's are invalid
+- Are there any examples available?
 
-Best regards
-Daniel.
+Thanks for any help :)
 
-Peter wrote:
+Regards
 
->Hi folks, 
->
->I am pinging the list to see if there is anyone on it.
->might as well ask a question... 
->
->Cannot find a FAQ, as geocrawler.com refuses my packets... 
->
->I have a machine that exchanges messages with another one over X.25.  The X.25 
->link is long gone, being replaced by two cisco's and XOT many years ago.    I 
->want to transparently replace the machine on my end.   that is, run XOT on a 
->new linux box to the cisco at the other end.   I can test by running over XOT 
->to a cisco connected to my old machine.
->
->So, to start things off, I downloaded xotd-0.04 of 1998 vintage to have a 
->look.  It mentions using x25tap0. That module is a late lamented one.
->I guess I should be looking at tuntap?  How do I set a tap interface with 
->x25 ?
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-x25" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  
->
-
+Bernhard Roth
 
