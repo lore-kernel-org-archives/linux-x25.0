@@ -1,37 +1,78 @@
-From: Andrew Hendry <ahendry@tusc.com.au>
-Subject: [PATCH TRIVIAL 2.6] X.25 : Dont log "unknown frame type" when
-	receiving clear confirm
-Date: Tue, 26 Oct 2004 10:13:39 +1000
+From: "Francisco A. Lozano Lopez" <francisco.lozano@metrored-telecom.com>
+Subject: RE: Linux's X.25 and Isode
+Date: Tue, 26 Oct 2004 09:12:45 +0200
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <1098749619.3099.194.camel@localhost.localdomain>
+Message-ID: <I66JXT01.009@metrored-telecom.com>
+References: <1098742847.3099.183.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
+In-Reply-To: <1098742847.3099.183.camel@localhost.localdomain>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+To: 'Andrew Hendry' <ahendry@tusc.com.au>
+Cc: linux-x25@vger.kernel.org
 
-No need to log this for clear confirm.
 
-Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+This patch enables ISODE to work under Linux, but I thought it was only for
+ISO/OSI through TCP/IP. 
+Has anyone managed to make it work with Linux's X.25? In the config.h file,
+if you define X_25 it doesn't compile :(
 
-diff -up linux-2.6.8.1/net/x25/x25_dev.c.orig linux-2.6.8.1/net/x25/x25_dev.c
---- linux-2.6.8.1/net/x25/x25_dev.c.orig        2004-10-26 09:58:36.158922080 +1000
-+++ linux-2.6.8.1/net/x25/x25_dev.c     2004-10-26 10:03:01.134639648 +1000
-@@ -92,7 +92,12 @@ static int x25_receive_data(struct sk_bu
- /*
-        x25_transmit_clear_request(nb, lci, 0x0D);
- */
--       printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
-+
-+       /*
-+        *      Dont spam the logs for clear confirms.
-+        */
-+       if (frametype != X25_CLEAR_CONFIRMATION)
-+               printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
-  
-        return 0;
- }
+I just need a ftam client for Linux's X.25; if there is any other different
+from isode's I'd be glad to hear about it.
 
+I was planning on using Linux 2.2 because I couldn't patch a more current
+kernel with the needed patch. If there is any chance of making it work under
+a newer version i'd like to do so, but anyway for what I need to do with XOT
+Linux 2.2 is more than enough. I just need an opensource platform for CDR
+recollection from a 5ess phone switch, which has a Cisco router serving X.25
+through XOT.
+
+Currently we have a proprietary implementation from a commercial software
+company which is based on ISODE but has the X.25 stack and the XOT client
+inside the FTAM binary... So it must be possible :)
+
+
+By the way, thankyou very much, you're almost the only person i've found on
+internet which knows what XOT is :/
+
+-----Mensaje original-----
+De: linux-x25-owner@vger.kernel.org [mailto:linux-x25-owner@vger.kernel.org]
+En nombre de Andrew Hendry
+Enviado el: martes, 26 de octubre de 2004 0:21
+Para: Francisco A. Lozano Lopez
+CC: linux-x25@vger.kernel.org
+Asunto: Re: Linux's X.25 and Isode
+
+
+A linux patch for isode 8.0 exists here:
+http://www.ibiblio.org/pub/Linux/system/network/isode/
+I haven't used it.
+
+As for the XOT implementation I have used this and it works well with cisco
+XOT. Are you planning on using 2.4 or 2.6?
+
+Attached is an updated xotd.c file with a minor locking fix.
+gcc -o xotd xotd.c -lpthread is all it needs.
+
+Andrew.
+
+On Mon, 2004-10-25 at 18:25, Francisco A. Lozano Lopez wrote:
+> Is there any way to use ISODE 8.0 with Linux's X.25?
+> 
+> I have a Cisco router which tunnels X.25 throught XOT. I've seen that 
+> there is a small XOT implementation for older kernels so I'd like to 
+> try it to connect to a 5ess switch which, serves files throught FTAM over
+X.25.
+> 
+> If not, is there any other FTAM client which can connect throught 
+> Linux's X.25?
+> 
+> Thankyou.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-x25" 
+> in the body of a message to majordomo@vger.kernel.org More majordomo 
+> info at  http://vger.kernel.org/majordomo-info.html
 
