@@ -1,35 +1,34 @@
-From: Steve Schefter <steve@wanware.com>
-Subject: Re: setup connection with PVC
-Date: Thu, 27 May 2004 13:28:38 -0400
+From: Peter <peter@bsqt.homeip.net>
+Subject: hello?  XOT? tuntap?
+Date: Mon, 26 Jul 2004 21:00:44 -0400
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <40B62546.6080406@wanware.com>
-References: <40B60D99.8080803@siemens.com>
+Message-ID: <200407262100.44988.peter@bsqt.homeip.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <40B60D99.8080803@siemens.com>
+Content-Disposition: inline
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Ferenci Daniel <Daniel.Ferenci@siemens.com>
-Cc: linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-x25@vger.kernel.org
 
-Hi Daniel.
 
-> I'm looking for a way how to set up x25 connection with Permanent 
-> Virtual Circuit.
-> Or,
-> is it possible to do it with classic scenario (bind, listen, accept)?
+Hi folks, 
 
-If you wish to work with the public X.25 source (Linux X.25 Project by
-Jonathan Naylor), it does not support PVCs, just SVCs.
+I am pinging the list to see if there is anyone on it.
+might as well ask a question... 
 
-Commercial X.25 packages for Linux, such as ours, do support PVCs.
+Cannot find a FAQ, as geocrawler.com refuses my packets... 
 
-	Steve
+I have a machine that exchanges messages with another one over X.25.  The X.25 
+link is long gone, being replaced by two cisco's and XOT many years ago.    I 
+want to transparently replace the machine on my end.   that is, run XOT on a 
+new linux box to the cisco at the other end.   I can test by running over XOT 
+to a cisco connected to my old machine.
 
-------------------------------------------------------------------------
-Steve Schefter                               phone: +1 705 725 9999 x26
-The Software Group Limited		       fax: +1 705 725 9666
-642 Welham Road, 			     email: steve@wanware.com
-Barrie, Ontario CANADA  L4N 9A1 	       Web: www.wanware.com
+So, to start things off, I downloaded xotd-0.04 of 1998 vintage to have a 
+look.  It mentions using x25tap0. That module is a late lamented one.
+I guess I should be looking at tuntap?  How do I set a tap interface with 
+x25 ?
+
+
 
