@@ -1,84 +1,71 @@
-From: Derek Vair <derek@wanware.com>
-Subject: Re: CISCO with xot
-Date: Mon, 30 Aug 2004 09:44:31 -0400
+From: Andrew Hendry <ahendry@tusc.com.au>
+Subject: X.25 : Debug: sleeping function called from invalid context at
+	net/core/sock.c:1203
+Date: Mon, 25 Oct 2004 10:10:30 +1000
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <41332F3F.5040802@wanware.com>
-References: <1093820373.2289.16.camel@ahendry>
-Reply-To: derek@wanware.com
+Message-ID: <1098663030.3099.162.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <1093820373.2289.16.camel@ahendry>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Andrew Hendry <ahendry@tusc.com.au>
-Cc: frederico@ati.com.br, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-x25@vger.kernel.org, eis@baty.hanse.de
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
 
-Hello Andrew and Frederico:
+2.6.8.1
 
-Even if there were (a patch for xotd and PVCs), it wouldn't do any 
-good.  As far as I know, the public domain X.25 that comes with Linux 
-doesn't support PVCs. 
+When called from x25_heartbeat_expiry, x25_destroy_socket trips the
+following:
 
-If you want to run PVCs over an IP network, we offer a solution based on 
-an embedded (diskless, fanless) device on one side of the network (next 
-to the host that has only an X.25 interface), and an X.25 API library 
-that interfaces with TCP/IP at the other. (we're one of those "non-free" 
-vendors that Frederico refers to in an earlier post to the list).  Drop 
-me a line by e-mail if you'd like to know more.
+Oct 20 12:19:01 localhost kernel: Debug: sleeping function called from
+invalid context at net/core/sock.c:1203
+Oct 20 12:19:01 localhost kernel: in_atomic():1, irqs_disabled():0
+Oct 20 12:19:01 localhost kernel:  [<c0117e55>] __might_sleep+0x9a/0xa2
+Oct 20 12:19:01 localhost kernel:  [<c025964e>] lock_sock+0x12/0x3d
+Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
+x25_heartbeat_expiry+0x0/0x4d [x25]
+Oct 20 12:19:01 localhost kernel:  [<f899d3e2>]
+x25_destroy_socket+0x10/0xd5 [x25]
+Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
+x25_heartbeat_expiry+0x0/0x4d [x25]
+Oct 20 12:19:01 localhost kernel:  [<c01202f4>]
+run_timer_softirq+0xa1/0x13c
+Oct 20 12:19:01 localhost kernel:  [<c0120466>] do_timer+0xcd/0xd2
+Oct 20 12:19:01 localhost kernel:  [<c011ceaf>] __do_softirq+0x77/0x79
+Oct 20 12:19:01 localhost kernel:  [<c011ced7>] do_softirq+0x26/0x28
+Oct 20 12:19:01 localhost kernel:  [<c010749d>] do_IRQ+0xd4/0x107
+Oct 20 12:19:01 localhost kernel:  [<c0105d90>]
+common_interrupt+0x18/0x20
+Oct 20 12:19:01 localhost kernel:  [<c01da7ae>]
+acpi_processor_idle+0xd4/0x1c7
+Oct 20 12:19:01 localhost kernel:  [<c010409b>] cpu_idle+0x2c/0x35
+Oct 20 12:19:01 localhost kernel:  [<c034c655>] start_kernel+0x163/0x19f
+Oct 20 12:19:01 localhost kernel:  [<c034c2cf>]
+unknown_bootoption+0x0/0x144
 
+Looking at other protocols setup the same way, rose and ax25 dont have
+the lock_sock in destroy. Is the lock_sock needed here?
 
-Derek
-
-
-
-Andrew Hendry wrote:
-
->Is there any patch to use xotd with PVC ?
->  
->
->For xotd with PVCs I dont know of a patch, its in the TODO for xotd.
->Would having the PVC's on the router x25 side and just have xotd like
->normal on the ip side do what you need?
->
->With the diagram below:
->- You could use IP over x25 on the x25 side of the router and have the
->applications on both hosts use IP.
->or
->http://www.cisco.com/en/US/tech/tk713/tk730/technologies_configuration_example09186a0080094a46.shtml
->
->Andrew.
->
->On Sat, 2004-08-28 at 07:25, Frederico Faria wrote:
->  
->
->>   Hi,
->>
->>     Is somebody using CISCO routers ?!
->>     Today I use xotd with CISCO.  Is there any configuration for  the
->>CISCO routers TCP/IP ( pure, without xotd )  to X25  ? As below:
->>
->>
->>              Host-----> TCP/IP ----> CISCO ---> X25 --->Host
->>
->>Thank you.
->>
->>Frederico Faria
->>    
->>
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-x25" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  
->
-
--- 
-Derek Vair
-The Software Group Limited        Tel:    +1(705)725-9999x22
-642 Welham Road			    Fax:    +1(705)725-9666
-Barrie, Ontario			    e-mail: derek@wanware.com
-Canada L4N 9A1			    web:    www.wanware.com
+diff -up linux-2.6.8.1/net/x25/af_x25.c.orig
+linux-2.6.8.1/net/x25/af_x25.c
+--- linux-2.6.8.1/net/x25/af_x25.c.orig 2004-10-25 08:49:40.780391664
++1000
++++ linux-2.6.8.1/net/x25/af_x25.c      2004-10-25 09:47:02.578158872
++1000
+@@ -322,7 +322,6 @@ void x25_destroy_socket(struct sock *sk)
+        struct sk_buff *skb;
+  
+        sock_hold(sk);
+-       lock_sock(sk);
+        x25_stop_heartbeat(sk);
+        x25_stop_timer(sk);
+  
+@@ -353,7 +352,6 @@ void x25_destroy_socket(struct sock *sk)
+                __sock_put(sk);
+        }
+  
+-       release_sock(sk);
+        sock_put(sk);
+ }
 
 
