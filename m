@@ -1,22 +1,20 @@
-From: "John Hughes" <John@Calva.COM>
-Subject: RE : X3
-Date: Tue, 1 Oct 2002 09:40:21 +0200
+From: "Ian Cass" <ian.cass@mblox.com>
+Subject: XOT
+Date: Fri, 4 Oct 2002 21:45:08 +0100
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <010201c2691d$cdee74c0$f70127d5@britannic>
-References: <3D464C67.1010303@psary.tpsa.pl>
+Message-ID: <004901c26be6$ed4e7fb0$28fdc350@defender>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <3D464C67.1010303@psary.tpsa.pl>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Jan Oldak' <oldakj@psary.tpsa.pl>
-Cc: linux-x25@vger.kernel.org
+To: linux-x25@vger.kernel.org
 
-Looks to me like you'll need to port "nimd" from 4.4bsd.
+Hi,
 
-See
-http://web.mit.edu/afs/athena.mit.edu/astaff/reference/4.4lite/usr/src/c
-ontrib/usr.x25/nimd/
+I'm using  xotd 0.04 by Stephane Fillod with a degree of success, but it
+seems a horrible hack. I wonder if this is the best (only?) xotd available.
 
+--
+Ian Cass
 
