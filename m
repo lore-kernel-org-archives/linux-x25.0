@@ -1,52 +1,32 @@
-From: Steve Schefter <steve@wanware.com>
-Subject: Re: Null X.25 cable?
-Date: Mon, 17 May 2004 09:29:11 -0400
+From: Ferenci Daniel <Daniel.Ferenci@siemens.com>
+Subject: setup connection with PVC
+Date: Thu, 27 May 2004 17:47:37 +0200
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <40A8BE27.7020606@wanware.com>
-References: <1a4.23eb82b5.2dd7cc89@aol.com>
+Message-ID: <40B60D99.8080803@siemens.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <1a4.23eb82b5.2dd7cc89@aol.com>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: TProvoni@aol.com
-Cc: un@rootelecom.ru, linux-x25@vger.kernel.org
+To: linux-x25@vger.kernel.org
 
-Hi Joachim.
+Hi X25 Linux members,
 
-> Wanware hardware sounds somewhat restrictive in its clock 
-> configurations.  I have worked with several vendors' equipment that 
-> allows symmetric independent clocking.  Transmit clocks are sent from 
-> both sides and the receivers extract the clocks as they receive data.  
+I'm looking for a way how to set up x25 connection with Permanent 
+Virtual Circuit.
+Or,
+is it possible to do it with classic scenario (bind, listen, accept)?
+If yes, what address to bind to choose (does it matter)?
+How to deal with LCI given by telecommunication operator?
 
-We support that as well.  It is just more common to have the physical
-DCE generate the clock for both sides to use (such as when you are
-connected to a modem or DSU/CSU).  I generally only put internal clocking
-on both sides when I'm using FM0 line encoding.
+Thank you for any response.
 
-> BTW, some specifications provide a third sense of DTE and DCE in terms 
-> of connector definition.
->  
-> Thus it is possible to use a DCE connector on the interface that is a 
-> DTE in the clock sense and a DCE in the protocol sense.
+Best regards
+Daniel Ferenci.
 
-When you say the DCE is "DTE in the clock sense", do you mean it's
-externally clocked?  (And you didn't like my arbitrary selection of DTE
-as externally clocked above ;-)
 
-Just to be clear, there's the selection of:
-	- physical DTE versus physical DCE
-	- logical DTE versus logical DTE
-	- who will provide the clock
-All three of these are independently chosen.  You can mix and match
-and get lots of combinations.
 
-	Steve
 
-------------------------------------------------------------------------
-Steve Schefter                               phone: +1 705 725 9999 x26
-The Software Group Limited		       fax: +1 705 725 9666
-642 Welham Road, 			     email: steve@wanware.com
-Barrie, Ontario CANADA  L4N 9A1 	       Web: www.wanware.com
+
+
 
