@@ -1,29 +1,41 @@
-From: "=?iso-8859-1?Q?Alejandro_N=E9stor_Vargas?=" <anv@xnetcuyo.com.ar>
-Subject: linux-x25 / cisco
-Date: Mon, 15 Apr 2002 19:36:35 -0300 (ART)
+From: Prasanna Kumar K <kumarkp@knowsys.net>
+Subject: Blocking write and read on X.25 sockets
+Date: Mon, 22 Apr 2002 11:46:23 +0530
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <64722.64.76.47.58.1018910195.squirrel@webmail.xnetcuyo.com.ar>
-References: <20020415163327Z312980-22651+7375@vger.kernel.org>
+Message-ID: <3CC3AAB7.5000009@knowsys.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <20020415163327Z312980-22651+7375@vger.kernel.org>
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
 To: linux-x25@vger.kernel.org
 
-Hello. I need to connect one program to a x25 address. I can do it in v=
-arious
-ways but the best will be connecting the linux server to a X25 router u=
-sing
-XOT. Is there any way to do this? What do I need? My kernel has the the
-module "x25" already compiled.
+Hi Group,
 
---=20
-Alejandro N=E9stor Vargas
-anv@xnetcuyo.com.ar
-ICQ: 20528995.
-Departamento de Desarrollo
-X Net Cuyo S.A.
+    I have a strange problem in using the X.25 under linux. I have a 
+server listenining on x.25 socket and a x.25 client sending data to the 
+server. The client writes data in a chunk of 256 bytes in a while loop 
+and the server stores the data received to a file. Things work fine for 
+sometime. But, after successfully transferring some data (size varies 
+from about 50k to 500k) the write call at the client and the read call 
+at the server both blocks. After certain time, both come out indicating 
+"Network unreachable" (error number 101).
+
+    I also observe that the server has received about 20k data less that 
+what is successfully written by the client!
+
+    Can anyone help me in identifying what's going wrong!? Here are the 
+details on my environmet:
+
+NET4: LAPB for Linux. Version 0.01 for NET4.0 
+
+X.25 for Linux. Version 0.2 for Linux 2.1.15
+LAPB Ethernet driver version 0.01
+Redhat Linux: 2.4.2-2
+X.25 server address: 123451234512345
+x.25 client address: 123451234512344
+
+Thanks and regards,
+:)Prasanna
 
 
