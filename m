@@ -1,49 +1,53 @@
-From: "M.Sivabalarajan" <pmrsiva@thinkbn.com>
-Subject: RE: Getting X.25 running
-Date: Fri, 12 Apr 2002 09:59:57 +0530
+From: "Ian Cass" <ian.cass@mblox.com>
+Subject: Re: Getting X.25 running
+Date: Fri, 12 Apr 2002 17:41:08 +0100
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <002a01c1e1da$b3878dd0$791ba8c0@PMRSIVA>
-References: <5.1.0.14.0.20020411150524.035b9ec0@mail.etinc.com>
+Message-ID: <025601c1e240$d92528c0$6602a8c0@salamander>
+References: <5.1.0.14.0.20020411150524.035b9ec0@mail.etinc.com> <5.1.0.14.0.20020412122928.00acc080@mail.etinc.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <5.1.0.14.0.20020411150524.035b9ec0@mail.etinc.com>
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-x25@vger.kernel.org
-Cc: Dennis <dennis@etinc.com>
+To: "M.Sivabalarajan" <pmrsiva@thinkbn.com>, linux-x25@vger.kernel.org, Dennis <dennis@etinc.com>
 
-Hi,
-I have something but I don't know whether the following is useful for you or
-not.
+We're using X25 here successfully with Cyclades sync cards & also with XOT.
+I can help with specific problems where possible.
 
-http://www.etinc.com/x25man.htm
-http://www.baty.hanse.de/
+--
+Ian Cass
 
-Kindly search using www.google.com for more information!
-
-
-Best regards,
-Sivabalarajan M
-
------Original Message-----
-From: linux-x25-owner@vger.kernel.org
-[mailto:linux-x25-owner@vger.kernel.org]On Behalf Of Dennis
-Sent: Friday, April 12, 2002 12:37 AM
-To: linux-x25@vger.kernel.org
+----- Original Message -----
+From: "Dennis" <dennis@etinc.com>
+To: "M.Sivabalarajan" <pmrsiva@thinkbn.com>; <linux-x25@vger.kernel.org>
+Sent: Friday, April 12, 2002 5:32 PM
 Subject: RE: Getting X.25 running
 
-are there any docs on installing and using the linux x.25 stack with a
-generic sync board?
 
-Also, where can the latest x25d and pad software be found?
-
-Thanks
-
-Dennis
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-x25" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> At 12:29 AM 04/12/2002, M.Sivabalarajan wrote:
+> >Hi,
+> >I have something but I don't know whether the following is useful for you
+or
+> >not.
+> >
+> >http://www.etinc.com/x25man.htm
+> >http://www.baty.hanse.de/
+>
+> wow..pointing me back to my own web site! But the other link is
+> useful..however it doesnt seem that current. Is ANYONE working on or
+> interested in X.25 in linux currently? Is there enough market to justify
+> making it all work?
+>
+> There dont seem to be any drivers that support x25 with the linux hdlc
+> module. Does it work?
+>
+> Thanks,
+>
+> Dennis
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-x25" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
