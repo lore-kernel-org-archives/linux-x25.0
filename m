@@ -1,9 +1,9 @@
 From: Andrew Hendry <ahendry@tusc.com.au>
-Subject: X.25 : Debug: sleeping function called from invalid context at
-	net/core/sock.c:1203
-Date: Mon, 25 Oct 2004 10:10:30 +1000
+Subject: [PATCH TRIVIAL 2.6.8.1] X.25 : Stop x25_destroy_socket timer
+	looping
+Date: Mon, 25 Oct 2004 10:10:44 +1000
 Sender: linux-x25-owner@vger.kernel.org
-Message-ID: <1098663030.3099.162.camel@localhost.localdomain>
+Message-ID: <1098663044.3099.164.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
@@ -12,60 +12,26 @@ Content-Type: text/plain; charset="us-ascii"
 To: linux-x25@vger.kernel.org, eis@baty.hanse.de
 Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
 
-2.6.8.1
 
-When called from x25_heartbeat_expiry, x25_destroy_socket trips the
-following:
+The sk_timer.data for the x.25 destroy_socket timer went missing at some
+stage, causing a timer loop where x25_destroy_socket would keep setting
+up timers to call itself.
 
-Oct 20 12:19:01 localhost kernel: Debug: sleeping function called from
-invalid context at net/core/sock.c:1203
-Oct 20 12:19:01 localhost kernel: in_atomic():1, irqs_disabled():0
-Oct 20 12:19:01 localhost kernel:  [<c0117e55>] __might_sleep+0x9a/0xa2
-Oct 20 12:19:01 localhost kernel:  [<c025964e>] lock_sock+0x12/0x3d
-Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
-x25_heartbeat_expiry+0x0/0x4d [x25]
-Oct 20 12:19:01 localhost kernel:  [<f899d3e2>]
-x25_destroy_socket+0x10/0xd5 [x25]
-Oct 20 12:19:01 localhost kernel:  [<f89a1a1e>]
-x25_heartbeat_expiry+0x0/0x4d [x25]
-Oct 20 12:19:01 localhost kernel:  [<c01202f4>]
-run_timer_softirq+0xa1/0x13c
-Oct 20 12:19:01 localhost kernel:  [<c0120466>] do_timer+0xcd/0xd2
-Oct 20 12:19:01 localhost kernel:  [<c011ceaf>] __do_softirq+0x77/0x79
-Oct 20 12:19:01 localhost kernel:  [<c011ced7>] do_softirq+0x26/0x28
-Oct 20 12:19:01 localhost kernel:  [<c010749d>] do_IRQ+0xd4/0x107
-Oct 20 12:19:01 localhost kernel:  [<c0105d90>]
-common_interrupt+0x18/0x20
-Oct 20 12:19:01 localhost kernel:  [<c01da7ae>]
-acpi_processor_idle+0xd4/0x1c7
-Oct 20 12:19:01 localhost kernel:  [<c010409b>] cpu_idle+0x2c/0x35
-Oct 20 12:19:01 localhost kernel:  [<c034c655>] start_kernel+0x163/0x19f
-Oct 20 12:19:01 localhost kernel:  [<c034c2cf>]
-unknown_bootoption+0x0/0x144
+Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
 
-Looking at other protocols setup the same way, rose and ax25 dont have
-the lock_sock in destroy. Is the lock_sock needed here?
 
 diff -up linux-2.6.8.1/net/x25/af_x25.c.orig
 linux-2.6.8.1/net/x25/af_x25.c
 --- linux-2.6.8.1/net/x25/af_x25.c.orig 2004-10-25 08:49:40.780391664
 +1000
-+++ linux-2.6.8.1/net/x25/af_x25.c      2004-10-25 09:47:02.578158872
++++ linux-2.6.8.1/net/x25/af_x25.c      2004-10-25 09:08:22.797819088
 +1000
-@@ -322,7 +322,6 @@ void x25_destroy_socket(struct sock *sk)
-        struct sk_buff *skb;
-  
-        sock_hold(sk);
--       lock_sock(sk);
-        x25_stop_heartbeat(sk);
-        x25_stop_timer(sk);
-  
-@@ -353,7 +352,6 @@ void x25_destroy_socket(struct sock *sk)
-                __sock_put(sk);
-        }
-  
--       release_sock(sk);
-        sock_put(sk);
- }
-
+@@ -347,6 +347,7 @@ void x25_destroy_socket(struct sock *sk)
+                /* Defer: outstanding buffers */
+                sk->sk_timer.expires  = jiffies + 10 * HZ;
+                sk->sk_timer.function = x25_destroy_timer;
++               sk->sk_timer.data = (unsigned long)sk;
+                add_timer(&sk->sk_timer);
+        } else {
+                /* drop last reference so sock_put will free */
 
