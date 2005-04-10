@@ -1,25 +1,77 @@
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Subject: Re: x25_create initializing socket data twice ...
-Date: Thu, 3 Mar 2005 16:37:13 -0300
-Message-ID: <20050303193712.GC1587@cathedrallabs.org>
-References: <20050303011413.GB11516@mail.13thfloor.at> <1109820054.3014.146.camel@localhost.localdomain>
+From: Michael Flower <michael@windsurfwa.com>
+Subject: [PATCH 2.6.11.7] x25: Call accept with call request CUD
+Date: Sun, 10 Apr 2005 16:52:29 +1000
+Message-ID: <1113115949.3438.9.camel@mcf>
 Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1109820054.3014.146.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-x25-owner@vger.kernel.org>
+Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Andrew Hendry <ahendry@tusc.com.au>
-Cc: Herbert Poetzl <herbert@13thfloor.at>, eis@baty.hanse.de, linux-x25@vger.kernel.org, Linux Kernel ML <linux-kernel@vger.kernel.org>
+To: eis@baty.hanse.de, linux-x25@vger.kernel.org
 
-Hi,
-> On the same path sk_set_owner also gets called twice, I think this
-> causes double module use count when creating sockets. Module use count
-> need some attention all over x25.
-I'm working on it already. I hope to send patches soon.
+I believe that I have found a bug in the X25 code in the kernel and have
+attached a simple patch.
 
-Is linux-x25 list alive? if not, perhaps we should add netdev to Cc.
+An incoming x25 connecton request with call user data (CUD) generates  a
+call accept with a copy of the user data in the packet.
 
---
-Aristeu
+I do not believe that the X25 spec allows such a call accept
+packet.
+
+The problem arose using XOT from a linux box, through a cisco router
+(doing the de-encapsulation) and forwarding to a telecom switch via X25.
+
+When switch tried to connect to the Linux box the router encapsulated
+the connection request into an XOT packet and sent it to the linux box.
+
+The connection request had CUD.
+
+The linux box (running xotd), de-encapsulated the packet, and routed it
+to X25.
+
+The X25 system sent a call accept packet back to the router
+(XOT encapsulated) which had the original CUD inside the packet.
+
+The router immediately barfed, and sent a clear request back
+to the linux box and the switch.  The Cisco router complained
+that the X25 call acknowledgement packet was too long in its debug log.
+
+It seems reasonable that it did barf. I am not sure that sending the CUD
+back with the connect accept packet makes sense, and the
+only reference I can find on the X25 protocol doesn't allow for
+CUD in call accept packets.
+
+The fix is to remove the offending four lines of code in X25_utilities.c
+that append the CUD to the call acknowledgement packet. It certainly
+fixes the problems described above with cisco routers.
+
+The XOT stuff, lately ported to 2.6 by Andrew Hendry
+(ahendry@tusc.com.au) appears to be very useful in a telecoms arena.
+There are some issues with x25 module useage counting, that I will 
+fix ASAP. I hope that all this can then be integrated into future
+kernels.
+
+The patch
+
+--- linux-2.6.11.7/net/x25/x25_subr.c	2005-04-08 04:57:26.000000000
++1000
++++ linux-2.6.11.7_new/net/x25/x25_subr.c	2005-04-08 17:46:32.591950835
++1000
+@@ -203,10 +203,6 @@
+ 							x25->vc_facil_mask);
+ 			dptr    = skb_put(skb, len);
+ 			memcpy(dptr, facilities, len);
+-			dptr = skb_put(skb,x25->calluserdata.cudlength);
+-			memcpy(dptr, x25->calluserdata.cuddata,
+-			       x25->calluserdata.cudlength);
+-			x25->calluserdata.cudlength = 0;
+ 			break;
+ 
+ 		case X25_CLEAR_REQUEST:
+
+Michael Flower
+
+mcf-tech@windsurfwa.com
+
+
