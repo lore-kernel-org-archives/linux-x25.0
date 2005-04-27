@@ -1,286 +1,398 @@
-From: Shaun Pereira <spereira@tusc.com.au>
-Subject: [PATCH 2/2 - 2.6.11.7] x25: Fast select with no restriction on
-	response
-Date: Wed, 20 Apr 2005 13:17:40 +1000
-Message-ID: <1113967060.9336.5.camel@spereira05.tusc.com.au>
-Reply-To: spereira@tusc.com.au
+From: Andrew Hendry <ahendry@tusc.com.au>
+Subject: [PATCH] 2.6.11.7  X.25 : x25tap
+Date: Wed, 27 Apr 2005 14:39:24 +1000
+Message-ID: <1114576764.4789.36.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
 Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-x25 <linux-x25@vger.kernel.org>
-Cc: linux-kenel <linux-kernel@vger.kernel.org>, x25 maintainer <eis@baty.hanse.de>
+To: linux-x25@vger.kernel.org, eis@baty.hanse.de
+Cc: linux-kernel@vger.kernel.org
 
-Hi
-This patch is a follow up to the 'resend' version of the "Selective Sub Address
-matching with call user data" patch. It allows use of the Fast-Select-Acceptance 
-optional user facility for X.25. This patch just implements fast select with no 
-restriction on response (NRR). What this means (according to ITU-T 
-Recomendation 10/96 section 6.16) is that if in an incoming call packet, 
-the relevant facility bits are set for fast-select-NRR, then the called DTE can
-issue a direct response to the incoming packet using a call-accepted packet that
-contains call-user-data. This patch allows such a response. 
 
-The called DTE can also respond with a clear-request packet that contains 
-call-user-data. However, this feature is currently not implemented by the patch.
+Adds an x25tap module, like ethertap for X.25.
 
-How is Fast Select Accetance used?
-By default, the system does not allow fast select acceptance (as before).
-To enable a response to fast select acceptance,  
-After a listen socket in created and bound as follows
-	socket(AF_X25, SOCK_SEQPACKET, 0);
-	bind(call_soc, (struct sockaddr *)&locl_addr, sizeof(locl_addr));
-but before a listen system call is made, the following ioctl should be used.
-	ioctl(call_soc,SIOCX25CALLACCPTAPPRV);
-Now the listen system call can be made
-	listen(call_soc, 4);
-After this, an incoming-call packet will be accepted, but no call-accepted 
-packet will be sent back until the following system call is made on the socket
-that accepts the call
-	ioctl(vc_soc,SIOCX25SENDCALLACCPT);
-The network (or cisco xot router used for testing here) will allow the 
-application server's call-user-data in the call-accepted packet, 
-provided the call-request was made with Fast-select NRR.
+This allows X.25 to be done in userspace, and in particular 
+X.25 over TCP (XOT RFC1613) when used with a userspace 
+XOT daemon.
 
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/include/linux/x25.h linux-2.6.11.7/include/linux/x25.h
---- linux-2.6.11.7-vanilla/include/linux/x25.h	2005-04-20 12:48:50.000000000 +1000
-+++ linux-2.6.11.7/include/linux/x25.h	2005-04-20 12:49:40.000000000 +1000
-@@ -19,6 +19,8 @@
- #define	SIOCX25SCALLUSERDATA	(SIOCPROTOPRIVATE + 5)
- #define	SIOCX25GCAUSEDIAG	(SIOCPROTOPRIVATE + 6)
- #define SIOCX25SCUDMATCHLEN	(SIOCPROTOPRIVATE + 7)
-+#define SIOCX25CALLACCPTAPPRV   (SIOCPROTOPRIVATE + 8)
-+#define SIOCX25SENDCALLACCPT    (SIOCPROTOPRIVATE + 9)
+Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/drivers/net/Kconfig linux-2.6.11.7/drivers/net/Kconfig
+--- linux-2.6.11.7-vanilla/drivers/net/Kconfig	2005-04-08 04:58:17.000000000 +1000
++++ linux-2.6.11.7/drivers/net/Kconfig	2005-04-15 12:32:42.000000000 +1000
+@@ -128,6 +128,24 @@ config ETHERTAP
  
- /*
-  *	Values for {get,set}sockopt.
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/include/net/x25.h linux-2.6.11.7/include/net/x25.h
---- linux-2.6.11.7-vanilla/include/net/x25.h	2005-04-20 12:48:50.000000000 +1000
-+++ linux-2.6.11.7/include/net/x25.h	2005-04-20 12:49:40.000000000 +1000
-@@ -78,6 +78,8 @@ enum {
- #define	X25_DEFAULT_PACKET_SIZE	X25_PS128		/* Default Packet Size */
- #define	X25_DEFAULT_THROUGHPUT	0x0A			/* Deafult Throughput */
- #define	X25_DEFAULT_REVERSE	0x00			/* Default Reverse Charging */
-+#define X25_DENY_ACCPT_APPRV   0x01			/* Default value */
-+#define X25_ALLOW_ACCPT_APPRV  0x00			/* Control enabled */
+ 	  If you don't know what to use this for, you don't need it.
  
- #define X25_SMODULUS 		8
- #define	X25_EMODULUS		128
-@@ -93,7 +95,7 @@ enum {
- #define	X25_FAC_CLASS_C		0x80
- #define	X25_FAC_CLASS_D		0xC0
- 
--#define	X25_FAC_REVERSE		0x01
-+#define	X25_FAC_REVERSE		0x01			/* also fast select */
- #define	X25_FAC_THROUGHPUT	0x02
- #define	X25_FAC_PACKET_SIZE	0x42
- #define	X25_FAC_WINDOW_SIZE	0x43
-@@ -133,7 +135,7 @@ struct x25_opt {
- 	struct x25_address	source_addr, dest_addr;
- 	struct x25_neigh	*neighbour;
- 	unsigned int		lci, cudmatchlength;
--	unsigned char		state, condition, qbitincl, intflag;
-+	unsigned char		state, condition, qbitincl, intflag, accptapprv;
- 	unsigned short		vs, vr, va, vl;
- 	unsigned long		t2, t21, t22, t23;
- 	unsigned short		fraglen;
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/net/x25/af_x25.c linux-2.6.11.7/net/x25/af_x25.c
---- linux-2.6.11.7-vanilla/net/x25/af_x25.c	2005-04-20 12:48:50.000000000 +1000
-+++ linux-2.6.11.7/net/x25/af_x25.c	2005-04-20 12:49:40.000000000 +1000
-@@ -31,6 +31,8 @@
-  *					x25_proc.c, using seq_file
-  *	2005-04-02	Shaun Pereira	Selective sub address matching
-  *					with call user data
-+ *	2005-04-15	Shaun Pereira	Fast select with no restriction on
-+ *					response
-  */
- 
- #include <linux/config.h>
-@@ -509,6 +511,8 @@ static int x25_create(struct socket *soc
- 	x25->t2    = sysctl_x25_ack_holdback_timeout;
- 	x25->state = X25_STATE_0;
- 	x25->cudmatchlength = 0;
-+	x25->accptapprv = X25_DENY_ACCPT_APPRV;		/* normally no cud  */
-+							/* on call accept   */
- 
- 	x25->facilities.winsize_in  = X25_DEFAULT_WINDOW_SIZE;
- 	x25->facilities.winsize_out = X25_DEFAULT_WINDOW_SIZE;
-@@ -554,6 +558,7 @@ static struct sock *x25_make_new(struct 
- 	x25->facilities = ox25->facilities;
- 	x25->qbitincl   = ox25->qbitincl;
- 	x25->cudmatchlength = ox25->cudmatchlength;
-+	x25->accptapprv = ox25->accptapprv;
- 
- 	x25_init_timers(sk);
- out:
-@@ -903,9 +908,11 @@ int x25_rx_call_request(struct sk_buff *
- 	makex25->vc_facil_mask &= ~X25_MASK_REVERSE;
- 	makex25->cudmatchlength = x25_sk(sk)->cudmatchlength;
- 
--	x25_write_internal(make, X25_CALL_ACCEPTED);
--
--	makex25->state = X25_STATE_3;
-+	/* Normally all calls are accepted immediatly */
-+	if(makex25->accptapprv & X25_DENY_ACCPT_APPRV) {
-+		x25_write_internal(make, X25_CALL_ACCEPTED);
-+		makex25->state = X25_STATE_3;
++config X25TAP
++	tristate "X.25 network tap"
++	depends on NETDEVICES && EXPERIMENTAL && NETLINK_DEV && X25
++	---help---
++	  This is a very simple X.25 driver. It bounces X.25 level2 frames
++	  to user space and expects X.25 frames to be written back to it.
++
++	  Connection state handling is left to the user pluged into the tap
++	  as explained in Documentation/networking/x25-iface.txt
++
++	  As this is an X.25 level 2 device you can use it for user level
++	  drivers and for building bridging tunnels (XOT).
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called x25tap.
++
++	  If your using xotd or similar program say N.
++
+ config NET_SB1000
+ 	tristate "General Instruments Surfboard 1000"
+ 	depends on NETDEVICES && PNP
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/drivers/net/Makefile linux-2.6.11.7/drivers/net/Makefile
+--- linux-2.6.11.7-vanilla/drivers/net/Makefile	2005-04-08 04:57:27.000000000 +1000
++++ linux-2.6.11.7/drivers/net/Makefile	2005-04-15 12:33:04.000000000 +1000
+@@ -69,6 +69,7 @@ obj-$(CONFIG_HAMACHI) += hamachi.o
+ obj-$(CONFIG_NET) += Space.o loopback.o
+ obj-$(CONFIG_SEEQ8005) += seeq8005.o
+ obj-$(CONFIG_ETHERTAP) += ethertap.o
++obj-$(CONFIG_X25TAP) += x25tap.o
+ obj-$(CONFIG_NET_SB1000) += sb1000.o
+ obj-$(CONFIG_MAC8390) += mac8390.o 8390.o
+ obj-$(CONFIG_APNE) += apne.o 8390.o
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/drivers/net/x25tap.c linux-2.6.11.7/drivers/net/x25tap.c
+--- linux-2.6.11.7-vanilla/drivers/net/x25tap.c	1970-01-01 10:00:00.000000000 +1000
++++ linux-2.6.11.7/drivers/net/x25tap.c	2005-04-15 12:33:34.000000000 +1000
+@@ -0,0 +1,331 @@
++/*
++ *	X.25: A network device for bouncing x.25 frames via user space
++ *
++ *	X.25tap is cloned from ethertap.
++ *
++ *	This is a very simple X.25 driver. It bounces X.25 frames
++ *	to user space on x25tapX and expects X.25 frames to be written
++ *	back to it.
++ *
++ *	As this is an X.25 level 2 device you can use it for user level drivers
++ *	even for building bridging tunnels (XOT).
++ *
++ *	Original version, August 1998 sfillod@charybde.gyptis.frmug.org
++ *	2.6 version, October 2004 ahendry@tusc.com.au
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/kernel.h>
++#include <linux/jiffies.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++
++#include <linux/netdevice.h>
++#include <linux/inetdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/skbuff.h>
++#include <linux/init.h>
++
++#include <net/sock.h>
++#include <linux/netlink.h>
++#include <linux/if_arp.h>
++
++/*
++ *	Index to functions.
++ */
++
++static int  x25tap_open(struct net_device *dev);
++static int  x25tap_start_xmit(struct sk_buff *skb, struct net_device *dev);
++static int  x25tap_close(struct net_device *dev);
++static struct net_device_stats *x25tap_get_stats(struct net_device *dev);
++static void x25tap_rx(struct sock *sk, int len);
++
++static int x25tap_debug = 0;
++
++static int max_taps = 1;
++module_param(max_taps, int, 0);
++MODULE_PARM_DESC(max_taps,"Max number of x25 tap devices");
++
++static struct net_device **tap_map;	/* Returns the tap device for a given netlink */
++
++/*
++ *	Board-specific info in dev->priv.
++ */
++
++struct net_local
++{
++	struct sock	*nl;
++	struct net_device_stats stats;
++};
++
++/*
++ *	To call this a probe is a bit misleading, however for real
++ *	hardware it would have to check what was present.
++ */
++static int  __init x25tap_probe(int unit)
++{
++	struct net_device *dev;
++	int err = -ENOMEM;
++
++	dev = alloc_etherdev(sizeof(struct net_local));
++
++	if (!dev)
++		goto out;
++
++	SET_MODULE_OWNER(dev);
++
++	sprintf(dev->name, "x25tap%d", unit);
++	dev->base_addr = unit + NETLINK_TAPBASE;
++
++	netdev_boot_setup_check(dev);
++
++	memcpy(dev->dev_addr, "\xFE\xFD\x00\x00\x00\x00", 6);
++	if (dev->mem_start & 0xf)
++		x25tap_debug = dev->mem_start & 0x7;
++
++	/*
++	 *	The tap specific entries in the device structure.
++	 */
++
++	dev->open = x25tap_open;
++	dev->hard_start_xmit = x25tap_start_xmit;
++	dev->stop = x25tap_close;
++	dev->get_stats = x25tap_get_stats;
++
++	dev->flags|=IFF_NOARP;
++	dev->mtu = 1024;
++	dev->hard_header_len = 1;
++	dev->addr_len = 0;
++	dev->type = ARPHRD_X25;
++	dev->tx_queue_len = 10;
++
++	err = register_netdev(dev);
++	if (err)
++		goto out_free;
++
++	tap_map[unit]=dev;
++	return 0;
++out_free:
++	free_netdev(dev);
++out:
++	return err;
++}
++
++/*
++ *	Open/initialize the board.
++ */
++
++static int x25tap_open(struct net_device *dev)
++{
++	struct net_local *lp = netdev_priv(dev);
++
++	if (x25tap_debug > 2)
++		printk(KERN_DEBUG "%s: Doing x25tap_open()...\n", dev->name);
++
++	lp->nl = netlink_kernel_create(dev->base_addr, x25tap_rx);
++	if (lp->nl == NULL)
++		return -ENOBUFS;
++
++	netif_start_queue(dev);
++	return 0;
++}
++
++/*
++ *	We transmit by throwing the packet at netlink. We have to clone
++ *	it for 2.0 so that we dev_kfree_skb() the locked original.
++ */
++
++static int x25tap_start_xmit(struct sk_buff *skb, struct net_device *dev)
++{
++	struct net_local *lp = netdev_priv(dev);
++
++	/* Make the same thing, which loopback does. */
++	if (skb_shared(skb)) {
++	  	struct sk_buff *skb2 = skb;
++	  	skb = skb_clone(skb, GFP_ATOMIC);	/* Clone the buffer */
++	  	if (skb==NULL) {
++			dev_kfree_skb(skb2);
++			lp->stats.tx_dropped++;
++			return 0;
++		}
++	  	dev_kfree_skb(skb2);
 +	}
- 
- 	/*
- 	 *	Incoming Call User Data.
-@@ -1297,7 +1304,8 @@ static int x25_ioctl(struct socket *sock
- 			if (facilities.throughput < 0x03 ||
- 			    facilities.throughput > 0xDD)
- 				break;
--			if (facilities.reverse && facilities.reverse != 1)
-+			if (facilities.reverse &&
-+				(facilities.reverse | 0x81)!= 0x81)
- 				break;
- 			x25->facilities = facilities;
- 			rc = 0;
-@@ -1351,6 +1359,27 @@ static int x25_ioctl(struct socket *sock
- 			break;
- 		}
- 
-+		case SIOCX25CALLACCPTAPPRV: {
-+			rc = -EINVAL;
-+			if (sk->sk_state != TCP_CLOSE)
-+				break;
-+			x25->accptapprv = X25_ALLOW_ACCPT_APPRV;
-+			rc = 0;
++	switch (skb->data[0])
++	{
++		case 0x00:	/* Data request */
++			lp->stats.tx_bytes+=skb->len -1;
++			lp->stats.tx_packets++;
++			break;
++		case 0x01:	/* Connection request, do nothing */
++			if (x25tap_debug > 1)
++				printk(KERN_DEBUG "x25tap_start_xmit: "
++					"Connection request\n");
++			break;
++		case 0x02:	/* Disconnect request */
++			if (x25tap_debug > 1)
++				printk(KERN_DEBUG "x25tap_start_xmit: "
++					"Disconnect request\n");
++			break;
++		case 0x03:	/* changing lapb parameters requested */
++			printk(KERN_DEBUG "x25tap_start_xmit: setting of "
++				"options not supported\n");
++			break;
++		default:
++			printk(KERN_DEBUG "x25tap_start_xmit: "
++				"unknown firstbyte\n");
++			lp->stats.tx_dropped++;
++			kfree_skb(skb);
++			return -1;
++			break;
++	}
++
++	netlink_broadcast(lp->nl, skb, 0, ~0, GFP_ATOMIC);
++
++	return 0;
++}
++
++static __inline__ int x25tap_rx_skb(struct sk_buff *skb, struct net_device *dev)
++{
++	struct net_local *lp = netdev_priv(dev);
++	int len = skb->len;
++
++
++	if (len < 1) {
++		printk(KERN_DEBUG "%s : rx len = %d\n", dev->name, len);
++		kfree_skb(skb);
++		lp->stats.rx_errors++;
++		return -EINVAL;
++	}
++	if (NETLINK_CREDS(skb)->uid) {
++		printk(KERN_INFO "%s : user %d\n", dev->name, NETLINK_CREDS(skb)->uid);
++		kfree_skb(skb);
++		return -EPERM;
++	}
++
++	if (skb_shared(skb)) {
++	  	struct sk_buff *skb2 = skb;
++	  	skb = skb_clone(skb, GFP_KERNEL);	/* Clone the buffer */
++	  	if (skb==NULL) {
++			kfree_skb(skb2);
++			lp->stats.rx_dropped++;
++			return -ENOBUFS;
++		}
++	  	kfree_skb(skb2);
++	} else
++		skb_orphan(skb);
++
++	skb->dev = dev;
++	skb->protocol=htons(ETH_P_X25);
++	skb->mac.raw = skb->data;
++	skb->pkt_type = PACKET_HOST;
++	memset(skb->cb, 0, sizeof(skb->cb));
++
++	if (skb->data[0] == 0) {
++		lp->stats.rx_packets++;
++		lp->stats.rx_bytes+=len;
++	}
++
++	netif_rx(skb);
++	dev->last_rx = jiffies;
++	return len;
++}
++
++/*
++ *	The typical workload of the driver:
++ *	Handle the ether interface interrupts.
++ *
++ *	(In this case handle the packets posted from user space..)
++ */
++
++static void x25tap_rx(struct sock *sk, int len)
++{
++	unsigned unit = sk->sk_protocol - NETLINK_TAPBASE;
++	struct net_device *dev;
++	struct sk_buff *skb;
++
++	if (unit >= max_taps || (dev = tap_map[unit]) == NULL) {
++		printk(KERN_CRIT "x25tap: bad unit %u!\n", unit);
++		skb_queue_purge(&sk->sk_receive_queue);
++		return;
++	}
++
++	if (x25tap_debug > 3)
++		printk(KERN_DEBUG "%s: x25tap_rx() %d\n", dev->name, len);
++
++	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL)
++		x25tap_rx_skb(skb, dev);
++}
++
++static int x25tap_close(struct net_device *dev)
++{
++	struct net_local *lp = netdev_priv(dev);
++	struct sock *sk = lp->nl;
++
++	if (x25tap_debug > 2)
++		printk(KERN_DEBUG "%s: Shutting down.\n", dev->name);
++
++	netif_stop_queue(dev);
++
++	if (sk) {
++		lp->nl = NULL;
++		sock_release(sk->sk_socket);
++	}
++
++	return 0;
++}
++
++static struct net_device_stats *x25tap_get_stats(struct net_device *dev)
++{
++	struct net_local *lp = netdev_priv(dev);
++	return &lp->stats;
++}
++
++
++int __init x25tap_init(void)
++{
++	int i, err = 0;
++
++	/* netlink can only hande 16 entries unless modified */
++	if (max_taps > MAX_LINKS - NETLINK_TAPBASE)
++		return -E2BIG;
++
++	tap_map = kmalloc(sizeof(struct net_device *)*max_taps, GFP_KERNEL);
++	if (!tap_map)
++		return -ENOMEM;
++
++	for (i = 0; i < max_taps; i++) {
++		err = x25tap_probe(i);
++		if (err) {
++			while (--i > 0) {
++				unregister_netdev(tap_map[i]);
++				free_netdev(tap_map[i]);
++			}
 +			break;
 +		}
++	}
++	if (err)
++		kfree(tap_map);
++	return err;
++}
++module_init(x25tap_init);
 +
-+		case SIOCX25SENDCALLACCPT:  {
-+			rc = -EINVAL;
-+			if (sk->sk_state != TCP_ESTABLISHED)
-+				break;
-+			if (x25->accptapprv)	/* must call accptapprv above */
-+				break;
-+			x25_write_internal(sk, X25_CALL_ACCEPTED);
-+			x25->state = X25_STATE_3;
-+			rc = 0;
-+			break;
++void __exit x25tap_cleanup(void)
++{
++	int i;
++
++	for (i = 0; i < max_taps; i++) {
++		struct net_device *dev = tap_map[i];
++		if (dev) {
++			tap_map[i] = NULL;
++			unregister_netdev(dev);
++			free_netdev(dev);
 +		}
++	}
++	kfree(tap_map);
++}
++module_exit(x25tap_cleanup);
 +
-  		default:
- 			rc = dev_ioctl(cmd, argp);
- 			break;
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/net/x25/x25_facilities.c linux-2.6.11.7/net/x25/x25_facilities.c
---- linux-2.6.11.7-vanilla/net/x25/x25_facilities.c	2005-04-08 04:57:43.000000000 +1000
-+++ linux-2.6.11.7/net/x25/x25_facilities.c	2005-04-20 12:49:40.000000000 +1000
-@@ -17,6 +17,8 @@
-  *	X.25 001	Split from x25_subr.c
-  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities 
-  *					  negotiation.
-+ *	apr/14/05	Shaun Pereira - Allow fast select with no restriction
-+ *					on response.
-  */
- 
- #include <linux/kernel.h>
-@@ -42,10 +44,32 @@ int x25_parse_facilities(struct sk_buff 
- 		switch (*p & X25_FAC_CLASS_MASK) {
- 		case X25_FAC_CLASS_A:
- 			switch (*p) {
--			case X25_FAC_REVERSE:
--				facilities->reverse = p[1] & 0x01;
--				*vc_fac_mask |= X25_MASK_REVERSE;
--				break;
-+			case X25_FAC_REVERSE:
-+				if((p[1] & 0x81) == 0x81) {
-+					facilities->reverse = p[1] & 0x81;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if((p[1] & 0x01) == 0x01) {
-+					facilities->reverse = p[1] & 0x01;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if((p[1] & 0x80) == 0x80) {
-+					facilities->reverse = p[1] & 0x80;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if(p[1] == 0x00) {
-+					facilities->reverse
-+						= X25_DEFAULT_REVERSE;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
- 			case X25_FAC_THROUGHPUT:
- 				facilities->throughput = p[1];
- 				*vc_fac_mask |= X25_MASK_THROUGHPUT;
-@@ -122,7 +146,7 @@ int x25_create_facilities(unsigned char 
- 
- 	if (facilities->reverse && (facil_mask & X25_MASK_REVERSE)) {
- 		*p++ = X25_FAC_REVERSE;
--		*p++ = !!facilities->reverse;
-+		*p++ = facilities->reverse;
- 	}
- 
- 	if (facilities->throughput && (facil_mask & X25_MASK_THROUGHPUT)) {
-@@ -171,7 +195,7 @@ int x25_negotiate_facilities(struct sk_b
- 	/*
- 	 *	They want reverse charging, we won't accept it.
- 	 */
--	if (theirs.reverse && ours->reverse) {
-+	if ((theirs.reverse & 0x01 ) && (ours->reverse & 0x01)) {
- 		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request");
- 		return -1;
- 	}
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/net/x25/x25_subr.c linux-2.6.11.7/net/x25/x25_subr.c
---- linux-2.6.11.7-vanilla/net/x25/x25_subr.c	2005-04-20 12:48:50.000000000 +1000
-+++ linux-2.6.11.7/net/x25/x25_subr.c	2005-04-20 12:49:40.000000000 +1000
-@@ -19,6 +19,8 @@
-  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities
-  *					  negotiation.
-  *	jun/24/01	Arnaldo C. Melo	  use skb_queue_purge, cleanups
-+ *	apr/04/15	Shaun Pereira		Fast select with no
-+ *						restriction on response.
-  */
- 
- #include <linux/kernel.h>
-@@ -127,8 +129,12 @@ void x25_write_internal(struct sock *sk,
- 			len += 1 + X25_ADDR_LEN + X25_MAX_FAC_LEN +
- 			       X25_MAX_CUD_LEN;
- 			break;
--		case X25_CALL_ACCEPTED:
--			len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+		case X25_CALL_ACCEPTED: /* fast sel with no restr on resp */
-+			if(x25->facilities.reverse & 0x80) {
-+				len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+			} else {
-+				len += 1 + X25_MAX_FAC_LEN;
-+			}
- 			break;
- 		case X25_CLEAR_REQUEST:
- 		case X25_RESET_REQUEST:
-@@ -203,9 +209,16 @@ void x25_write_internal(struct sock *sk,
- 							x25->vc_facil_mask);
- 			dptr    = skb_put(skb, len);
- 			memcpy(dptr, facilities, len);
--			dptr = skb_put(skb, x25->calluserdata.cudlength);
--			memcpy(dptr, x25->calluserdata.cuddata,
--			       x25->calluserdata.cudlength);
-+
-+			/* fast select with no restriction on response
-+				allows call user data. Userland must
-+				ensure it is ours and not theirs */
-+			if(x25->facilities.reverse & 0x80) {
-+				dptr = skb_put(skb,
-+					x25->calluserdata.cudlength);
-+				memcpy(dptr, x25->calluserdata.cuddata,
-+				       x25->calluserdata.cudlength);
-+			}
- 			x25->calluserdata.cudlength = 0;
- 			break;
- 
++MODULE_LICENSE("GPL");
 
 
