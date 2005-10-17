@@ -1,28 +1,26 @@
 From: Andrew Hendry <ahendry@tusc.com.au>
-Subject: [PATCH] X25: Add ITU-T facilites
-Date: Mon, 17 Oct 2005 11:27:00 +1000
-Message-ID: <1129512419.3747.42.camel@localhost.localdomain>
+Subject: Re: [PATCH] X25: Add ITU-T facilites
+Date: Mon, 17 Oct 2005 11:47:46 +1000
+Message-ID: <1129513666.3747.50.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932121AbVJQBoy@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-x25-owner@vger.kernel.org>
+Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: eis@baty.hanse.de, linux-x25@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-Adds options for ITU DTE facilites to x.25, called address extension and
+Non line wrapped version..
+Adds options for ITU DTE facilities to x.25, called address extension and
 calling address extension.
 
 Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
 
 
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/linux/x25.h
-linux-2.6.13.4/include/linux/x25.h
---- linux-2.6.13.4-vanilla/include/linux/x25.h	2005-09-17
-11:02:12.000000000 +1000 
-+++ linux-2.6.13.4/include/linux/x25.h	2005-09-26 13:44:39.000000000
-+1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/linux/x25.h linux-2.6.13.4/include/linux/x25.h
+--- linux-2.6.13.4-vanilla/include/linux/x25.h	2005-09-17 11:02:12.000000000 +1000
++++ linux-2.6.13.4/include/linux/x25.h	2005-09-26 13:44:39.000000000 +1000
 @@ -21,6 +21,8 @@
  #define SIOCX25SCUDMATCHLEN	(SIOCPROTOPRIVATE + 7)
  #define SIOCX25CALLACCPTAPPRV   (SIOCPROTOPRIVATE + 8)
@@ -66,10 +64,8 @@ linux-2.6.13.4/include/linux/x25.h
  /*
   *	Call User Data structure.
   */
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/net/x25.h
-linux-2.6.13.4/include/net/x25.h
---- linux-2.6.13.4-vanilla/include/net/x25.h	2005-09-17
-11:02:12.000000000 +1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/net/x25.h linux-2.6.13.4/include/net/x25.h
+--- linux-2.6.13.4-vanilla/include/net/x25.h	2005-09-17 11:02:12.000000000 +1000
 +++ linux-2.6.13.4/include/net/x25.h	2005-09-26 13:44:39.000000000 +1000
 @@ -101,9 +101,19 @@ enum {
  #define	X25_FAC_PACKET_SIZE	0x42
@@ -104,26 +100,17 @@ linux-2.6.13.4/include/net/x25.h
  extern void x25_terminate_link(struct x25_neigh *);
  
  /* x25_facilities.c */
--extern int  x25_parse_facilities(struct sk_buff *, struct
-x25_facilities *, unsigned long *);
--extern int  x25_create_facilities(unsigned char *, struct
-x25_facilities *, unsigned long);
--extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *,
-struct x25_facilities *);
-+extern int  x25_parse_facilities(struct sk_buff *, struct
-x25_facilities *, struct x25_dte_facilities *, unsigned long *);
-+extern int  x25_create_facilities(unsigned char *, struct
-x25_facilities *, struct x25_dte_facilities *, unsigned long);
-+extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *,
-struct x25_facilities *, struct x25_dte_facilities *);
- extern void x25_limit_facilities(struct x25_facilities *, struct
-x25_neigh *);
+-extern int  x25_parse_facilities(struct sk_buff *, struct x25_facilities *, unsigned long *);
+-extern int  x25_create_facilities(unsigned char *, struct x25_facilities *, unsigned long);
+-extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *, struct x25_facilities *);
++extern int  x25_parse_facilities(struct sk_buff *, struct x25_facilities *, struct x25_dte_facilities *, unsigned long *);
++extern int  x25_create_facilities(unsigned char *, struct x25_facilities *, struct x25_dte_facilities *, unsigned long);
++extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *, struct x25_facilities *, struct x25_dte_facilities *);
+ extern void x25_limit_facilities(struct x25_facilities *, struct x25_neigh *);
  
  /* x25_in.c */
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/af_x25.c
-linux-2.6.13.4/net/x25/af_x25.c
---- linux-2.6.13.4-vanilla/net/x25/af_x25.c	2005-09-17
-11:02:12.000000000 +1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/af_x25.c linux-2.6.13.4/net/x25/af_x25.c
+--- linux-2.6.13.4-vanilla/net/x25/af_x25.c	2005-09-17 11:02:12.000000000 +1000
 +++ linux-2.6.13.4/net/x25/af_x25.c	2005-09-26 13:52:55.000000000 +1000
 @@ -513,6 +513,11 @@ static int x25_create(struct socket *soc
  	x25->facilities.pacsize_out = X25_DEFAULT_PACKET_SIZE;
@@ -212,20 +199,15 @@ linux-2.6.13.4/net/x25/af_x25.c
  		case SIOCX25GCALLUSERDATA: {
  			struct x25_calluserdata cud = x25->calluserdata;
  			rc = copy_to_user(argp, &cud,
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_facilities.c
-linux-2.6.13.4/net/x25/x25_facilities.c
---- linux-2.6.13.4-vanilla/net/x25/x25_facilities.c	2005-09-17
-11:02:12.000000000 +1000
-+++ linux-2.6.13.4/net/x25/x25_facilities.c	2005-09-26
-13:44:39.000000000 +1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_facilities.c linux-2.6.13.4/net/x25/x25_facilities.c
+--- linux-2.6.13.4-vanilla/net/x25/x25_facilities.c	2005-09-17 11:02:12.000000000 +1000
++++ linux-2.6.13.4/net/x25/x25_facilities.c	2005-09-26 13:44:39.000000000 +1000
 @@ -28,11 +28,12 @@
  #include <net/x25.h>
  
  /*
-- *	Parse a set of facilities into the facilities structure.
-Unrecognised
-+ *	Parse a set of facilities into the facilities structures.
-Unrecognised
+- *	Parse a set of facilities into the facilities structure. Unrecognised
++ *	Parse a set of facilities into the facilities structures. Unrecognised
   *	facilities are written to the debug log file.
   */
  int x25_parse_facilities(struct sk_buff *skb,
@@ -312,8 +294,7 @@ Unrecognised
 +
 +	if (dte_facs->calling_len && (facil_mask & X25_MASK_CALLING_AE)) {
 +		unsigned bytecount = (dte_facs->calling_len % 2) ?
-+                        dte_facs->calling_len/2+1 :
-dte_facs->calling_len/2;
++                        dte_facs->calling_len/2+1 : dte_facs->calling_len/2;
 +		*p++ = X25_FAC_CALLING_AE;
 +		*p++ = 1 + bytecount;
 +		*p++ = dte_facs->calling_len;
@@ -323,8 +304,7 @@ dte_facs->calling_len/2;
 +
 +	if (dte_facs->called_len && (facil_mask & X25_MASK_CALLED_AE)) {
 +		unsigned bytecount = (dte_facs->called_len % 2) ?
-+                        dte_facs->called_len/2+1 :
-dte_facs->called_len/2;
++                        dte_facs->called_len/2+1 : dte_facs->called_len/2;
 +		*p++ = X25_FAC_CALLED_AE;
 +		*p++ = 1 + bytecount;
 +		*p++ = dte_facs->called_len;
@@ -354,10 +334,8 @@ dte_facs->called_len/2;
  
  	/*
  	 *	They want reverse charging, we won't accept it.
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_in.c
-linux-2.6.13.4/net/x25/x25_in.c
---- linux-2.6.13.4-vanilla/net/x25/x25_in.c	2005-09-17
-11:02:12.000000000 +1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_in.c linux-2.6.13.4/net/x25/x25_in.c
+--- linux-2.6.13.4-vanilla/net/x25/x25_in.c	2005-09-17 11:02:12.000000000 +1000
 +++ linux-2.6.13.4/net/x25/x25_in.c	2005-09-26 13:44:39.000000000 +1000
 @@ -106,6 +106,7 @@ static int x25_state1_machine(struct soc
  			skb_pull(skb, x25_addr_ntoa(skb->data, &source_addr, &dest_addr));
@@ -367,12 +345,9 @@ linux-2.6.13.4/net/x25/x25_in.c
  						      &x25->vc_facil_mask));
  			/*
  			 *	Copy any Call User Data.
-diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_subr.c
-linux-2.6.13.4/net/x25/x25_subr.c
---- linux-2.6.13.4-vanilla/net/x25/x25_subr.c	2005-09-17
-11:02:12.000000000 +1000
-+++ linux-2.6.13.4/net/x25/x25_subr.c	2005-09-26 13:44:39.000000000
-+1000
+diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_subr.c linux-2.6.13.4/net/x25/x25_subr.c
+--- linux-2.6.13.4-vanilla/net/x25/x25_subr.c	2005-09-17 11:02:12.000000000 +1000
++++ linux-2.6.13.4/net/x25/x25_subr.c	2005-09-26 13:44:39.000000000 +1000
 @@ -191,6 +191,7 @@ void x25_write_internal(struct sock *sk,
  			memcpy(dptr, addresses, len);
  			len     = x25_create_facilities(facilities,
@@ -389,4 +364,5 @@ linux-2.6.13.4/net/x25/x25_subr.c
  							x25->vc_facil_mask);
  			dptr    = skb_put(skb, len);
  			memcpy(dptr, facilities, len);
+
 
