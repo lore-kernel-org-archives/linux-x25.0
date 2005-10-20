@@ -1,84 +1,41 @@
-From: Andrew Hendry <ahendry@tusc.com.au>
+From: Bernd Jendrissek <berndj@prism.co.za>
 Subject: Re: [PATCH] X25: Add ITU-T facilites
-Date: Thu, 20 Oct 2005 11:10:54 +1000
-Message-ID: <1129770654.3574.1154.camel@localhost.localdomain>
-References: <1129513666.3747.50.camel@localhost.localdomain>
-	 <20051017022826.GA23167@mandriva.com>
-	 <1129615767.3695.15.camel@localhost.localdomain>
-	 <20051018.152318.68554424.yoshfuji@linux-ipv6.org>
-	 <20051018153702.GC23167@mandriva.com>
-	 <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
+Date: Thu, 20 Oct 2005 09:41:29 +0200
+Message-ID: <20051020074129.GA13695@prism.co.za>
+References: <1129513666.3747.50.camel@localhost.localdomain> <20051017022826.GA23167@mandriva.com> <1129615767.3695.15.camel@localhost.localdomain> <20051018.152318.68554424.yoshfuji@linux-ipv6.org> <20051018153702.GC23167@mandriva.com> <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com> <1129770654.3574.1154.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
+Content-Disposition: inline
+In-Reply-To: <1129770654.3574.1154.camel@localhost.localdomain>
 Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>, eis@baty.hanse.de, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Andrew Hendry <ahendry@tusc.com.au>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>, eis@baty.hanse.de, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-On Wed, 2005-10-19 at 01:48, linux-os (Dick Johnson) wrote:
-> On Tue, 18 Oct 2005, Arnaldo Carvalho de Melo wrote:
-> 
-> > Em Tue, Oct 18, 2005 at 03:23:18PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ escreveu:
-> >> In article <1129615767.3695.15.camel@localhost.localdomain> (at Tue, 18 Oct 2005 16:09:27 +1000), Andrew Hendry <ahendry@tusc.com.au> says:
-> >>
-> >>> +/*
-> >>> +*     ITU DTE facilities
-> >>> +*     Only the called and calling address
-> >>> +*     extension are currently implemented.
-> >>> +*     The rest are in place to avoid the struct
-> >>> +*     changing size if someone needs them later
-> >>> ++ */
-> >>> +struct x25_dte_facilities {
-> >>> +	unsigned int    calling_len, called_len;
-> >>> +	char            calling_ae[20];
-> >>> +	char            called_ae[20];
-> >>> +	unsigned char   min_throughput;
-> >>> +	unsigned short  delay_cumul;
-> >>> +	unsigned short  delay_target;
-> >>> +	unsigned short  delay_max;
-> >>> +	unsigned char   expedited;
-> >>> +};
-> >>
-> >> Why don't you use fixed size members?
-> >> And we can eliminate 8bit hole.
-> >>
-> >> struct x25_dte_facilities {
-> >>      u32             calling_len
-> >>      u32             called_len;
-> >
-> > I guess the two above can be 'u8' as they refer to calling_ae and called_ae
-> > that at most will be '20'?
-> >
-> >>      u8              calling_ae[20];
-> >>      u8              called_ae[20];
-> >
-> > - Arnaldo
-> 
-> At the very least put the 32-bit in the beginning and 8-bit stuff at
-> the end so natural alignment occurs where possible.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.46 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks everyone for the feedback, will fix up the alignment.
+On Thu, Oct 20, 2005 at 11:10:54AM +1000, Andrew Hendry wrote:
+> __u32 or unsigned int look to be the norm for other similar headers,
+> whats the recommended type of types to be used?
 
-A quick question on the use of u8 and u32 types in x25.h.
+Dunno if this helps, but AFAIK the C language (as of 1999 or is it 2000)
+blesses uint32_t and friends.
 
-/usr/src/linux-2.6.13.4/include/linux/x25.h and 
-/usr/include/linux/x25.h
-have been identical between the kernel and glibc-kernheaders type
-packages, using u8 and u32 would require extra changes to the userspace
-version.
+Indeed, <linux/types.h> (in the kernel source tree) defines these
+*standard* sized types.
 
-__u32 or unsigned int look to be the norm for other similar headers,
-whats the recommended type of types to be used?
+HTH
 
-Thanks,
-Andrew.
+- -- 
+A PC without Windows is like ice cream without ketchup.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Please fetch my new key 804177F8 from hkp://wwwkeys.eu.pgp.net/
 
+iD8DBQFDV0ohwyMv24BBd/gRAnOAAKCpTJLsIIQCGW4X/KMyoIMwZ0TNewCff2vE
+IO7gmOpr1zuFa515lmIPWno=
+=uytG
+-----END PGP SIGNATURE-----
