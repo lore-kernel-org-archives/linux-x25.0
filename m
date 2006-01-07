@@ -1,31 +1,47 @@
-From: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH - 2.6.14.5]x25: fix for broken x25 module
-Date: Tue, 03 Jan 2006 12:13:52 -0800 (PST)
-Message-ID: <20060103.121352.56284758.davem@davemloft.net>
-References: <1136267307.11486.44.camel@spereira05.tusc.com.au>
+From: Jean-Francois Gobin <gobin@gobinjf.be>
+Subject: Help with X.25 tests
+Date: Sat, 7 Jan 2006 19:03:39 +0100 (CET)
+Message-ID: <Pine.LNX.4.62.0601071901280.10349@ik118.ikexpress.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <1136267307.11486.44.camel@spereira05.tusc.com.au>
 Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: spereira@tusc.com.au
-Cc: linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, eis@baty.hanse.de, akpm@osdl.org, netdev@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset="us-ascii"; format="flowed"
+Content-Transfer-Encoding: 7bit
+To: linux-x25@vger.kernel.org
 
-From: Shaun Pereira <spereira@tusc.com.au>
-Date: Tue, 03 Jan 2006 16:48:27 +1100
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> -
-> - if (sock_flag(osk, SOCK_ZAPPED))
-> - sock_set_flag(sk, SOCK_ZAPPED);
-> - 
-> - if (sock_flag(osk, SOCK_DBG))
-> - sock_set_flag(sk, SOCK_DBG);
-> + sock_copy_flags(sk, osk);
+Hello all,
 
-Please get your email setup such that the patches you post
-might actually be capable of being applied.  Your email
-client corrupts the tabbing and spaces in patches heavily.
+I'm trying to setup a X.25 connection between a Cisco and a linux box 
+through a serial port (Async /dev/ttyS0)
 
-Thanks.
+I'have the following configuration :
+
+Cisco --Cisco Cable DCE--> Linux BOX
+
+So, for now what I'm looking for is that I can't manage to even have my 
+interface set up in X.25.
+
+I'm trying using x25_asy, but I didn't find where to specify the serial 
+line to use.
+
+Help! Help! Help!
+
+Regards,
+jF
+
+- ----------
+Jean-Francois Gobin - Administrateur gobinjf.be
+http://www.gobinjf.be   mailto:gobin@gobinjf.be
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFDwAKDkkg3QInH2uURAu00AJ0WYFFxSbaFXqLVfKTDIn/zRy4cRQCfSV/B
+Uh63S3+cgkBfbIRwHycxgLU=
+=X64R
+-----END PGP SIGNATURE-----
+
