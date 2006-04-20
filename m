@@ -1,53 +1,50 @@
-From: spereira <pereira.shaun@gmail.com>
-Subject: Re: Starting with x25 linux stack
-Date: Tue, 18 Apr 2006 12:26:58 +1000
-Message-ID: <3ad486780604171926x36414c6fsa15bfddbc939228a@mail.gmail.com>
-References: <443d66b1.17b2dcfd.274c.3f61@mx.gmail.com>
+From: Shaun Pereira <spereira@tusc.com.au>
+Subject: [PATCH 1/1]x25: fix for spinlock recurse and spinlock lockup with
+	timer handler in x25
+Date: Thu, 20 Apr 2006 15:03:23 +1000
+Message-ID: <1145509403.16180.10.camel@spereira05.tusc.com.au>
+Reply-To: spereira@tusc.com.au
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <443d66b1.17b2dcfd.274c.3f61@mx.gmail.com>
-Content-Disposition: inline
 Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: dgiardini@avantcontrol.com.ar
-Cc: linux-x25@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>, x25 maintainer <eis@baty.hanse.de>, linux-x25 <linux-x25@vger.kernel.org>, linux-kenel <linux-kernel@vger.kernel.org>
 
-Hi David
-See the following link
-http://www.kernel.org/pub/linux/kernel/v2.6/testing/ChangeLog-2.6.17-rc1
-This has the latest changes made to the linux kernel to support x.25
-You can also look at www.fyonne.net for some basic (hello world)
-examples written for linux
-using x25 over tcp (xot). (It does not use any hardware card I'm
-afraid but at least you will get an idea of how to use the api)
+From: spereira@tusc.com.au
 
-Sorry for the delay,  unfortunately not many peoply use this mailing
-list, for submitting patches etc, the main kernel mailing list seems
-to be the one to watch
-Cheers
-Shaun
+When the sk_timer function x25_heartbeat_expiry() is called by the kernel
+in a running/terminating process, spinlock-recursion and spinlock-lockup
+locks up the kernel. 
+This has happened with testing on some distro's and the patch below fixed it.
 
-On 4/13/06, Ing. David Giardini <dgiardini@gmail.com> wrote:
->
-> Dear people
->
->   I suscribe this list because I need to write a communication sofware using
-> X25 in Linux. Years ago I used ISA cards and the respective API, but now I'm
-> considering using the X25 Linux stack and the async device driver.
->    Before start asking, I would like to know if there is an archive for this
-> list, http://www.geocrawler.com/lists/3/Linux/ doesn't work. Any other
-> source of information and/or examples will be appreciated.
->
-> Thanks in advance
->
-> David Giardini
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-x25" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
+
+diff -uprN -X dontdiff linux-2.6.17-rc2-vanilla/net/x25/x25_timer.c linux-2.6.17-rc2/net/x25/x25_timer.c
+--- linux-2.6.17-rc2-vanilla/net/x25/x25_timer.c	2006-04-20 12:00:03.000000000 +1000
++++ linux-2.6.17-rc2/net/x25/x25_timer.c	2006-04-20 12:02:43.000000000 +1000
+@@ -114,8 +114,9 @@ static void x25_heartbeat_expiry(unsigne
+ 			if (sock_flag(sk, SOCK_DESTROY) ||
+ 			    (sk->sk_state == TCP_LISTEN &&
+ 			     sock_flag(sk, SOCK_DEAD))) {
++				bh_unlock_sock(sk);
+ 				x25_destroy_socket(sk);
+-				goto unlock;
++				return;
+ 			}
+ 			break;
+ 
+@@ -128,7 +129,6 @@ static void x25_heartbeat_expiry(unsigne
+ 	}
+ restart_heartbeat:
+ 	x25_start_heartbeat(sk);
+-unlock:
+ 	bh_unlock_sock(sk);
+ }
+ 
+
+
+
+
+
