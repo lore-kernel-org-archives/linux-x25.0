@@ -1,29 +1,47 @@
-From: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/1]x25: fix for spinlock recurse and spinlock lockup
- with timer handler in x25
-Date: Fri, 28 Apr 2006 12:00:33 -0700 (PDT)
-Message-ID: <20060428.120033.86347954.davem@davemloft.net>
-References: <1145509403.16180.10.camel@spereira05.tusc.com.au>
+From: Adrian Bunk <bunk@stusta.de>
+Subject: [2.6 patch] proper prototype for x25_init_timers()
+Date: Thu, 4 Jan 2007 00:09:28 +0100
+Message-ID: <20070103230928.GP20714@stusta.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1145509403.16180.10.camel@spereira05.tusc.com.au>
+Content-Disposition: inline
 Sender: netdev-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: spereira@tusc.com.au
-Cc: akpm@osdl.org, netdev@vger.kernel.org, eis@baty.hanse.de, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: netdev@vger.kernel.org, eis@baty.hanse.de
+Cc: linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
 
-From: Shaun Pereira <spereira@tusc.com.au>
-Date: Thu, 20 Apr 2006 15:03:23 +1000
+This patch adds a proper prototype for x25_init_timers() in 
+include/net/x25.h
 
-> From: spereira@tusc.com.au
-> 
-> When the sk_timer function x25_heartbeat_expiry() is called by the kernel
-> in a running/terminating process, spinlock-recursion and spinlock-lockup
-> locks up the kernel. 
-> This has happened with testing on some distro's and the patch below fixed it.
-> 
-> Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Applied, thanks.
+---
+
+ include/net/x25.h |    1 +
+ net/x25/af_x25.c  |    2 --
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+--- linux-2.6.20-rc2-mm1/include/net/x25.h.old	2007-01-03 22:57:52.000000000 +0100
++++ linux-2.6.20-rc2-mm1/include/net/x25.h	2007-01-03 22:58:17.000000000 +0100
+@@ -259,6 +259,7 @@
+ extern void x25_disconnect(struct sock *, int, unsigned char, unsigned char);
+ 
+ /* x25_timer.c */
++extern void x25_init_timers(struct sock *sk);
+ extern void x25_start_heartbeat(struct sock *);
+ extern void x25_start_t2timer(struct sock *);
+ extern void x25_start_t21timer(struct sock *);
+--- linux-2.6.20-rc2-mm1/net/x25/af_x25.c.old	2007-01-03 22:58:28.000000000 +0100
++++ linux-2.6.20-rc2-mm1/net/x25/af_x25.c	2007-01-03 22:58:35.000000000 +0100
+@@ -484,8 +484,6 @@
+ 	return sk;
+ }
+ 
+-void x25_init_timers(struct sock *sk);
+-
+ static int x25_create(struct socket *sock, int protocol)
+ {
+ 	struct sock *sk;
+
