@@ -1,66 +1,24 @@
-From: ahendry <ahendry@tusc.com.au>
-Subject: [PATCH] X.25: Trivial, SOCK_DEBUG's in x25_facilities missing
-	newlines
-Date: Thu, 04 Jan 2007 15:39:24 +1100
-Message-ID: <1167885564.5124.98.camel@localhost>
+From: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.6.19 1/2] X.25: Adds call forwarding to X.25
+Date: Thu, 4 Jan 2007 10:27:02 +0000
+Message-ID: <20070104102702.30630a9d@localhost.localdomain>
+References: <1167881822.5124.88.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-Sender: linux-x25-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751114AbXADKQn@vger.kernel.org>
+In-Reply-To: <1167881822.5124.88.camel@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+To: ahendry <ahendry@tusc.com.au>
+Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-Trivial. Newlines missing on the SOCK_DEBUG's for X.25 facility negotiation.
+> +	struct sk_buff *skbn;
+> +	skbn = skb_clone(skb, GFP_ATOMIC);
+> +
 
-Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+If this fails then you starting passing NULL around. I'm also a bit
+confused as to where you free the copy in all the error cases ?
 
-
---- linux-2.6.19-vanilla/net/x25/x25_facilities.c	2006-12-31 22:31:07.000000000 +1100
-+++ linux-2.6.19/net/x25/x25_facilities.c	2007-01-01 22:56:17.000000000 +1100
-@@ -254,7 +254,7 @@ int x25_negotiate_facilities(struct sk_b
- 	 *	They want reverse charging, we won't accept it.
- 	 */
- 	if ((theirs.reverse & 0x01 ) && (ours->reverse & 0x01)) {
--		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request");
-+		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request\n");
- 		return -1;
- 	}
- 
-@@ -262,29 +262,29 @@ int x25_negotiate_facilities(struct sk_b
- 
- 	if (theirs.throughput) {
- 		if (theirs.throughput < ours->throughput) {
--			SOCK_DEBUG(sk, "X.25: throughput negotiated down");
-+			SOCK_DEBUG(sk, "X.25: throughput negotiated down\n");
- 			new->throughput = theirs.throughput;
- 		}
- 	}
- 
- 	if (theirs.pacsize_in && theirs.pacsize_out) {
- 		if (theirs.pacsize_in < ours->pacsize_in) {
--			SOCK_DEBUG(sk, "X.25: packet size inwards negotiated down");
-+			SOCK_DEBUG(sk, "X.25: packet size inwards negotiated down\n");
- 			new->pacsize_in = theirs.pacsize_in;
- 		}
- 		if (theirs.pacsize_out < ours->pacsize_out) {
--			SOCK_DEBUG(sk, "X.25: packet size outwards negotiated down");
-+			SOCK_DEBUG(sk, "X.25: packet size outwards negotiated down\n");
- 			new->pacsize_out = theirs.pacsize_out;
- 		}
- 	}
- 
- 	if (theirs.winsize_in && theirs.winsize_out) {
- 		if (theirs.winsize_in < ours->winsize_in) {
--			SOCK_DEBUG(sk, "X.25: window size inwards negotiated down");
-+			SOCK_DEBUG(sk, "X.25: window size inwards negotiated down\n");
- 			new->winsize_in = theirs.winsize_in;
- 		}
- 		if (theirs.winsize_out < ours->winsize_out) {
--			SOCK_DEBUG(sk, "X.25: window size outwards negotiated down");
-+			SOCK_DEBUG(sk, "X.25: window size outwards negotiated down\n");
- 			new->winsize_out = theirs.winsize_out;
- 		}
- 	}
-
+Is there any reason for creating skbn here rather than in
+skb_forward_call ?
