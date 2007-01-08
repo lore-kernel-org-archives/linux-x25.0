@@ -1,24 +1,29 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] X.25: Trivial, SOCK_DEBUG's in x25_facilities missing
- newlines
-Date: Thu, 04 Jan 2007 17:01:18 -0800 (PST)
-Message-ID: <20070104.170118.129774527.davem@davemloft.net>
-References: <1167885564.5124.98.camel@localhost>
+From: ahendry <ahendry@tusc.com.au>
+Subject: [PATCH] X.25 Add missing sock_put in x25_receive_data
+Date: Tue, 09 Jan 2007 09:32:17 +1100
+Message-ID: <1168295537.5460.30.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1167885564.5124.98.camel@localhost>
-Sender: netdev-owner@vger.kernel.org
+Return-path: <linux-x25-owner@vger.kernel.org>
+Sender: linux-x25-owner@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: ahendry@tusc.com.au
-Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-x25@vger.kernel.org, eis@baty.hanse.de
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-From: ahendry <ahendry@tusc.com.au>
-Date: Thu, 04 Jan 2007 15:39:24 +1100
 
-> Trivial. Newlines missing on the SOCK_DEBUG's for X.25 facility negotiation.
-> 
-> Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+__x25_find_socket does a sock_hold.
+This adds a missing sock_put in x25_receive_data.
 
-Applied, thanks Andrew.
+Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+
+--- linux-2.6.19-vanilla/net/x25/x25_dev.c	2006-12-31 22:31:07.000000000 +1100
++++ linux-2.6.19/net/x25/x25_dev.c	2007-01-06 16:40:54.000000000 +1100
+@@ -56,6 +56,7 @@ static int x25_receive_data(struct sk_bu
+ 			sk_add_backlog(sk, skb);
+ 		}
+ 		bh_unlock_sock(sk);
++		sock_put(sk);
+ 		return queued;
+ 	}
+
