@@ -1,50 +1,33 @@
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 2/3] X.25: Adds /proc/sys/net/x25/x25_forward to control forwarding.
-Date: Thu, 8 Feb 2007 23:22:11 +0300
-Message-ID: <20070208202211.GB5532@martell.zuzino.mipt.ru>
-References: <1170890071.5189.40.camel@localhost> <20070208201909.GA5532@martell.zuzino.mipt.ru>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 1/3] [RESEND] X.25: Add call forwarding
+Date: Thu, 08 Feb 2007 13:34:13 -0800 (PST)
+Message-ID: <20070208.133413.130238005.davem@davemloft.net>
+References: <1167881822.5124.88.camel@localhost>
+	<20070104102702.30630a9d@localhost.localdomain>
+	<1170890065.5189.39.camel@localhost>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1423307AbXBHUWP@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070208201909.GA5532@martell.zuzino.mipt.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Id: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: ahendry <ahendry@tusc.com.au>
-Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1170890065.5189.39.camel@localhost>
+Sender: netdev-owner@vger.kernel.org
+List-Id: <linux-x25.vger.kernel.org>
+Content-Type: Text/Plain; charset="us-ascii"
+To: ahendry@tusc.com.au
+Cc: linux-kernel@vger.kernel.org, eis@baty.hanse.de, linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
-On Thu, Feb 08, 2007 at 11:19:09PM +0300, Alexey Dobriyan wrote:
-> On Thu, Feb 08, 2007 at 10:14:31AM +1100, ahendry wrote:
-> > echo "1" > /proc/sys/net/x25/x25_forward
-> > To turn on x25_forwarding, defaults to off
-> 
-> > --- linux-2.6.20-vanilla/include/linux/sysctl.h
-> > +++ linux-2.6.20/include/linux/sysctl.h
-> > @@ -699,7 +699,8 @@ enum {
-> >  	NET_X25_CALL_REQUEST_TIMEOUT=2,
-> >  	NET_X25_RESET_REQUEST_TIMEOUT=3,
-> >  	NET_X25_CLEAR_REQUEST_TIMEOUT=4,
-> > -	NET_X25_ACK_HOLD_BACK_TIMEOUT=5
-> > +	NET_X25_ACK_HOLD_BACK_TIMEOUT=5,
-> > +	NET_X25_FORWARD=6
-> >  };
-> 
-> > --- linux-2.6.20-vanilla/net/x25/sysctl_net_x25.c
-> > +++ linux-2.6.20/net/x25/sysctl_net_x25.c
-> > @@ -73,6 +73,14 @@ static struct ctl_table x25_table[] = {
-> >  		.extra1 =	&min_timer,
-> >  		.extra2 =	&max_timer,
-> >  	},
-> > +	{
-> > +		.ctl_name =	NET_X25_FORWARD,
-> > +		.procname =	"x25_forward",
-> > +		.data = 	&sysctl_x25_forward,
-> > +		.maxlen = 	sizeof(int),
-> > +		.mode = 	0644,
-> > +		.proc_handler = &proc_dointvec,
-> > +	},
-> 
-> Reserving binary sysctl number and not defining ->strategy is strange.
+From: ahendry <ahendry@tusc.com.au>
+Date: Thu, 08 Feb 2007 10:14:25 +1100
 
-Ouch, please, ignore. I misparsed sysctl code.
+> Adds call forwarding to X.25, allowing it to operate like an X.25 router.
+> Useful if one needs to manipulate X.25 traffic with tools like tc.
+> This is an update/cleanup based off a patch submitted by Daniel Ferenci a few years ago.
+> 
+> Thanks Alan for the feedback.
+> Added the null check to the clones.
+> Moved the skb_clone's into the forwarding functions.
+> 
+> Worked ok with Cisco XoT, linux X.25 back to back, and some old NTUs/PADs.
+> 
+> Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+
+Applied, thanks.
