@@ -1,30 +1,43 @@
-From: joe@perches.com
-Subject: [PATCH] [544/2many] MAINTAINERS - X.25 NETWORK LAYER
-Date: Sun, 12 Aug 2007 23:39:47 -0700
-Message-ID: <46bffcb3.0Xk9br6H8RHWXTjQ%joe@perches.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-Sender: linux-x25-owner@vger.kernel.org
-List-Id: <linux-x25.vger.kernel.org>
+From: Denis Cheng <crquan@gmail.com>
+Subject: [PATCH 15/20] net/lapb/lapb_iface.c: use LIST_HEAD instead of LIST_HEAD_INIT
+Date: Fri,  7 Dec 2007 00:07:18 +0800
+Message-ID: <1196957239-5728-1-git-send-email-crquan@gmail.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755118AbXLFQIJ@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=domainkey-signature:received:received:received:from:to:cc:subject:date:message-id:x-mailer;
+        bh=az1xXqqj+XgHubPhi79/UF2o6kMFrh6KPT8Tp+rjbCE=;
+        b=LpI+cPsGsAiHJdrtXKI9sywHyDxdvO3v+soqBIcc2Ls7Gu4KzAsdA22fsVf3+YJ3mAkVygXmUm3RJ0rHEgOnotI373jcZlZAr3ycFpksJYyb27REk/2CZoDvJh9URIAx2XbVBKjoO1TAsOfCMZ7kPi1zyjV2L5uLMDmmJqiKo3Y=
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: torvalds@linux-foundation.org, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org, eis@baty.hanse.de, akpm@linux-foundation.org
+Content-Transfer-Encoding: 7bit
+To: linux-x25@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 
-Add file pattern to MAINTAINER entry
+single list_head variable initialized with LIST_HEAD_INIT could almost
+always can be replaced with LIST_HEAD declaration, this shrinks the code
+and looks better.
 
-Signed-off-by: Joe Perches <joe@perches.com>
+Signed-off-by: Denis Cheng <crquan@gmail.com>
+---
+ net/lapb/lapb_iface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 454494e..e4e1cc3 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5141,6 +5141,9 @@ P:	Henner Eisen
- M:	eis@baty.hanse.de
- L:	linux-x25@vger.kernel.org
- S:	Maintained
-+F:	Documentation/networking/x25*
-+F:	include/net/x25*
-+F:	net/x25/
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index a2e7aa6..2ba1bc4 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -39,7 +39,7 @@
+ #include <linux/init.h>
+ #include <net/lapb.h>
  
- XEN HYPERVISOR INTERFACE
- P:	Jeremy Fitzhardinge
+-static struct list_head lapb_list = LIST_HEAD_INIT(lapb_list);
++static LIST_HEAD(lapb_list);
+ static DEFINE_RWLOCK(lapb_list_lock);
+ 
+ /*
+-- 
+1.5.3.4
+
