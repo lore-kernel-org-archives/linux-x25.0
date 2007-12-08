@@ -1,26 +1,41 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 16/20] net/x25/: use LIST_HEAD instead of LIST_HEAD_INIT
-Date: Fri, 07 Dec 2007 00:50:50 -0800 (PST)
-Message-ID: <20071207.005050.237662850.davem@davemloft.net>
-References: <1196957239-5728-1-git-send-email-crquan@gmail.com>
-	<1196957239-5728-2-git-send-email-crquan@gmail.com>
+From: Mehturt <mehturt@gmail.com>
+Subject: x.25 status in kernel
+Date: Fri, 7 Dec 2007 16:02:50 -0800
+Message-ID: <43deb2920712071602v3a7bf32cyc908d67ccc754215@mail.gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <1196957239-5728-2-git-send-email-crquan@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=domainkey-signature:received:received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
+        bh=GlBmaVh7CjV0r05v0vmUaDhLheXh3fWaogJVesYPPzo=;
+        b=rtNM9YJ4ZKcIRPfDm33hh9UaGCXirNE1PMmBSMxvbB8R0MWCj1B/umI5YvlSvR12gLrYUUyCuz3+WShIm2jGfdisutpnLv5BqPXL7OEdCUf41BoiUE3jJ+Y4JLXTvKlKqHAiYHnfP5IfuMk+nr4t5kIlpEm6qftUeoHem4dfFYE=
+Content-Disposition: inline
 Sender: linux-x25-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: crquan@gmail.com
-Cc: linux-x25@vger.kernel.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-x25@vger.kernel.org
 
-From: Denis Cheng <crquan@gmail.com>
-Date: Fri,  7 Dec 2007 00:07:19 +0800
+Hello list,
+I am reading about the current status of x.25 in Linux kernel.
+Is the information in net/x25/Kconfig up-to-date?
+Is the x.25 over LLC 2 still not present in kernel?
+Is this information (from
+http://www.baty.hanse.de/linux-x25/doc/FAQ.txt) true as of 2.6.23
+kernel?
+	"LAPB over Ethernet driver" for doing X.25 over lapb over Ethernet
+	      (CAUTION: this is only intended for testing, it does not
+	      implement a standardised protocol, it uses ethernet
+	      broadcasting which might disturn other hosts)
+Is this statement (from kernel sources) still valid?
+ *      This is ALPHA test software. This code may break your machine,
+ *      randomly fail to work with new releases, misbehave and/or generally
+ *      screw up. It might even work.
 
-> single list_head variable initialized with LIST_HEAD_INIT could almost
-> always can be replaced with LIST_HEAD declaration, this shrinks the code
-> and looks better.
-> 
-> Signed-off-by: Denis Cheng <crquan@gmail.com>
+The reason I'm asking is that our customer wants to migrate some
+services from Solaris (using Solstice x.25 stack) to Linux and I need
+to find linux stacks out there - I started with the implementation
+currently in Linux kernel.
 
-Applied.
+Thanks
+m.
