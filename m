@@ -1,65 +1,44 @@
 From: Matti Aarnio <matti.aarnio@zmailer.org>
 Subject: Re: X.25 in linux
-Date: Mon, 17 Dec 2007 14:00:54 +0200
-Message-ID: <20071217120054.GJ6372@mea-ext.zmailer.org>
-References: <14370077.post@talk.nabble.com>
+Date: Mon, 17 Dec 2007 14:57:42 +0200
+Message-ID: <20071217125742.GL6372@mea-ext.zmailer.org>
+References: <20071217120054.GJ6372@mea-ext.zmailer.org> <750297.65484.qm@web8406.mail.in.yahoo.com>
 Mime-Version: 1.0
 Return-path: <linux-x25-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <14370077.post@talk.nabble.com>
+In-Reply-To: <750297.65484.qm@web8406.mail.in.yahoo.com>
 Sender: linux-x25-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: venkat4p <venkat_p257@yahoo.co.in>
+To: ven swe <venkat_p257@yahoo.co.in>
 Cc: linux-x25@vger.kernel.org
 
-On Sun, Dec 16, 2007 at 09:11:16PM -0800, venkat4p wrote:
-> Hai all,
+On Mon, Dec 17, 2007 at 12:25:14PM +0000, ven swe wrote:
+> 
+> Thanks for your reply Matti.
+> 
+> I already configured my kernel (version 2.6.22.8) with  "X25_ASY" .
+> And I am getting the error message.
+> 
+> I think this is because slattach is not supporting X25.
+> 
+> -venkat
 
-Hello,
+It should be trivialish to add that support, if same thing
+is enough what SLIP and PPP do  -- turn on the serial discipline
+and let driver do everything.
 
-  
-> I want to make two Linux systems communicating through X.25 suite.
-> I am successful in sending data through X.25 PLP over lapb over
-> Ethernet. (by using X25 socket API, x25route and lapb0 virtual interface)
->  
-> Now, I want to communicate via lapb over serial interface (like "ttyS0")
-> instead of Ethernet layer.
-> I installed Net-tools package, then I tried with "slattach -p x25 /dev/ttyS0"
-> but got message
-> > Cannot change line discipline to `x25'.
-> Can any one tell me from where can I get the modified version of "slattach" 
-> so that it supports X25 Async network interface or any available  modules
-> which helps me in doing this?
+Current slattach man-page tells that known disciplines are:
 
-Kernel already has module  x25_asy.c  which needs to be configured from WAN
-submenu - an EXPERIMENTAL module:
-
-config X25_ASY
-        tristate "X.25 async driver (EXPERIMENTAL)"
-        depends on WAN && LAPB && X25
-        ---help---
-          Send and receive X.25 frames over regular asynchronous serial
-          lines such as telephone lines equipped with ordinary modems.
-
-          Experts should note that this driver doesn't currently comply with
-          the asynchronous HDLS framing protocols in CCITT recommendation X.25.
-
-          To compile this driver as a module, choose M here: the
-          module will be called x25_asy.
-
-          If unsure, say N.
+	slip, cslip, adaptive, ppp
 
 
-It is not configured on in default case.
-You have to make your own kernel configuration with that (and all dependencies)
-turned into modules.  (You probably already did spin your own kernel to have
-X.25 in system in the first place..)
+SLIP is really trivial thing in terms of what the slattach
+command does.  External scripts and programs then do ifconfig
+and other magic for the network interfaces.
 
-Even then the  slattach  might not know what "x25" is supposed to be.
-
-> Thanks,
-> Venkat.
+You could, probably, do the required moves with e.g. few lines
+of perl script.  (Or C)
 
 /Matti Aarnio
