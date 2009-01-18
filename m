@@ -1,26 +1,36 @@
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 4/4] Hold RTNL while calling dev_close()
-Date: Fri, 27 Jun 2008 01:32:16 -0400
-Message-ID: <48647B60.6040608@pobox.com>
-References: <20080506182654.GF2217@solarflare.com> <20080506184147.GJ2217@solarflare.com>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: x.25: x25_rx_call_request() skb->len >= 0 is always true
+Date: Sun, 18 Jan 2009 22:46:51 +0100
+Message-ID: <4973A34B.9060103@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <20080506184147.GJ2217@solarflare.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=domainkey-signature:received:received:message-id:date:from
+         :user-agent:mime-version:to:cc:subject:content-type
+         :content-transfer-encoding;
+        bh=veuVBOgmomKyolwyc3zyxu7XixaPjIIKSLjGwS9jFCY=;
+        b=N0uqzRELF4tNhxaQBC1q5vu8zKne46yaxBg+ePUJnq/UVK8j0fnu0a9xXEGpL4aWCU
+         Q6sAjTmiR248p2wwgMcxCzItWKNp26ju6QoEHaJuoRjtCRas812zR0dUUl20sBYw9I4x
+         sktGlDV4fbuvznEAUab7jpCEwhQZaf+PiDLUk=
 Sender: linux-x25-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: linux-x25@vger.kernel.org, David Miller <davem@davemloft.net>, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: eis@baty.hanse.de
+Cc: linux-x25@vger.kernel.org
 
-Ben Hutchings wrote:
-> dev_close() must be called holding the RTNL.  Compile-tested only.
-> 
-> Signed-off-by: Ben Hutchings <bhutchings@solarflare.com>
-> ---
->  drivers/net/wan/x25_asy.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
+since skb->len is unsigned this is always true.
 
-applied
+vi net/x25/af_x25.c +954
 
+        if (skb->len >= 0) {
+                skb_copy_from_linear_data(skb, makex25->calluserdata.cuddata, skb->len);
+                makex25->calluserdata.cudlength = skb->len;
+        }
 
+shouldn't we instead do something like 
+
+if (skb->len < LEN_MAX)
+
+and what should LEN_MAX be?
