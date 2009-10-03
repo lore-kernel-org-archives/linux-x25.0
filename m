@@ -1,36 +1,47 @@
-From: Roel Kluin <roel.kluin@gmail.com>
-Subject: [PATCH] x25: bit and/or confusion?
-Date: Sat, 22 Aug 2009 20:40:28 +0200
-Message-ID: <4A903B9C.9010100@gmail.com>
+From: Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/1] net: mark net_proto_ops as
+	const
+Date: Sat, 3 Oct 2009 04:00:06 +0400
+Message-ID: <20091003000006.GA2020@x200>
+References: <20091002232520.925496630@vyatta.com>
+	<20091002232721.385245919@vyatta.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=domainkey-signature:received:received:message-id:date:from
-         :user-agent:mime-version:to:subject:content-type
-         :content-transfer-encoding;
-        bh=6Bj3+jnZWewm2MzRP6xypxJ2YIYEmk1ybsXL7pPKAdY=;
-        b=rJ8R3Lhn34DlEPjjRkhotkVrtEvrVQjbnfb+Wk0OrWuLVSetHmtorcW5LaEs4h5wNS
-         11jYeNahfH4NCxMNiZAw7dGxbiUdGahyxypj+xtLb2/OhGJfen0FckIu2wIyLc5nmGZo
-         534xUn8SYkrzDjhx4qBCABK4EDFVpj2sVuGIA=
-Sender: linux-x25-owner@vger.kernel.org
-List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Henner Eisen <eis@baty.hanse.de>, linux-x25@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-zigbee-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20091002232721.385245919-ZtmgI6mnKB3QT0dZR+AlfA@public.gmane.org>
+List-Id: <linux-x25.vger.kernel.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-zigbee-devel>,
+	<mailto:linux-zigbee-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-zigbee-devel>
+List-Post: <mailto:linux-zigbee-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:linux-zigbee-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-zigbee-devel>,
+	<mailto:linux-zigbee-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: linux-zigbee-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Stephen Hemminger <shemminger-ZtmgI6mnKB3QT0dZR+AlfA@public.gmane.org>
+Cc: Bernard Pidoux F6BVP <f6bvp-GANU6spQydw@public.gmane.org>, Dan Carpenter <error27-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andy Grover <andy.grover-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, Henner Eisen <eis-oJ2yeFfzEm5olqkO4TVVkw@public.gmane.org>, Christine Caulfield <christine.caulfield-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Ursula Braun <ursula.braun-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, James Morris <jmorris-gx6/JNMH7DfYtjvyW6yDsg@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Hendrik Brueckner <brueckner-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Matthias Urlichs <matthias-+qxcz+fHsVSELgA04lAiVw@public.gmane.org>, "Denis V. Lunev" <den-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org>, linux-afs-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, Harvey Harrison <harvey.harrison-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chas Williams <chas-vT06rRrALxcmhCb6mdbn6A@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Smith <markzzzsmith-/E1597aS9LT0CCvOHzKKcA@public.gmane.org>, "Pekka Savola (ipv6)" <pekkas-UjJjq++bwZ7HOG6cAo2yLw@public.gmane.org>, Eric Dumazet <eric.dumazet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Weiyi <weiyi.huang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, James Chapman <jchapman-Bm0nJX+W7e9BDgjK7y7TUQ@public.gmane.org>, Johan Hedberg <johan.hedberg-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Arnaldo
 
-Could it be that something like this was intended?
+On Fri, Oct 02, 2009 at 04:25:21PM -0700, Stephen Hemminger wrote:
+> --- a/net/can/af_can.c
+> +++ b/net/can/af_can.c
+> @@ -842,7 +842,7 @@ static struct packet_type can_packet __r
+>  	.func = can_rcv,
+>  };
+>  
+> -static struct net_proto_family can_family_ops __read_mostly = {
+> +static const struct net_proto_family can_family_ops __read_mostly = {
+						       ^^^^^^^^^^^^^
+>  	.family = PF_CAN,
+>  	.create = can_create,
+>  	.owner  = THIS_MODULE,
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 5e6c072..bbfcdfa 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1363,7 +1363,7 @@ static int x25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 			    facilities.throughput > 0xDD)
- 				break;
- 			if (facilities.reverse &&
--				(facilities.reverse | 0x81)!= 0x81)
-+				(facilities.reverse & 0x81) != 0x81)
- 				break;
- 			x25->facilities = facilities;
- 			rc = 0;
+ACK, except this chunk: const already means read-only.
+
+------------------------------------------------------------------------------
+Come build with us! The BlackBerry&reg; Developer Conference in SF, CA
+is the only developer event you need to attend this year. Jumpstart your
+developing skills, take BlackBerry mobile applications to market and stay 
+ahead of the curve. Join us from November 9&#45;12, 2009. Register now&#33;
+http://p.sf.net/sfu/devconf
