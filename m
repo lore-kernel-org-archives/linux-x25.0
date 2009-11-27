@@ -1,41 +1,72 @@
-From: andrew hendry <andrew.hendry@gmail.com>
-Subject: [PATCH 3/3] X25: Fix oops and refcnt problems from x25_dev_get
-Date: Wed, 25 Nov 2009 12:16:05 +1100
-Message-ID: <d45a3acc0911241716i7bf218c4y71c75d9841695dfe@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH 1/3] X25: Move SYSCTL ifdefs into header
+Date: Fri, 27 Nov 2009 14:34:44 -0800
+Message-ID: <m1fx7ztx4r.fsf@fess.ebiederm.org>
+References: <d45a3acc0911241715jcb41224y7871ea0878b9df9e@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934133AbZKYBQB@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=domainkey-signature:mime-version:received:date:message-id:subject
-         :from:to:cc:content-type;
-        bh=rLaCySPxkp8XxnTwF9HwGTcBTNKPEYIRxe7io5IupLA=;
-        b=BN/M++mqrD/5PjnzBV2RV2yQxv35ZuoYXF6kzjziXzK13ngaBJhfZrff/NsIr4MxYz
-         4xsSl5pb8QeaqwIb+EndVcA0J5VVt66oQQTQLj58B1GZN5niVlLrTW8Je2R5APP416+4
-         yPTPQmMxlTVFVgW2DWlK6L/QW/LbU0dPuFu+w=
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-x25-owner@vger.kernel.org>
+In-Reply-To: <d45a3acc0911241715jcb41224y7871ea0878b9df9e@mail.gmail.com> (andrew hendry's message of "Wed\, 25 Nov 2009 12\:15\:26 +1100")
+Sender: linux-x25-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: netdev@vger.kernel.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-x25@vger.kernel.org
+To: andrew hendry <andrew.hendry@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-x25@vger.kernel.org
 
-Calls to x25_dev_get check for dev = NULL which was not set.
-It allowed x25 to set routes and ioctls on down interfaces.
-This caused oopses and refcnt problems on device_unregister.
+andrew hendry <andrew.hendry@gmail.com> writes:
 
-Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+> Moves the CONFIG_SYSCTL ifdefs in x25_init into header.
 
---- a/net/x25/x25_route.c	2009-11-25 09:30:52.003038597 +1100
-+++ b/net/x25/x25_route.c	2009-11-25 09:33:37.627093701 +1100
-@@ -136,8 +136,10 @@ struct net_device *x25_dev_get(char *dev
- #if defined(CONFIG_LLC) || defined(CONFIG_LLC_MODULE)
- 					&& dev->type != ARPHRD_ETHER
- #endif
--					)))
-+					))){
- 		dev_put(dev);
-+		dev = NULL;
-+	}
+This looks like a reasonable change and it doesn't conflict
+with my pending changes in the sysctl tree.
 
- 	return dev;
- }
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+
+>
+> Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
+>
+> diff -uprN -X a/Documentation/dontdiff a/include/net/x25.h b/include/net/x25.h
+> --- a/include/net/x25.h	2009-11-10 11:32:31.000000000 +1100
+> +++ b/include/net/x25.h	2009-11-25 09:05:21.000000000 +1100
+> @@ -287,8 +287,14 @@ extern unsigned long x25_display_timer(s
+>  extern void x25_check_rbuf(struct sock *);
+>
+>  /* sysctl_net_x25.c */
+> +#ifdef CONFIG_SYSCTL
+>  extern void x25_register_sysctl(void);
+>  extern void x25_unregister_sysctl(void);
+> +#else
+> +static inline void x25_register_sysctl(void) {};
+> +static inline void x25_unregister_sysctl(void) {};
+> +#endif /* CONFIG_SYSCTL */
+> +
+>  struct x25_skb_cb {
+>  	unsigned flags;
+>  };
+> diff -uprN -X a/Documentation/dontdiff a/net/x25/af_x25.c b/net/x25/af_x25.c
+> --- a/net/x25/af_x25.c	2009-11-17 10:30:18.000000000 +1100
+> +++ b/net/x25/af_x25.c	2009-11-25 09:04:25.000000000 +1100
+> @@ -1667,9 +1667,7 @@ static int __init x25_init(void)
+>
+>  	printk(KERN_INFO "X.25 for Linux Version 0.2\n");
+>
+> -#ifdef CONFIG_SYSCTL
+>  	x25_register_sysctl();
+> -#endif
+>  	x25_proc_init();
+>  out:
+>  	return rc;
+> @@ -1682,9 +1680,7 @@ static void __exit x25_exit(void)
+>  	x25_link_free();
+>  	x25_route_free();
+>
+> -#ifdef CONFIG_SYSCTL
+>  	x25_unregister_sysctl();
+> -#endif
+>
+>  	unregister_netdevice_notifier(&x25_dev_notifier);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
