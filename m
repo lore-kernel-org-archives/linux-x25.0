@@ -1,72 +1,77 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH 1/3] X25: Move SYSCTL ifdefs into header
-Date: Fri, 27 Nov 2009 14:34:44 -0800
-Message-ID: <m1fx7ztx4r.fsf@fess.ebiederm.org>
-References: <d45a3acc0911241715jcb41224y7871ea0878b9df9e@mail.gmail.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 2/3] X25: Check for errors in x25_init
+Date: Mon, 30 Nov 2009 18:41:25 +1100
+Message-ID: <20091130074125.GA9541@verge.net.au>
+References: <d45a3acc0911241715k6882aa3el64a50b3d68d12167@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <d45a3acc0911241715jcb41224y7871ea0878b9df9e@mail.gmail.com> (andrew hendry's message of "Wed\, 25 Nov 2009 12\:15\:26 +1100")
-Sender: linux-x25-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <d45a3acc0911241715k6882aa3el64a50b3d68d12167@mail.gmail.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: andrew hendry <andrew.hendry@gmail.com>
 Cc: netdev@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-x25@vger.kernel.org
 
-andrew hendry <andrew.hendry@gmail.com> writes:
-
-> Moves the CONFIG_SYSCTL ifdefs in x25_init into header.
-
-This looks like a reasonable change and it doesn't conflict
-with my pending changes in the sysctl tree.
-
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-
->
+On Wed, Nov 25, 2009 at 12:15:42PM +1100, andrew hendry wrote:
+> Adds error checking to x25_init.
+> 
 > Signed-off-by: Andrew Hendry <andrew.hendry@gmail.com>
->
-> diff -uprN -X a/Documentation/dontdiff a/include/net/x25.h b/include/net/x25.h
-> --- a/include/net/x25.h	2009-11-10 11:32:31.000000000 +1100
-> +++ b/include/net/x25.h	2009-11-25 09:05:21.000000000 +1100
-> @@ -287,8 +287,14 @@ extern unsigned long x25_display_timer(s
->  extern void x25_check_rbuf(struct sock *);
->
->  /* sysctl_net_x25.c */
-> +#ifdef CONFIG_SYSCTL
->  extern void x25_register_sysctl(void);
->  extern void x25_unregister_sysctl(void);
-> +#else
-> +static inline void x25_register_sysctl(void) {};
-> +static inline void x25_unregister_sysctl(void) {};
-> +#endif /* CONFIG_SYSCTL */
-> +
->  struct x25_skb_cb {
->  	unsigned flags;
->  };
+> 
 > diff -uprN -X a/Documentation/dontdiff a/net/x25/af_x25.c b/net/x25/af_x25.c
-> --- a/net/x25/af_x25.c	2009-11-17 10:30:18.000000000 +1100
-> +++ b/net/x25/af_x25.c	2009-11-25 09:04:25.000000000 +1100
-> @@ -1667,9 +1667,7 @@ static int __init x25_init(void)
->
+> --- a/net/x25/af_x25.c  2009-11-25 10:21:17.000000000 +1100
+> +++ b/net/x25/af_x25.c  2009-11-25 10:22:06.000000000 +1100
+> @@ -1659,18 +1659,31 @@ static int __init x25_init(void)
+>  	if (rc != 0)
+>  		goto out;
+> 
+> -	sock_register(&x25_family_ops);
+> +	rc = sock_register(&x25_family_ops);
+> +	if (rc != 0)
+> +		goto out_proto;
+> 
+>  	dev_add_pack(&x25_packet_type);
+> 
+> -	register_netdevice_notifier(&x25_dev_notifier);
+> +	rc = register_netdevice_notifier(&x25_dev_notifier);
+> +	if (rc != 0)
+> +		goto out_sock;
+> 
 >  	printk(KERN_INFO "X.25 for Linux Version 0.2\n");
->
-> -#ifdef CONFIG_SYSCTL
+> 
 >  	x25_register_sysctl();
-> -#endif
->  	x25_proc_init();
+> -	x25_proc_init();
+> +	rc = x25_proc_init();
+> +	if (rc != 0)
+> +		goto out_dev;
 >  out:
 >  	return rc;
-> @@ -1682,9 +1680,7 @@ static void __exit x25_exit(void)
->  	x25_link_free();
->  	x25_route_free();
->
-> -#ifdef CONFIG_SYSCTL
->  	x25_unregister_sysctl();
-> -#endif
->
->  	unregister_netdevice_notifier(&x25_dev_notifier);
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> +out_dev:
+> +	unregister_netdevice_notifier(&x25_dev_notifier);
+> +out_sock:
+> +	sock_unregister(AF_X25);
+> +out_proto:
+> +	proto_unregister(&x25_proto);
+> +	goto out;
+>  }
+>  module_init(x25_init);
+
+The following seems slightly cleaner to me:
+
+...
+	rc = x25_proc_init();
+	if (rc != 0)
+		goto out_dev;
+
+	return 0;  <-- or goto out;
+out_dev:
+	unregister_netdevice_notifier(&x25_dev_notifier);
+out_sock:
+	sock_unregister(AF_X25);
+out_proto:
+	proto_unregister(&x25_proto);
+out:
+	return rc;
+}
+
