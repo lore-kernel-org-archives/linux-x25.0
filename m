@@ -1,47 +1,66 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] net: make ctl_path local and const
-Date: Tue, 19 Oct 2010 20:01:41 -0700
-Message-ID: <1287543701.10409.599.camel@Joe-Laptop>
-References: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 3/3] x25: Move to staging
+Date: Tue, 23 Nov 2010 03:55:28 +0000
+Message-ID: <1290484528.6770.1336.camel@localhost>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <bridge-bounces@lists.linux-foundation.org>
-In-Reply-To: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
-List-Id: <linux-x25.vger.kernel.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
-	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/bridge>
-List-Post: <mailto:bridge@lists.linux-foundation.org>
-List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
-	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Sender: bridge-bounces@lists.linux-foundation.org
-Errors-To: bridge-bounces@lists.linux-foundation.org
-To: Changli Gao <xiaosuo@gmail.com>
-Cc: Andy Grover <andy.grover@oracle.com>, James Morris <jmorris@namei.org>, linux-sctp@vger.kernel.org, rds-devel@oss.oracle.com, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, Andrew@smtp1.linux-foundation.org, coreteam@netfilter.org, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Joerg Reuter <jreuter@yaina.de>, Sridhar Samudrala <sri@us.ibm.com>, Samuel Ortiz <samuel@sortiz.org>, Vlad Yasevich <vladislav.yasevich@hp.com>, netfilter@vger.kernel.org, Remi Denis-Courmont <remi.denis-courmont@nokia.com>, linux-hams@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.ker
+To: Andrew Hendry <andrew.hendry@gmail.com>, David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Cc: netdev <netdev@vger.kernel.org>, devel@driverdev.osuosl.org, Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-x25@vger.kernel.org
 
-On Wed, 2010-10-20 at 10:54 +0800, Changli Gao wrote:
-> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
-[]
-> diff --git a/net/appletalk/sysctl_net_atalk.c b/net/appletalk/sysctl_net_atalk.c
-> index 04e9c0d..b92f269 100644
-> --- a/net/appletalk/sysctl_net_atalk.c
-> +++ b/net/appletalk/sysctl_net_atalk.c
-> @@ -42,16 +42,16 @@ static struct ctl_table atalk_table[] = {
->  	{ },
->  };
->  
-> -static struct ctl_path atalk_path[] = {
-> -	{ .procname = "net", },
-> -	{ .procname = "appletalk", },
-> -	{ }
-> -};
-> -
->  static struct ctl_table_header *atalk_table_header;
->  
->  void atalk_register_sysctl(void)
->  {
-> +	const struct ctl_path atalk_path[] = {
+Recent review has revealed several bugs in obscure protocol
+implementations that can be exploited by local users for denial of
+service or privilege escalation.
 
-Shouldn't all of these be static const struct ?
+The x25 protocol (PF_X25) receives only 'odd fixes'.  There appear to
+be no published applications for it, and it has never progressed
+beyond 'experimental' status.
+
+This protocol generally should not be enabled by distributions, since
+the cost of a security flaw affecting all installed systems presumably
+outweighs the benefit to the few (if any) legitimate users.
+
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+I'm somewhat less sure about this one; maybe it's improving?  But there
+is little enough sign of any usefulness after 10 years.
+
+There are several X25 dependencies that presumably should be moved too.
+
+Ben.
+
+ drivers/staging/Kconfig |    2 ++
+ net/Kconfig             |    1 -
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
+index a9dd984..1347242 100644
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -179,5 +179,7 @@ source "net/decnet/Kconfig"
+ 
+ source "net/econet/Kconfig"
+ 
++source "net/x25/Kconfig"
++
+ endif # !STAGING_EXCLUDE_BUILD
+ endif # STAGING
+diff --git a/net/Kconfig b/net/Kconfig
+index 059c9f1..1d396ba 100644
+--- a/net/Kconfig
++++ b/net/Kconfig
+@@ -203,7 +203,6 @@ source "net/8021q/Kconfig"
+ source "net/llc/Kconfig"
+ source "net/ipx/Kconfig"
+ source "drivers/net/appletalk/Kconfig"
+-source "net/x25/Kconfig"
+ source "net/lapb/Kconfig"
+ source "net/wanrouter/Kconfig"
+ source "net/phonet/Kconfig"
+-- 
+1.7.2.3
+
+
