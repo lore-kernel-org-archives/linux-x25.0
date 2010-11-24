@@ -1,66 +1,46 @@
-From: Andrew Hendry <andrew.hendry@gmail.com>
-Subject: Re: [PATCH 3/3] x25: Move to staging
-Date: Tue, 23 Nov 2010 16:05:13 +1100
-Message-ID: <AANLkTi=LA7o0o16DRQF6af1+mgPapV5sUm-hQNC1ou3V@mail.gmail.com>
-References: <1290484528.6770.1336.camel@localhost>
-	<20101122203155.27534f3b@nehalam>
-Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <netdev-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=domainkey-signature:mime-version:received:received:in-reply-to
-         :references:date:message-id:subject:from:to:cc:content-type
-         :content-transfer-encoding;
-        bh=w9ceip2zVpa709sg31YdOAS5GuaugBz2SHAUpkELE5Q=;
-        b=Rf/82RDFE6r6S/TtbyaWzHPWMgQ0hrReFHnR2vr1XEBe9QB3/P1B8XAuChXgOn+jvR
-         H+6Xh30lMP7NwPNgZFBcZEhbKmsPbOgfXTTGSxcm6B5B90WJ6KJNRVQA3EnahFhXUPD0
-         GK4M6L2yWBd8MPDtAvwe2da6VZ17XuT3t7S7Q=
-In-Reply-To: <20101122203155.27534f3b@nehalam>
-Sender: netdev-owner@vger.kernel.org
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 2/2] NET: wan/x25, fix ldisc->open retval
+Date: Thu, 25 Nov 2010 00:27:55 +0100
+Message-ID: <1290641275-21726-2-git-send-email-jslaby@suse.cz>
+References: <4CED9498.9080900@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CED9498.9080900@suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Ben Hutchings <ben@decadent.org.uk>, David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>, netdev <netdev@vger.kernel.org>, devel@driverdev.osuosl.org, Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-x25@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: gregkh@suse.de
+Cc: slapin@ossfans.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Alan Cox <alan@linux.intel.com>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org
 
-There are users of linux X.25 for production environments, please don't=
-=2E.
-It works well enough, there have been some X.25 over TCP bits of code
-floating around the Internet and mailing lists.
-There is an x25 loopback device on sourceforge using tuntap which I
-have been using to test slowly removing the bkls.
+We should never return positive values from ldisc->open, tty layer
+doesn't (and never did) expect that.
 
-Regards,
-Andrew.
+If we do that, weird things like warnings in tty_ldisc_close happen.
 
-On Tue, Nov 23, 2010 at 3:31 PM, Stephen Hemminger
-<shemminger@vyatta.com> wrote:
-> On Tue, 23 Nov 2010 03:55:28 +0000
-> Ben Hutchings <ben@decadent.org.uk> wrote:
->
->> Recent review has revealed several bugs in obscure protocol
->> implementations that can be exploited by local users for denial of
->> service or privilege escalation.
->>
->> The x25 protocol (PF_X25) receives only 'odd fixes'. =A0There appear=
- to
->> be no published applications for it, and it has never progressed
->> beyond 'experimental' status.
->>
->> This protocol generally should not be enabled by distributions, sinc=
-e
->> the cost of a security flaw affecting all installed systems presumab=
-ly
->> outweighs the benefit to the few (if any) legitimate users.
->>
->> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
->> ---
->> I'm somewhat less sure about this one; maybe it's improving? =A0But =
-there
->> is little enough sign of any usefulness after 10 years.
->>
->> There are several X25 dependencies that presumably should be moved t=
-oo.
->
-> No. If you don't like it then don't enable it.
->
+Not sure if dev->base_addr is used somehow now.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Alan Cox <alan@linux.intel.com>
+Cc: Andrew Hendry <andrew.hendry@gmail.com>
+Cc: linux-x25@vger.kernel.org
+---
+ drivers/net/wan/x25_asy.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/wan/x25_asy.c b/drivers/net/wan/x25_asy.c
+index d81ad83..66cda25 100644
+--- a/drivers/net/wan/x25_asy.c
++++ b/drivers/net/wan/x25_asy.c
+@@ -582,7 +582,7 @@ static int x25_asy_open_tty(struct tty_struct *tty)
+ 	if (err)
+ 		return err;
+ 	/* Done.  We have linked the TTY line to a channel. */
+-	return sl->dev->base_addr;
++	return 0;
+ }
+ 
+ 
+-- 
+1.7.3.1
+
