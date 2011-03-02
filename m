@@ -1,43 +1,25 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH 0/7] Final BKL removal, take 2
-Date: Wed, 02 Mar 2011 08:32:15 -0300
-Message-ID: <4D6E2ABF.5040500@redhat.com>
-References: <1299021191-17961-1-git-send-email-arnd@arndb.de> <20110302045923.GA28214@suse.de>
+Date: Wed, 2 Mar 2011 12:42:12 +0100
+Message-ID: <201103021242.12699.arnd@arndb.de>
+References: <1299021191-17961-1-git-send-email-arnd@arndb.de> <20110302045923.GA28214@suse.de> <4D6E2ABF.5040500@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110302045923.GA28214@suse.de>
+In-Reply-To: <4D6E2ABF.5040500@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Greg KH <gregkh@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Andrew Hendry <andrew.hendry@gmail.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, David Miller <davem@davemloft.net>, Eric Dumazet <eric.dumazet@gmail.com>, Evgeniy Dushistov <dushistov@mail.ru>, linux-fsdevel@vger.kernel.org, linux-x25@vger.kernel.org, Max Vozeler <max@vozeler.com>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, netdev@vger.kernel.org, Nick Bowler <nbowler@elliptictech.com>, Nick Piggin <npiggin@gmail.com>, Palash Bandyopadhyay <palash.bandyopadhyay@conexant.com>, Takahiro Hirofuchi <hirofuchi@users.sourceforge.net>
+Content-Type: Text/Plain; charset="us-ascii"
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Andrew Hendry <andrew.hendry@gmail.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, David Miller <davem@davemloft.net>, Eric Dumazet <eric.dumazet@gmail.com>, Evgeniy Dushistov <dushistov@mail.ru>, linux-fsdevel@vger.kernel.org, linux-x25@vger.kernel.org, Max Vozeler <max@vozeler.com>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, netdev@vger.kernel.org, Nick Bowler <nbowler@elliptictech.com>, Nick Piggin <npiggin@gmail.com>, Palash Bandyopadhyay <palash.bandyopadhyay@conexant.com>, Takahiro Hirofuchi <hirofuchi@users.sourceforge.net>
 
-Em 02-03-2011 01:59, Greg KH escreveu:
-> On Wed, Mar 02, 2011 at 12:13:04AM +0100, Arnd Bergmann wrote:
->> This is the set of patches that remain from
->> my previous submission one month ago. I've
->> dropped the ones that have either gone into
->> linux-next or got a sufficient number of
->> Acked-by:s so I put them into my own tree.
->>
->> I've updated the usbip, hpfs, ufs and appletalk
->> patches according to the feedback I got.
->>
->> If possible, I'd like the three networking patches
->> to go through the net-next tree, and the two
->> staging patches through the staging tree. I'll
->> add the other ones to my own series if I hear
->> no objections.
-> 
-> I'll queue up the staging patches in the staging-next tree in a day or
-> so, thanks for digging them up.
+On Wednesday 02 March 2011, Mauro Carvalho Chehab wrote:
+> It is probably better to queue the staging/cx25821 patch via my tree, as this is one
+> of those staging files that it is handled via media tree. So, if it is ok
+> for you both, I'll get patch 2/7.
 
-Greg,
-
-It is probably better to queue the staging/cx25821 patch via my tree, as this is one
-of those staging files that it is handled via media tree. So, if it is ok
-for you both, I'll get patch 2/7.
+Fine with me.
 
 Thanks,
-Mauro
+
+	Arnd
