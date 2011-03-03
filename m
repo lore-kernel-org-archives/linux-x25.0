@@ -1,34 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 0/7] Final BKL removal, take 2
-Date: Wed, 2 Mar 2011 22:54:09 +0100
-Message-ID: <201103022254.10078.arnd@arndb.de>
-References: <1299021191-17961-1-git-send-email-arnd@arndb.de> <20110302140428.GA630@suse.de> <4D6EA965.9050709@redhat.com>
+From: Andrew Hendry <andrew.hendry@gmail.com>
+Subject: Re: [PATCH 5/7] x25: remove the BKL
+Date: Thu, 3 Mar 2011 18:38:22 +1100
+Message-ID: <AANLkTinfM=OyMwHEuMejNtcXTUSWP=j_9oYXSU0gx=8Q@mail.gmail.com>
+References: <1299021191-17961-1-git-send-email-arnd@arndb.de>
+	<1299021191-17961-6-git-send-email-arnd@arndb.de>
+	<20110301.151622.200374696.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D6EA965.9050709@redhat.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=domainkey-signature:mime-version:in-reply-to:references:date
+         :message-id:subject:from:to:cc:content-type
+         :content-transfer-encoding;
+        bh=2qPU+YbAFeNV4YCRjRcL4AYZg9bBYbYYqWo3etNELWc=;
+        b=YmfPHoiTMcEAhsRtqHcoqjoeTPOGs8acANU1VX9v5vkFrrxHkJvVnesZ+gkP8MAidB
+         lC94Ju7+kXRJuJvo0Na3+cH9nqe+F96Rseu8f4s9+o2eTCjHIG+rovt20pHkh05Fslxy
+         gVJL7ECiuBcNtYrYMRsOR9JBDx1d4FUoKYHAU=
+In-Reply-To: <20110301.151622.200374696.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Andrew Hendry <andrew.hendry@gmail.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, David Miller <davem@davemloft.net>, Eric Dumazet <eric.dumazet@gmail.com>, Evgeniy Dushistov <dushistov@mail.ru>, linux-fsdevel@vger.kernel.org, linux-x25@vger.kernel.org, Max Vozeler <max@vozeler.com>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, netdev@vger.kernel.org, Nick Bowler <nbowler@elliptictech.com>, Nick Piggin <npiggin@gmail.com>, Palash Bandyopadhyay <palash.bandyopadhyay@conexant.com>, Takahiro Hirofuchi <hirofuchi@users.sourceforge.net>
+Content-Type: text/plain; charset="iso-8859-1"
+To: David Miller <davem@davemloft.net>
+Cc: arnd@arndb.de, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, eric.dumazet@gmail.com
 
-On Wednesday 02 March 2011 21:32:37 Mauro Carvalho Chehab wrote:
-> >>
-> >> It is probably better to queue the staging/cx25821 patch via my tree, as this is one
-> >> of those staging files that it is handled via media tree. So, if it is ok
-> >> for you both, I'll get patch 2/7.
-> > 
-> > Yes, you are right, please take it through your tree.
-> 
-> Patch applied on my tree, thanks!
+Looks good, put 8gig through it over the past few days and system stabl=
+e.
 
-I've pushed out everything to my git tree, except for the two staging
-patches that go through the other trees.
+Tested-by: Andrew Hendry <andrew.hendry@gmail.com>
 
-Once everything is in -next, I'll add the last patch to remove the
-infrastructure.
-
-Thanks for the feedback!
-
-	Arnd
+On Wed, Mar 2, 2011 at 10:16 AM, David Miller <davem@davemloft.net> wro=
+te:
+> From: Arnd Bergmann <arnd@arndb.de>
+> Date: Wed, =A02 Mar 2011 00:13:09 +0100
+>
+>> This replaces all instances of lock_kernel in x25
+>> with lock_sock, taking care to release the socket
+>> lock around sleeping functions (sock_alloc_send_skb
+>> and skb_recv_datagram). It is not clear whether
+>> this is a correct solution, but it seem to be what
+>> other protocols do in the same situation.
+>>
+>> Includes a fix suggested by Eric Dumazet.
+>>
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>
+> Acked-by: David S. Miller <davem@davemloft.net>
+>
