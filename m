@@ -1,49 +1,93 @@
-From: Andrew Hendry <andrew.hendry@gmail.com>
-Subject: Re: [PATCH 5/7] x25: remove the BKL
-Date: Thu, 3 Mar 2011 18:38:22 +1100
-Message-ID: <AANLkTinfM=OyMwHEuMejNtcXTUSWP=j_9oYXSU0gx=8Q@mail.gmail.com>
-References: <1299021191-17961-1-git-send-email-arnd@arndb.de>
-	<1299021191-17961-6-git-send-email-arnd@arndb.de>
-	<20110301.151622.200374696.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sergey Lapin <slapin@ossfans.org>
+Subject: [PATCH] Allow LAPB users know which data were actually sent.
+Date: Thu, 17 Mar 2011 18:20:22 -0400
+Message-ID: <1300400422-8820-1-git-send-email-slapin@ossfans.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=domainkey-signature:mime-version:in-reply-to:references:date
-         :message-id:subject:from:to:cc:content-type
-         :content-transfer-encoding;
-        bh=2qPU+YbAFeNV4YCRjRcL4AYZg9bBYbYYqWo3etNELWc=;
-        b=YmfPHoiTMcEAhsRtqHcoqjoeTPOGs8acANU1VX9v5vkFrrxHkJvVnesZ+gkP8MAidB
-         lC94Ju7+kXRJuJvo0Na3+cH9nqe+F96Rseu8f4s9+o2eTCjHIG+rovt20pHkh05Fslxy
-         gVJL7ECiuBcNtYrYMRsOR9JBDx1d4FUoKYHAU=
-In-Reply-To: <20110301.151622.200374696.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: David Miller <davem@davemloft.net>
-Cc: arnd@arndb.de, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, eric.dumazet@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-x25@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Sergey Lapin <slapin@ossfans.org>
 
-Looks good, put 8gig through it over the past few days and system stabl=
-e.
+Normally, when LAPB is transport layer for X.25 protocol,
+internal mechanics of X.25 knows wheather data were actually
+received by peer. But for non-X.25 protocols which use LAPB
+as data reliability layer, it is important to have some way
+to know what was actually sent, so we add transmit indication.
 
-Tested-by: Andrew Hendry <andrew.hendry@gmail.com>
+This change doesn't affext X.25 in any way.
 
-On Wed, Mar 2, 2011 at 10:16 AM, David Miller <davem@davemloft.net> wro=
-te:
-> From: Arnd Bergmann <arnd@arndb.de>
-> Date: Wed, =A02 Mar 2011 00:13:09 +0100
->
->> This replaces all instances of lock_kernel in x25
->> with lock_sock, taking care to release the socket
->> lock around sleeping functions (sock_alloc_send_skb
->> and skb_recv_datagram). It is not clear whether
->> this is a correct solution, but it seem to be what
->> other protocols do in the same situation.
->>
->> Includes a fix suggested by Eric Dumazet.
->>
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->
-> Acked-by: David S. Miller <davem@davemloft.net>
->
+Signed-off-by: Sergey Lapin <slapin@ossfans.org>
+---
+ include/linux/lapb.h  |    2 ++
+ include/net/lapb.h    |    2 ++
+ net/lapb/lapb_iface.c |   13 +++++++++++++
+ net/lapb/lapb_subr.c  |    1 +
+ 4 files changed, 18 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/lapb.h b/include/linux/lapb.h
+index ce709e1..a57cac0 100644
+--- a/include/linux/lapb.h
++++ b/include/linux/lapb.h
+@@ -30,6 +30,8 @@ struct lapb_register_struct {
+ 	void (*disconnect_indication)(struct net_device *dev, int reason);
+ 	int  (*data_indication)(struct net_device *dev, struct sk_buff *skb);
+ 	void (*data_transmit)(struct net_device *dev, struct sk_buff *skb);
++	void (*data_transmit_indication)(struct net_device *dev,
++			struct sk_buff *skb);
+ };
+ 
+ struct lapb_parms_struct {
+diff --git a/include/net/lapb.h b/include/net/lapb.h
+index 96cb5dd..b720ffa 100644
+--- a/include/net/lapb.h
++++ b/include/net/lapb.h
+@@ -111,6 +111,8 @@ extern void lapb_disconnect_confirmation(struct lapb_cb *lapb, int);
+ extern void lapb_disconnect_indication(struct lapb_cb *lapb, int);
+ extern int  lapb_data_indication(struct lapb_cb *lapb, struct sk_buff *);
+ extern int  lapb_data_transmit(struct lapb_cb *lapb, struct sk_buff *);
++extern void  lapb_data_transmit_indication(struct lapb_cb *lapb,
++				struct sk_buff *);
+ 
+ /* lapb_in.c */
+ extern void lapb_data_input(struct lapb_cb *lapb, struct sk_buff *);
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index d5d8d55..024045f 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -423,6 +423,19 @@ int lapb_data_transmit(struct lapb_cb *lapb, struct sk_buff *skb)
+ 	return used;
+ }
+ 
++/* Here we indicate what we have just sent and received ack for
++ * This will allow us know what actually was sent */
++void lapb_data_transmit_indication(struct lapb_cb *lapb,
++					struct sk_buff *skb)
++{
++	int used = 0;
++	if (lapb->callbacks.data_transmit) {
++		lapb->callbacks.data_transmit_indication(lapb->dev, skb);
++		used = 1;
++	}
++	return used;
++}
++
+ EXPORT_SYMBOL(lapb_register);
+ EXPORT_SYMBOL(lapb_unregister);
+ EXPORT_SYMBOL(lapb_getparms);
+diff --git a/net/lapb/lapb_subr.c b/net/lapb/lapb_subr.c
+index 43a2a7f..87ec449 100644
+--- a/net/lapb/lapb_subr.c
++++ b/net/lapb/lapb_subr.c
+@@ -60,6 +60,7 @@ void lapb_frames_acked(struct lapb_cb *lapb, unsigned short nr)
+ 	if (lapb->va != nr)
+ 		while (skb_peek(&lapb->ack_queue) && lapb->va != nr) {
+ 			skb = skb_dequeue(&lapb->ack_queue);
++			lapb_data_transmit_indication(lapb, skb);
+ 			kfree_skb(skb);
+ 			lapb->va = (lapb->va + 1) % modulus;
+ 		}
+-- 
+1.7.4.1
