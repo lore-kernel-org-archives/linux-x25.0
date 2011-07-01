@@ -1,28 +1,67 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Allow LAPB users know which data were actually sent.
-Date: Fri, 18 Mar 2011 11:34:33 +0000
-Message-ID: <20110318113433.39794ca5@lxorguk.ukuu.org.uk>
-References: <1300400422-8820-1-git-send-email-slapin@ossfans.org>
-	<20110317235532.44c0e202@lxorguk.ukuu.org.uk>
-	<20110318005220.GA9674@build.ihdev.net>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110318005220.GA9674@build.ihdev.net>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 00/12] net switch/case reformatting
+Date: Fri,  1 Jul 2011 12:43:01 -0700
+Message-ID: <cover.1309549243.git.joe@perches.com>
+Return-path: <linux-hams-owner@vger.kernel.org>
+Sender: linux-hams-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Sergey Lapin <slapin@ossfans.org>
-Cc: linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, linux-x25@vger.kernel.org, linux-h
+Cc: linux-kernel@vger.kernel.org
 
-> > Looks sensible but your patch doesn't add a user for it so what is it
-> > needed for ?
-> 
-> I implement accessor for special equipment (acessing fiscal information)
-> which uses custom protocol over LAPB. As it is being implemented,
-> I actually wanted to know if this approach for using LAPB is good enough
-> for mainline submission, as I want to have kernel part to be in mainline.
-> I think I will have the rest of patches ready within two weeks.
+Just whitespace cleanups with a couple trivial corrections
 
-It seems sensible as an implementation to me so I would carry on using
-that model and then submit it with all the other bits when you are ready.
+Joe Perches (12):
+  appletalk: Reduce switch/case indent
+  decnet: Reduce switch/case indent
+  econet: Reduce switch/case indent
+  ipconfig: Reduce switch/case indent
+  netfilter: Reduce switch/case indent
+  ipv4: Reduce switch/case indent
+  ipv6: Reduce switch/case indent
+  lapb: Reduce switch/case indent
+  netrom:  Reduce switch/case indent
+  sctp: Reduce switch/case indent
+  sunrpc: Reduce switch/case indent
+  x25: Reduce switch/case indent
+
+ net/appletalk/aarp.c                   |  138 +++---
+ net/appletalk/ddp.c                    |  398 +++++++-------
+ net/decnet/af_decnet.c                 |  697 +++++++++++++-------------
+ net/decnet/dn_dev.c                    |   70 ++--
+ net/decnet/dn_fib.c                    |   77 ++--
+ net/decnet/dn_neigh.c                  |   14 +-
+ net/decnet/dn_nsp_in.c                 |  182 ++++----
+ net/decnet/dn_route.c                  |  102 ++--
+ net/decnet/dn_table.c                  |   23 +-
+ net/decnet/netfilter/dn_rtmsg.c        |   18 +-
+ net/decnet/sysctl_net_decnet.c         |   17 +-
+ net/econet/af_econet.c                 |   23 +-
+ net/ipv4/ipconfig.c                    |   73 ++--
+ net/ipv4/netfilter/ipt_CLUSTERIP.c     |   26 +-
+ net/ipv4/netfilter/nf_nat_snmp_basic.c |  210 ++++----
+ net/ipv4/raw.c                         |   36 +-
+ net/ipv4/route.c                       |   28 +-
+ net/ipv6/raw.c                         |  145 +++---
+ net/lapb/lapb_iface.c                  |   30 +-
+ net/lapb/lapb_in.c                     |  881 ++++++++++++++++----------------
+ net/netfilter/xt_HL.c                  |   64 ++--
+ net/netfilter/xt_hl.c                  |   32 +-
+ net/netrom/nr_route.c                  |   22 +-
+ net/sctp/sm_statefuns.c                |   51 +-
+ net/sctp/socket.c                      |   10 +-
+ net/sunrpc/auth_gss/auth_gss.c         |   46 +-
+ net/sunrpc/clnt.c                      |   25 +-
+ net/sunrpc/rpc_pipe.c                  |   14 +-
+ net/x25/af_x25.c                       |  473 +++++++++---------
+ net/x25/x25_dev.c                      |   44 +-
+ net/x25/x25_in.c                       |  118 +++---
+ net/x25/x25_link.c                     |   87 ++--
+ net/x25/x25_subr.c                     |   78 ++--
+ 33 files changed, 2111 insertions(+), 2141 deletions(-)
+
+-- 
+1.7.6.rc1
+
