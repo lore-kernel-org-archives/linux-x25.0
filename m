@@ -1,7 +1,7 @@
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH 12/12] x25: Reduce switch/case indent
-Date: Fri,  1 Jul 2011 12:43:13 -0700
-Message-ID: <fd02aadf4bda35a8c3f775c64a0ad0785cd08998.1309549244.git.joe@perches.com>
+Subject: [PATCH 08/12] lapb: Reduce switch/case indent
+Date: Fri,  1 Jul 2011 12:43:09 -0700
+Message-ID: <df508186751fe6cd7a0532a1a465cc9c6e260cc7.1309549244.git.joe@perches.com>
 References: <cover.1309549243.git.joe@perches.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <cover.1309549243.git.joe@perches.com>
@@ -10,953 +10,1122 @@ List-ID: <linux-x25.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andrew Hendry <andrew.hendry@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
 Make the case labels the same indent as the switch.
 
-git diff -w shows 80 column line reflowing.
+git diff -w shows 80 column reflowing.
 
 Signed-off-by: Joe Perches <joe@perches.com>
 ---
- net/x25/af_x25.c   |  473 ++++++++++++++++++++++++++--------------------------
- net/x25/x25_dev.c  |   44 +++---
- net/x25/x25_in.c   |  118 +++++++-------
- net/x25/x25_link.c |   87 +++++-----
- net/x25/x25_subr.c |   78 ++++-----
- 5 files changed, 397 insertions(+), 403 deletions(-)
+ net/lapb/lapb_iface.c |   30 +-
+ net/lapb/lapb_in.c    |  881 ++++++++++++++++++++++++-------------------------
+ 2 files changed, 444 insertions(+), 467 deletions(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 4680b1e..d306154 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -237,21 +237,21 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index d5d8d55..956b7e4 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -300,26 +300,26 @@ int lapb_disconnect_request(struct net_device *dev)
+ 		goto out;
+ 
+ 	switch (lapb->state) {
+-		case LAPB_STATE_0:
+-			rc = LAPB_NOTCONNECTED;
+-			goto out_put;
++	case LAPB_STATE_0:
++		rc = LAPB_NOTCONNECTED;
++		goto out_put;
+ 
+-		case LAPB_STATE_1:
++	case LAPB_STATE_1:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 TX DISC(1)\n", lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S1 TX DISC(1)\n", lapb->dev);
  #endif
- 	 ) {
- 		switch (event) {
--			case NETDEV_UP:
--				x25_link_device_up(dev);
--				break;
--			case NETDEV_GOING_DOWN:
--				nb = x25_get_neigh(dev);
--				if (nb) {
--					x25_terminate_link(nb);
--					x25_neigh_put(nb);
--				}
--				break;
--			case NETDEV_DOWN:
--				x25_kill_by_device(dev);
--				x25_route_device_down(dev);
--				x25_link_device_down(dev);
--				break;
-+		case NETDEV_UP:
-+			x25_link_device_up(dev);
-+			break;
-+		case NETDEV_GOING_DOWN:
-+			nb = x25_get_neigh(dev);
-+			if (nb) {
-+				x25_terminate_link(nb);
-+				x25_neigh_put(nb);
-+			}
-+			break;
-+		case NETDEV_DOWN:
-+			x25_kill_by_device(dev);
-+			x25_route_device_down(dev);
-+			x25_link_device_down(dev);
-+			break;
- 		}
- 	}
- 
-@@ -1336,256 +1336,253 @@ static int x25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 	int rc;
- 
- 	switch (cmd) {
--		case TIOCOUTQ: {
--			int amount;
-+	case TIOCOUTQ: {
-+		int amount;
- 
--			amount = sk->sk_sndbuf - sk_wmem_alloc_get(sk);
--			if (amount < 0)
--				amount = 0;
--			rc = put_user(amount, (unsigned int __user *)argp);
--			break;
--		}
-+		amount = sk->sk_sndbuf - sk_wmem_alloc_get(sk);
-+		if (amount < 0)
-+			amount = 0;
-+		rc = put_user(amount, (unsigned int __user *)argp);
-+		break;
-+	}
- 
--		case TIOCINQ: {
--			struct sk_buff *skb;
--			int amount = 0;
--			/*
--			 * These two are safe on a single CPU system as
--			 * only user tasks fiddle here
--			 */
--			lock_sock(sk);
--			if ((skb = skb_peek(&sk->sk_receive_queue)) != NULL)
--				amount = skb->len;
--			release_sock(sk);
--			rc = put_user(amount, (unsigned int __user *)argp);
--			break;
--		}
-+	case TIOCINQ: {
-+		struct sk_buff *skb;
-+		int amount = 0;
-+		/*
-+		 * These two are safe on a single CPU system as
-+		 * only user tasks fiddle here
-+		 */
-+		lock_sock(sk);
-+		if ((skb = skb_peek(&sk->sk_receive_queue)) != NULL)
-+			amount = skb->len;
-+		release_sock(sk);
-+		rc = put_user(amount, (unsigned int __user *)argp);
-+		break;
-+	}
- 
--		case SIOCGSTAMP:
--			rc = -EINVAL;
--			if (sk)
--				rc = sock_get_timestamp(sk,
-+	case SIOCGSTAMP:
-+		rc = -EINVAL;
-+		if (sk)
-+			rc = sock_get_timestamp(sk,
- 						(struct timeval __user *)argp);
-+		break;
-+	case SIOCGSTAMPNS:
-+		rc = -EINVAL;
-+		if (sk)
-+			rc = sock_get_timestampns(sk,
-+					(struct timespec __user *)argp);
-+		break;
-+	case SIOCGIFADDR:
-+	case SIOCSIFADDR:
-+	case SIOCGIFDSTADDR:
-+	case SIOCSIFDSTADDR:
-+	case SIOCGIFBRDADDR:
-+	case SIOCSIFBRDADDR:
-+	case SIOCGIFNETMASK:
-+	case SIOCSIFNETMASK:
-+	case SIOCGIFMETRIC:
-+	case SIOCSIFMETRIC:
-+		rc = -EINVAL;
-+		break;
-+	case SIOCADDRT:
-+	case SIOCDELRT:
-+		rc = -EPERM;
-+		if (!capable(CAP_NET_ADMIN))
- 			break;
--		case SIOCGSTAMPNS:
--			rc = -EINVAL;
--			if (sk)
--				rc = sock_get_timestampns(sk,
--						(struct timespec __user *)argp);
--			break;
--		case SIOCGIFADDR:
--		case SIOCSIFADDR:
--		case SIOCGIFDSTADDR:
--		case SIOCSIFDSTADDR:
--		case SIOCGIFBRDADDR:
--		case SIOCSIFBRDADDR:
--		case SIOCGIFNETMASK:
--		case SIOCSIFNETMASK:
--		case SIOCGIFMETRIC:
--		case SIOCSIFMETRIC:
--			rc = -EINVAL;
--			break;
--		case SIOCADDRT:
--		case SIOCDELRT:
--			rc = -EPERM;
--			if (!capable(CAP_NET_ADMIN))
--				break;
--			rc = x25_route_ioctl(cmd, argp);
--			break;
--		case SIOCX25GSUBSCRIP:
--			rc = x25_subscr_ioctl(cmd, argp);
--			break;
--		case SIOCX25SSUBSCRIP:
--			rc = -EPERM;
--			if (!capable(CAP_NET_ADMIN))
--				break;
--			rc = x25_subscr_ioctl(cmd, argp);
--			break;
--		case SIOCX25GFACILITIES: {
--			lock_sock(sk);
--			rc = copy_to_user(argp, &x25->facilities,
--						sizeof(x25->facilities))
--						? -EFAULT : 0;
--			release_sock(sk);
-+		rc = x25_route_ioctl(cmd, argp);
-+		break;
-+	case SIOCX25GSUBSCRIP:
-+		rc = x25_subscr_ioctl(cmd, argp);
-+		break;
-+	case SIOCX25SSUBSCRIP:
-+		rc = -EPERM;
-+		if (!capable(CAP_NET_ADMIN))
- 			break;
--		}
-+		rc = x25_subscr_ioctl(cmd, argp);
-+		break;
-+	case SIOCX25GFACILITIES: {
-+		lock_sock(sk);
-+		rc = copy_to_user(argp, &x25->facilities,
-+				  sizeof(x25->facilities))
-+			? -EFAULT : 0;
-+		release_sock(sk);
-+		break;
-+	}
- 
--		case SIOCX25SFACILITIES: {
--			struct x25_facilities facilities;
--			rc = -EFAULT;
--			if (copy_from_user(&facilities, argp,
--					   sizeof(facilities)))
--				break;
--			rc = -EINVAL;
--			lock_sock(sk);
--			if (sk->sk_state != TCP_LISTEN &&
--			    sk->sk_state != TCP_CLOSE)
--				goto out_fac_release;
--			if (facilities.pacsize_in < X25_PS16 ||
--			    facilities.pacsize_in > X25_PS4096)
--				goto out_fac_release;
--			if (facilities.pacsize_out < X25_PS16 ||
--			    facilities.pacsize_out > X25_PS4096)
--				goto out_fac_release;
--			if (facilities.winsize_in < 1 ||
--			    facilities.winsize_in > 127)
-+	case SIOCX25SFACILITIES: {
-+		struct x25_facilities facilities;
-+		rc = -EFAULT;
-+		if (copy_from_user(&facilities, argp, sizeof(facilities)))
-+			break;
-+		rc = -EINVAL;
-+		lock_sock(sk);
-+		if (sk->sk_state != TCP_LISTEN &&
-+		    sk->sk_state != TCP_CLOSE)
-+			goto out_fac_release;
-+		if (facilities.pacsize_in < X25_PS16 ||
-+		    facilities.pacsize_in > X25_PS4096)
-+			goto out_fac_release;
-+		if (facilities.pacsize_out < X25_PS16 ||
-+		    facilities.pacsize_out > X25_PS4096)
-+			goto out_fac_release;
-+		if (facilities.winsize_in < 1 ||
-+		    facilities.winsize_in > 127)
-+			goto out_fac_release;
-+		if (facilities.throughput) {
-+			int out = facilities.throughput & 0xf0;
-+			int in  = facilities.throughput & 0x0f;
-+			if (!out)
-+				facilities.throughput |=
-+					X25_DEFAULT_THROUGHPUT << 4;
-+			else if (out < 0x30 || out > 0xD0)
- 				goto out_fac_release;
--			if (facilities.throughput) {
--				int out = facilities.throughput & 0xf0;
--				int in  = facilities.throughput & 0x0f;
--				if (!out)
--					facilities.throughput |=
--						X25_DEFAULT_THROUGHPUT << 4;
--				else if (out < 0x30 || out > 0xD0)
--					goto out_fac_release;
--				if (!in)
--					facilities.throughput |=
--						X25_DEFAULT_THROUGHPUT;
--				else if (in < 0x03 || in > 0x0D)
--					goto out_fac_release;
--			}
--			if (facilities.reverse &&
--				(facilities.reverse & 0x81) != 0x81)
-+			if (!in)
-+				facilities.throughput |=
-+					X25_DEFAULT_THROUGHPUT;
-+			else if (in < 0x03 || in > 0x0D)
- 				goto out_fac_release;
--			x25->facilities = facilities;
--			rc = 0;
--out_fac_release:
--			release_sock(sk);
--			break;
--		}
--
--		case SIOCX25GDTEFACILITIES: {
--			lock_sock(sk);
--			rc = copy_to_user(argp, &x25->dte_facilities,
--						sizeof(x25->dte_facilities));
--			release_sock(sk);
--			if (rc)
--				rc = -EFAULT;
--			break;
- 		}
-+		if (facilities.reverse &&
-+		    (facilities.reverse & 0x81) != 0x81)
-+			goto out_fac_release;
-+		x25->facilities = facilities;
-+		rc = 0;
-+out_fac_release:
-+		release_sock(sk);
-+		break;
-+	}
- 
--		case SIOCX25SDTEFACILITIES: {
--			struct x25_dte_facilities dtefacs;
-+	case SIOCX25GDTEFACILITIES: {
-+		lock_sock(sk);
-+		rc = copy_to_user(argp, &x25->dte_facilities,
-+				  sizeof(x25->dte_facilities));
-+		release_sock(sk);
-+		if (rc)
- 			rc = -EFAULT;
--			if (copy_from_user(&dtefacs, argp, sizeof(dtefacs)))
--				break;
--			rc = -EINVAL;
--			lock_sock(sk);
--			if (sk->sk_state != TCP_LISTEN &&
--					sk->sk_state != TCP_CLOSE)
--				goto out_dtefac_release;
--			if (dtefacs.calling_len > X25_MAX_AE_LEN)
--				goto out_dtefac_release;
--			if (dtefacs.calling_ae == NULL)
--				goto out_dtefac_release;
--			if (dtefacs.called_len > X25_MAX_AE_LEN)
--				goto out_dtefac_release;
--			if (dtefacs.called_ae == NULL)
--				goto out_dtefac_release;
--			x25->dte_facilities = dtefacs;
--			rc = 0;
--out_dtefac_release:
--			release_sock(sk);
--			break;
--		}
-+		break;
-+	}
- 
--		case SIOCX25GCALLUSERDATA: {
--			lock_sock(sk);
--			rc = copy_to_user(argp, &x25->calluserdata,
--					sizeof(x25->calluserdata))
--					? -EFAULT : 0;
--			release_sock(sk);
-+	case SIOCX25SDTEFACILITIES: {
-+		struct x25_dte_facilities dtefacs;
-+		rc = -EFAULT;
-+		if (copy_from_user(&dtefacs, argp, sizeof(dtefacs)))
- 			break;
--		}
-+		rc = -EINVAL;
-+		lock_sock(sk);
-+		if (sk->sk_state != TCP_LISTEN &&
-+		    sk->sk_state != TCP_CLOSE)
-+			goto out_dtefac_release;
-+		if (dtefacs.calling_len > X25_MAX_AE_LEN)
-+			goto out_dtefac_release;
-+		if (dtefacs.calling_ae == NULL)
-+			goto out_dtefac_release;
-+		if (dtefacs.called_len > X25_MAX_AE_LEN)
-+			goto out_dtefac_release;
-+		if (dtefacs.called_ae == NULL)
-+			goto out_dtefac_release;
-+		x25->dte_facilities = dtefacs;
-+		rc = 0;
-+out_dtefac_release:
-+		release_sock(sk);
-+		break;
-+	}
- 
--		case SIOCX25SCALLUSERDATA: {
--			struct x25_calluserdata calluserdata;
-+	case SIOCX25GCALLUSERDATA: {
-+		lock_sock(sk);
-+		rc = copy_to_user(argp, &x25->calluserdata,
-+				  sizeof(x25->calluserdata))
-+			? -EFAULT : 0;
-+		release_sock(sk);
-+		break;
-+	}
- 
--			rc = -EFAULT;
--			if (copy_from_user(&calluserdata, argp,
--					   sizeof(calluserdata)))
--				break;
--			rc = -EINVAL;
--			if (calluserdata.cudlength > X25_MAX_CUD_LEN)
--				break;
--			lock_sock(sk);
--			x25->calluserdata = calluserdata;
--			release_sock(sk);
--			rc = 0;
--			break;
--		}
-+	case SIOCX25SCALLUSERDATA: {
-+		struct x25_calluserdata calluserdata;
- 
--		case SIOCX25GCAUSEDIAG: {
--			lock_sock(sk);
--			rc = copy_to_user(argp, &x25->causediag,
--					sizeof(x25->causediag))
--					? -EFAULT : 0;
--			release_sock(sk);
-+		rc = -EFAULT;
-+		if (copy_from_user(&calluserdata, argp, sizeof(calluserdata)))
- 			break;
--		}
-+		rc = -EINVAL;
-+		if (calluserdata.cudlength > X25_MAX_CUD_LEN)
-+			break;
-+		lock_sock(sk);
-+		x25->calluserdata = calluserdata;
-+		release_sock(sk);
-+		rc = 0;
-+		break;
-+	}
- 
--		case SIOCX25SCAUSEDIAG: {
--			struct x25_causediag causediag;
--			rc = -EFAULT;
--			if (copy_from_user(&causediag, argp, sizeof(causediag)))
--				break;
--			lock_sock(sk);
--			x25->causediag = causediag;
--			release_sock(sk);
--			rc = 0;
-+	case SIOCX25GCAUSEDIAG: {
-+		lock_sock(sk);
-+		rc = copy_to_user(argp, &x25->causediag, sizeof(x25->causediag))
-+			? -EFAULT : 0;
-+		release_sock(sk);
-+		break;
-+	}
-+
-+	case SIOCX25SCAUSEDIAG: {
-+		struct x25_causediag causediag;
-+		rc = -EFAULT;
-+		if (copy_from_user(&causediag, argp, sizeof(causediag)))
- 			break;
-+		lock_sock(sk);
-+		x25->causediag = causediag;
-+		release_sock(sk);
-+		rc = 0;
-+		break;
- 
--		}
-+	}
- 
--		case SIOCX25SCUDMATCHLEN: {
--			struct x25_subaddr sub_addr;
--			rc = -EINVAL;
--			lock_sock(sk);
--			if(sk->sk_state != TCP_CLOSE)
--				goto out_cud_release;
--			rc = -EFAULT;
--			if (copy_from_user(&sub_addr, argp,
--					sizeof(sub_addr)))
--				goto out_cud_release;
--			rc = -EINVAL;
--			if(sub_addr.cudmatchlength > X25_MAX_CUD_LEN)
--				goto out_cud_release;
--			x25->cudmatchlength = sub_addr.cudmatchlength;
--			rc = 0;
-+	case SIOCX25SCUDMATCHLEN: {
-+		struct x25_subaddr sub_addr;
-+		rc = -EINVAL;
-+		lock_sock(sk);
-+		if(sk->sk_state != TCP_CLOSE)
-+			goto out_cud_release;
-+		rc = -EFAULT;
-+		if (copy_from_user(&sub_addr, argp,
-+				   sizeof(sub_addr)))
-+			goto out_cud_release;
-+		rc = -EINVAL;
-+		if (sub_addr.cudmatchlength > X25_MAX_CUD_LEN)
-+			goto out_cud_release;
-+		x25->cudmatchlength = sub_addr.cudmatchlength;
-+		rc = 0;
- out_cud_release:
--			release_sock(sk);
--			break;
--		}
-+		release_sock(sk);
-+		break;
-+	}
- 
--		case SIOCX25CALLACCPTAPPRV: {
--			rc = -EINVAL;
--			lock_sock(sk);
--			if (sk->sk_state != TCP_CLOSE)
--				break;
--			clear_bit(X25_ACCPT_APPRV_FLAG, &x25->flags);
--			release_sock(sk);
--			rc = 0;
-+	case SIOCX25CALLACCPTAPPRV: {
-+		rc = -EINVAL;
-+		lock_sock(sk);
-+		if (sk->sk_state != TCP_CLOSE)
- 			break;
--		}
-+		clear_bit(X25_ACCPT_APPRV_FLAG, &x25->flags);
-+		release_sock(sk);
-+		rc = 0;
-+		break;
-+	}
- 
--		case SIOCX25SENDCALLACCPT:  {
--			rc = -EINVAL;
--			lock_sock(sk);
--			if (sk->sk_state != TCP_ESTABLISHED)
--				break;
--			/* must call accptapprv above */
--			if (test_bit(X25_ACCPT_APPRV_FLAG, &x25->flags))
--				break;
--			x25_write_internal(sk, X25_CALL_ACCEPTED);
--			x25->state = X25_STATE_3;
--			release_sock(sk);
--			rc = 0;
-+	case SIOCX25SENDCALLACCPT:  {
-+		rc = -EINVAL;
-+		lock_sock(sk);
-+		if (sk->sk_state != TCP_ESTABLISHED)
- 			break;
--		}
--
--		default:
--			rc = -ENOIOCTLCMD;
-+		/* must call accptapprv above */
-+		if (test_bit(X25_ACCPT_APPRV_FLAG, &x25->flags))
- 			break;
-+		x25_write_internal(sk, X25_CALL_ACCEPTED);
-+		x25->state = X25_STATE_3;
-+		release_sock(sk);
-+		rc = 0;
-+		break;
-+	}
-+
-+	default:
-+		rc = -ENOIOCTLCMD;
-+		break;
- 	}
- 
- 	return rc;
-diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
-index 9005f6d..e547ca1 100644
---- a/net/x25/x25_dev.c
-+++ b/net/x25/x25_dev.c
-@@ -146,21 +146,21 @@ void x25_establish_link(struct x25_neigh *nb)
- 	unsigned char *ptr;
- 
- 	switch (nb->dev->type) {
--		case ARPHRD_X25:
--			if ((skb = alloc_skb(1, GFP_ATOMIC)) == NULL) {
--				printk(KERN_ERR "x25_dev: out of memory\n");
--				return;
--			}
--			ptr  = skb_put(skb, 1);
--			*ptr = X25_IFACE_CONNECT;
--			break;
-+	case ARPHRD_X25:
-+		if ((skb = alloc_skb(1, GFP_ATOMIC)) == NULL) {
-+			printk(KERN_ERR "x25_dev: out of memory\n");
-+			return;
-+		}
-+		ptr  = skb_put(skb, 1);
-+		*ptr = X25_IFACE_CONNECT;
-+		break;
- 
- #if defined(CONFIG_LLC) || defined(CONFIG_LLC_MODULE)
--		case ARPHRD_ETHER:
--			return;
-+	case ARPHRD_ETHER:
-+		return;
+ #if LAPB_DEBUG > 0
+-			printk(KERN_DEBUG "lapb: (%p) S1 -> S0\n", lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S1 -> S0\n", lapb->dev);
  #endif
--		default:
--			return;
-+	default:
-+		return;
+-			lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON, LAPB_COMMAND);
+-			lapb->state = LAPB_STATE_0;
+-			lapb_start_t1timer(lapb);
+-			rc = LAPB_NOTCONNECTED;
+-			goto out_put;
+-
+-		case LAPB_STATE_2:
+-			rc = LAPB_OK;
+-			goto out_put;
++		lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON, LAPB_COMMAND);
++		lapb->state = LAPB_STATE_0;
++		lapb_start_t1timer(lapb);
++		rc = LAPB_NOTCONNECTED;
++		goto out_put;
++
++	case LAPB_STATE_2:
++		rc = LAPB_OK;
++		goto out_put;
  	}
  
- 	skb->protocol = htons(ETH_P_X25);
-@@ -202,19 +202,19 @@ void x25_send_frame(struct sk_buff *skb, struct x25_neigh *nb)
- 	skb_reset_network_header(skb);
- 
- 	switch (nb->dev->type) {
--		case ARPHRD_X25:
--			dptr  = skb_push(skb, 1);
--			*dptr = X25_IFACE_DATA;
--			break;
-+	case ARPHRD_X25:
-+		dptr  = skb_push(skb, 1);
-+		*dptr = X25_IFACE_DATA;
-+		break;
- 
- #if defined(CONFIG_LLC) || defined(CONFIG_LLC_MODULE)
--		case ARPHRD_ETHER:
--			kfree_skb(skb);
--			return;
-+	case ARPHRD_ETHER:
-+		kfree_skb(skb);
-+		return;
- #endif
--		default:
--			kfree_skb(skb);
--			return;
-+	default:
-+		kfree_skb(skb);
-+		return;
- 	}
- 
- 	skb->protocol = htons(ETH_P_X25);
-diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
-index 15de65f..0b073b5 100644
---- a/net/x25/x25_in.c
-+++ b/net/x25/x25_in.c
-@@ -94,55 +94,55 @@ static int x25_state1_machine(struct sock *sk, struct sk_buff *skb, int frametyp
- 	struct x25_sock *x25 = x25_sk(sk);
- 
- 	switch (frametype) {
--		case X25_CALL_ACCEPTED: {
--
--			x25_stop_timer(sk);
--			x25->condition = 0x00;
--			x25->vs        = 0;
--			x25->va        = 0;
--			x25->vr        = 0;
--			x25->vl        = 0;
--			x25->state     = X25_STATE_3;
--			sk->sk_state   = TCP_ESTABLISHED;
--			/*
--			 *	Parse the data in the frame.
--			 */
--			skb_pull(skb, X25_STD_MIN_LEN);
--
--			len = x25_parse_address_block(skb, &source_addr,
--						&dest_addr);
--			if (len > 0)
--				skb_pull(skb, len);
--			else if (len < 0)
--				goto out_clear;
--
--			len = x25_parse_facilities(skb, &x25->facilities,
--						&x25->dte_facilities,
--						&x25->vc_facil_mask);
--			if (len > 0)
--				skb_pull(skb, len);
--			else if (len < 0)
--				goto out_clear;
--			/*
--			 *	Copy any Call User Data.
--			 */
--			if (skb->len > 0) {
--				skb_copy_from_linear_data(skb,
--					      x25->calluserdata.cuddata,
--					      skb->len);
--				x25->calluserdata.cudlength = skb->len;
--			}
--			if (!sock_flag(sk, SOCK_DEAD))
--				sk->sk_state_change(sk);
--			break;
-+	case X25_CALL_ACCEPTED: {
-+
-+		x25_stop_timer(sk);
-+		x25->condition = 0x00;
-+		x25->vs        = 0;
-+		x25->va        = 0;
-+		x25->vr        = 0;
-+		x25->vl        = 0;
-+		x25->state     = X25_STATE_3;
-+		sk->sk_state   = TCP_ESTABLISHED;
-+		/*
-+		 *	Parse the data in the frame.
-+		 */
-+		skb_pull(skb, X25_STD_MIN_LEN);
-+
-+		len = x25_parse_address_block(skb, &source_addr,
-+					      &dest_addr);
-+		if (len > 0)
-+			skb_pull(skb, len);
-+		else if (len < 0)
-+			goto out_clear;
-+
-+		len = x25_parse_facilities(skb, &x25->facilities,
-+					   &x25->dte_facilities,
-+					   &x25->vc_facil_mask);
-+		if (len > 0)
-+			skb_pull(skb, len);
-+		else if (len < 0)
-+			goto out_clear;
-+		/*
-+		 *	Copy any Call User Data.
-+		 */
-+		if (skb->len > 0) {
-+			skb_copy_from_linear_data(skb,
-+						  x25->calluserdata.cuddata,
-+						  skb->len);
-+			x25->calluserdata.cudlength = skb->len;
- 		}
--		case X25_CLEAR_REQUEST:
--			x25_write_internal(sk, X25_CLEAR_CONFIRMATION);
--			x25_disconnect(sk, ECONNREFUSED, skb->data[3], skb->data[4]);
--			break;
-+		if (!sock_flag(sk, SOCK_DEAD))
-+			sk->sk_state_change(sk);
-+		break;
-+	}
-+	case X25_CLEAR_REQUEST:
-+		x25_write_internal(sk, X25_CLEAR_CONFIRMATION);
-+		x25_disconnect(sk, ECONNREFUSED, skb->data[3], skb->data[4]);
-+		break;
- 
--		default:
--			break;
-+	default:
-+		break;
- 	}
- 
- 	return 0;
-@@ -354,18 +354,18 @@ int x25_process_rx_frame(struct sock *sk, struct sk_buff *skb)
- 	frametype = x25_decode(sk, skb, &ns, &nr, &q, &d, &m);
- 
- 	switch (x25->state) {
--		case X25_STATE_1:
--			queued = x25_state1_machine(sk, skb, frametype);
--			break;
--		case X25_STATE_2:
--			queued = x25_state2_machine(sk, skb, frametype);
--			break;
--		case X25_STATE_3:
--			queued = x25_state3_machine(sk, skb, frametype, ns, nr, q, d, m);
--			break;
--		case X25_STATE_4:
--			queued = x25_state4_machine(sk, skb, frametype);
--			break;
-+	case X25_STATE_1:
-+		queued = x25_state1_machine(sk, skb, frametype);
-+		break;
-+	case X25_STATE_2:
-+		queued = x25_state2_machine(sk, skb, frametype);
-+		break;
-+	case X25_STATE_3:
-+		queued = x25_state3_machine(sk, skb, frametype, ns, nr, q, d, m);
-+		break;
-+	case X25_STATE_4:
-+		queued = x25_state4_machine(sk, skb, frametype);
-+		break;
- 	}
- 
- 	x25_kick(sk);
-diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-index 2130692..037958f 100644
---- a/net/x25/x25_link.c
-+++ b/net/x25/x25_link.c
-@@ -76,30 +76,29 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
- 	int confirm;
- 
- 	switch (frametype) {
--		case X25_RESTART_REQUEST:
--			confirm = !x25_t20timer_pending(nb);
--			x25_stop_t20timer(nb);
--			nb->state = X25_LINK_STATE_3;
--			if (confirm)
--				x25_transmit_restart_confirmation(nb);
--			break;
--
--		case X25_RESTART_CONFIRMATION:
--			x25_stop_t20timer(nb);
--			nb->state = X25_LINK_STATE_3;
--			break;
--
--		case X25_DIAGNOSTIC:
--			printk(KERN_WARNING "x25: diagnostic #%d - "
--			       "%02X %02X %02X\n",
--			       skb->data[3], skb->data[4],
--			       skb->data[5], skb->data[6]);
--			break;
--
--		default:
--			printk(KERN_WARNING "x25: received unknown %02X "
--			       "with LCI 000\n", frametype);
--			break;
-+	case X25_RESTART_REQUEST:
-+		confirm = !x25_t20timer_pending(nb);
-+		x25_stop_t20timer(nb);
-+		nb->state = X25_LINK_STATE_3;
-+		if (confirm)
-+			x25_transmit_restart_confirmation(nb);
-+		break;
-+
-+	case X25_RESTART_CONFIRMATION:
-+		x25_stop_t20timer(nb);
-+		nb->state = X25_LINK_STATE_3;
-+		break;
-+
-+	case X25_DIAGNOSTIC:
-+		printk(KERN_WARNING "x25: diagnostic #%d - %02X %02X %02X\n",
-+		       skb->data[3], skb->data[4],
-+		       skb->data[5], skb->data[6]);
-+		break;
-+
-+	default:
-+		printk(KERN_WARNING "x25: received unknown %02X with LCI 000\n",
-+		       frametype);
-+		break;
- 	}
- 
- 	if (nb->state == X25_LINK_STATE_3)
-@@ -193,18 +192,18 @@ void x25_transmit_clear_request(struct x25_neigh *nb, unsigned int lci,
- void x25_transmit_link(struct sk_buff *skb, struct x25_neigh *nb)
+ 	lapb_clear_queues(lapb);
+diff --git a/net/lapb/lapb_in.c b/net/lapb/lapb_in.c
+index 21904a0..2ec1af5 100644
+--- a/net/lapb/lapb_in.c
++++ b/net/lapb/lapb_in.c
+@@ -44,89 +44,86 @@ static void lapb_state0_machine(struct lapb_cb *lapb, struct sk_buff *skb,
+ 				struct lapb_frame *frame)
  {
- 	switch (nb->state) {
--		case X25_LINK_STATE_0:
--			skb_queue_tail(&nb->queue, skb);
--			nb->state = X25_LINK_STATE_1;
--			x25_establish_link(nb);
--			break;
--		case X25_LINK_STATE_1:
--		case X25_LINK_STATE_2:
--			skb_queue_tail(&nb->queue, skb);
--			break;
--		case X25_LINK_STATE_3:
--			x25_send_frame(skb, nb);
--			break;
-+	case X25_LINK_STATE_0:
-+		skb_queue_tail(&nb->queue, skb);
-+		nb->state = X25_LINK_STATE_1;
-+		x25_establish_link(nb);
-+		break;
-+	case X25_LINK_STATE_1:
-+	case X25_LINK_STATE_2:
-+		skb_queue_tail(&nb->queue, skb);
-+		break;
-+	case X25_LINK_STATE_3:
-+		x25_send_frame(skb, nb);
-+		break;
- 	}
- }
- 
-@@ -214,14 +213,14 @@ void x25_transmit_link(struct sk_buff *skb, struct x25_neigh *nb)
- void x25_link_established(struct x25_neigh *nb)
- {
- 	switch (nb->state) {
--		case X25_LINK_STATE_0:
--			nb->state = X25_LINK_STATE_2;
--			break;
--		case X25_LINK_STATE_1:
--			x25_transmit_restart_request(nb);
--			nb->state = X25_LINK_STATE_2;
--			x25_start_t20timer(nb);
--			break;
-+	case X25_LINK_STATE_0:
-+		nb->state = X25_LINK_STATE_2;
-+		break;
-+	case X25_LINK_STATE_1:
-+		x25_transmit_restart_request(nb);
-+		nb->state = X25_LINK_STATE_2;
-+		x25_start_t20timer(nb);
-+		break;
- 	}
- }
- 
-diff --git a/net/x25/x25_subr.c b/net/x25/x25_subr.c
-index dc20cf1..24a342e 100644
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -126,32 +126,30 @@ void x25_write_internal(struct sock *sk, int frametype)
- 	 *	Adjust frame size.
- 	 */
- 	switch (frametype) {
--		case X25_CALL_REQUEST:
--			len += 1 + X25_ADDR_LEN + X25_MAX_FAC_LEN +
--			       X25_MAX_CUD_LEN;
--			break;
--		case X25_CALL_ACCEPTED: /* fast sel with no restr on resp */
--			if(x25->facilities.reverse & 0x80) {
--				len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
+ 	switch (frame->type) {
+-		case LAPB_SABM:
++	case LAPB_SABM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S0 RX SABM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S0 RX SABM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S0 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S0 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
 -			} else {
--				len += 1 + X25_MAX_FAC_LEN;
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		} else {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S0 -> S3\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S0 -> S3\n", lapb->dev);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state     = LAPB_STATE_3;
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_connect_indication(lapb, LAPB_OK);
 -			}
 -			break;
--		case X25_CLEAR_REQUEST:
--		case X25_RESET_REQUEST:
--			len += 2;
--			break;
--		case X25_RR:
--		case X25_RNR:
--		case X25_REJ:
--		case X25_CLEAR_CONFIRMATION:
--		case X25_INTERRUPT_CONFIRMATION:
--		case X25_RESET_CONFIRMATION:
--			break;
--		default:
--			printk(KERN_ERR "X.25: invalid frame type %02X\n",
--			       frametype);
--			return;
-+	case X25_CALL_REQUEST:
-+		len += 1 + X25_ADDR_LEN + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+		break;
-+	case X25_CALL_ACCEPTED: /* fast sel with no restr on resp */
-+		if (x25->facilities.reverse & 0x80) {
-+			len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+		} else {
-+			len += 1 + X25_MAX_FAC_LEN;
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state     = LAPB_STATE_3;
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_connect_indication(lapb, LAPB_OK);
 +		}
 +		break;
-+	case X25_CLEAR_REQUEST:
-+	case X25_RESET_REQUEST:
-+		len += 2;
+ 
+-		case LAPB_SABME:
++	case LAPB_SABME:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S0 RX SABME(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S0 RX SABME(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S0 -> S3\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S0 -> S3\n", lapb->dev);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state     = LAPB_STATE_3;
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_connect_indication(lapb, LAPB_OK);
+-			} else {
+-#if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S0 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state     = LAPB_STATE_3;
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_connect_indication(lapb, LAPB_OK);
++		} else {
++#if LAPB_DEBUG > 1
++			printk(KERN_DEBUG "lapb: (%p) S0 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			}
+-			break;
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		}
 +		break;
-+	case X25_RR:
-+	case X25_RNR:
-+	case X25_REJ:
-+	case X25_CLEAR_CONFIRMATION:
-+	case X25_INTERRUPT_CONFIRMATION:
-+	case X25_RESET_CONFIRMATION:
+ 
+-		case LAPB_DISC:
++	case LAPB_DISC:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S0 RX DISC(%d)\n",
+-			       lapb->dev, frame->pf);
+-			printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S0 RX DISC(%d)\n",
++		       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S0 TX UA(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			lapb_send_control(lapb, LAPB_UA, frame->pf,
+-					  LAPB_RESPONSE);
+-			break;
++		lapb_send_control(lapb, LAPB_UA, frame->pf, LAPB_RESPONSE);
 +		break;
+ 
+-		default:
+-			break;
 +	default:
-+		printk(KERN_ERR "X.25: invalid frame type %02X\n", frametype);
-+		return;
++		break;
  	}
  
- 	if ((skb = alloc_skb(len, GFP_ATOMIC)) == NULL)
-@@ -276,20 +274,20 @@ int x25_decode(struct sock *sk, struct sk_buff *skb, int *ns, int *nr, int *q,
- 	*ns = *nr = *q = *d = *m = 0;
+ 	kfree_skb(skb);
+@@ -140,100 +137,97 @@ static void lapb_state1_machine(struct lapb_cb *lapb, struct sk_buff *skb,
+ 				struct lapb_frame *frame)
+ {
+ 	switch (frame->type) {
+-		case LAPB_SABM:
++	case LAPB_SABM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 RX SABM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S1 RX SABM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S1 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
+-#endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			} else {
+-#if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S1 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S1 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-			}
+-			break;
+-
+-		case LAPB_SABME:
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		} else {
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 RX SABME(%d)\n",
++			printk(KERN_DEBUG "lapb: (%p) S1 TX UA(%d)\n",
+ 			       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++		}
++		break;
++
++	case LAPB_SABME:
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S1 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S1 RX SABME(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-			} else {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S1 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S1 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			}
+-			break;
+-
+-		case LAPB_DISC:
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++		} else {
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 RX DISC(%d)\n",
+-			       lapb->dev, frame->pf);
+ 			printk(KERN_DEBUG "lapb: (%p) S1 TX DM(%d)\n",
+ 			       lapb->dev, frame->pf);
+ #endif
+ 			lapb_send_control(lapb, LAPB_DM, frame->pf,
+ 					  LAPB_RESPONSE);
+-			break;
++		}
++		break;
  
- 	switch (frame[2]) {
--		case X25_CALL_REQUEST:
--		case X25_CALL_ACCEPTED:
--		case X25_CLEAR_REQUEST:
--		case X25_CLEAR_CONFIRMATION:
--		case X25_INTERRUPT:
--		case X25_INTERRUPT_CONFIRMATION:
--		case X25_RESET_REQUEST:
--		case X25_RESET_CONFIRMATION:
--		case X25_RESTART_REQUEST:
--		case X25_RESTART_CONFIRMATION:
--		case X25_REGISTRATION_REQUEST:
--		case X25_REGISTRATION_CONFIRMATION:
--		case X25_DIAGNOSTIC:
--			return frame[2];
-+	case X25_CALL_REQUEST:
-+	case X25_CALL_ACCEPTED:
-+	case X25_CLEAR_REQUEST:
-+	case X25_CLEAR_CONFIRMATION:
-+	case X25_INTERRUPT:
-+	case X25_INTERRUPT_CONFIRMATION:
-+	case X25_RESET_REQUEST:
-+	case X25_RESET_CONFIRMATION:
-+	case X25_RESTART_REQUEST:
-+	case X25_RESTART_CONFIRMATION:
-+	case X25_REGISTRATION_REQUEST:
-+	case X25_REGISTRATION_CONFIRMATION:
-+	case X25_DIAGNOSTIC:
-+		return frame[2];
+-		case LAPB_UA:
++	case LAPB_DISC:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 RX UA(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S1 RX DISC(%d)\n",
++		       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S1 TX DM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (frame->pf) {
+-#if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S1 -> S3\n",
+-				       lapb->dev);
+-#endif
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state     = LAPB_STATE_3;
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_connect_confirmation(lapb, LAPB_OK);
+-			}
+-			break;
++		lapb_send_control(lapb, LAPB_DM, frame->pf, LAPB_RESPONSE);
++		break;
+ 
+-		case LAPB_DM:
++	case LAPB_UA:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S1 RX DM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S1 RX UA(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (frame->pf) {
++		if (frame->pf) {
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S1 -> S0\n",
+-				       lapb->dev);
+-#endif
+-				lapb_clear_queues(lapb);
+-				lapb->state = LAPB_STATE_0;
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb_disconnect_indication(lapb, LAPB_REFUSED);
+-			}
+-			break;
++			printk(KERN_DEBUG "lapb: (%p) S1 -> S3\n", lapb->dev);
++#endif
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state     = LAPB_STATE_3;
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_connect_confirmation(lapb, LAPB_OK);
++		}
++		break;
++
++	case LAPB_DM:
++#if LAPB_DEBUG > 1
++		printk(KERN_DEBUG "lapb: (%p) S1 RX DM(%d)\n",
++		       lapb->dev, frame->pf);
++#endif
++		if (frame->pf) {
++#if LAPB_DEBUG > 0
++			printk(KERN_DEBUG "lapb: (%p) S1 -> S0\n", lapb->dev);
++#endif
++			lapb_clear_queues(lapb);
++			lapb->state = LAPB_STATE_0;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb_disconnect_indication(lapb, LAPB_REFUSED);
++		}
++		break;
  	}
  
- 	if (x25->neighbour->extended) {
+ 	kfree_skb(skb);
+@@ -247,78 +241,73 @@ static void lapb_state2_machine(struct lapb_cb *lapb, struct sk_buff *skb,
+ 				struct lapb_frame *frame)
+ {
+ 	switch (frame->type) {
+-		case LAPB_SABM:
+-		case LAPB_SABME:
++	case LAPB_SABM:
++	case LAPB_SABME:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX {SABM,SABME}(%d)\n",
+-			       lapb->dev, frame->pf);
+-			printk(KERN_DEBUG "lapb: (%p) S2 TX DM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX {SABM,SABME}(%d)\n",
++		       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 TX DM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			lapb_send_control(lapb, LAPB_DM, frame->pf,
+-					  LAPB_RESPONSE);
+-			break;
++		lapb_send_control(lapb, LAPB_DM, frame->pf, LAPB_RESPONSE);
++		break;
+ 
+-		case LAPB_DISC:
++	case LAPB_DISC:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX DISC(%d)\n",
+-			       lapb->dev, frame->pf);
+-			printk(KERN_DEBUG "lapb: (%p) S2 TX UA(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX DISC(%d)\n",
++		       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 TX UA(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			lapb_send_control(lapb, LAPB_UA, frame->pf,
+-					  LAPB_RESPONSE);
+-			break;
++		lapb_send_control(lapb, LAPB_UA, frame->pf, LAPB_RESPONSE);
++		break;
+ 
+-		case LAPB_UA:
++	case LAPB_UA:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX UA(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX UA(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (frame->pf) {
++		if (frame->pf) {
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S2 -> S0\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S2 -> S0\n", lapb->dev);
+ #endif
+-				lapb->state = LAPB_STATE_0;
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb_disconnect_confirmation(lapb, LAPB_OK);
+-			}
+-			break;
++			lapb->state = LAPB_STATE_0;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb_disconnect_confirmation(lapb, LAPB_OK);
++		}
++		break;
+ 
+-		case LAPB_DM:
++	case LAPB_DM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX DM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX DM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (frame->pf) {
++		if (frame->pf) {
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S2 -> S0\n",
+-				       lapb->dev);
+-#endif
+-				lapb->state = LAPB_STATE_0;
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb_disconnect_confirmation(lapb,
+-							     LAPB_NOTCONNECTED);
+-			}
+-			break;
++			printk(KERN_DEBUG "lapb: (%p) S2 -> S0\n", lapb->dev);
++#endif
++			lapb->state = LAPB_STATE_0;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb_disconnect_confirmation(lapb, LAPB_NOTCONNECTED);
++		}
++		break;
+ 
+-		case LAPB_I:
+-		case LAPB_REJ:
+-		case LAPB_RNR:
+-		case LAPB_RR:
++	case LAPB_I:
++	case LAPB_REJ:
++	case LAPB_RNR:
++	case LAPB_RR:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX {I,REJ,RNR,RR}"
+-			       "(%d)\n", lapb->dev, frame->pf);
+-			printk(KERN_DEBUG "lapb: (%p) S2 RX DM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX {I,REJ,RNR,RR}(%d)\n",
++		       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S2 RX DM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (frame->pf)
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			break;
++		if (frame->pf)
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		break;
+ 	}
+ 
+ 	kfree_skb(skb);
+@@ -336,277 +325,267 @@ static void lapb_state3_machine(struct lapb_cb *lapb, struct sk_buff *skb,
+ 						     LAPB_SMODULUS;
+ 
+ 	switch (frame->type) {
+-		case LAPB_SABM:
++	case LAPB_SABM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX SABM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX SABM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S3 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S3 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			} else {
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		} else {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S3 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S3 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_requeue_frames(lapb);
+-			}
+-			break;
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_requeue_frames(lapb);
++		}
++		break;
+ 
+-		case LAPB_SABME:
++	case LAPB_SABME:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX SABME(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX SABME(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S3 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S3 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_requeue_frames(lapb);
+-			} else {
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_requeue_frames(lapb);
++		} else {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S3 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S3 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			}
+-			break;
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		}
++		break;
+ 
+-		case LAPB_DISC:
++	case LAPB_DISC:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX DISC(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX DISC(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-			printk(KERN_DEBUG "lapb: (%p) S3 -> S0\n",
+-			       lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S3 -> S0\n", lapb->dev);
+ #endif
+-			lapb_clear_queues(lapb);
+-			lapb_send_control(lapb, LAPB_UA, frame->pf,
+-					  LAPB_RESPONSE);
+-			lapb_start_t1timer(lapb);
+-			lapb_stop_t2timer(lapb);
+-			lapb->state = LAPB_STATE_0;
+-			lapb_disconnect_indication(lapb, LAPB_OK);
+-			break;
++		lapb_clear_queues(lapb);
++		lapb_send_control(lapb, LAPB_UA, frame->pf, LAPB_RESPONSE);
++		lapb_start_t1timer(lapb);
++		lapb_stop_t2timer(lapb);
++		lapb->state = LAPB_STATE_0;
++		lapb_disconnect_indication(lapb, LAPB_OK);
++		break;
+ 
+-		case LAPB_DM:
++	case LAPB_DM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX DM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX DM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-			printk(KERN_DEBUG "lapb: (%p) S3 -> S0\n",
+-			       lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S3 -> S0\n", lapb->dev);
+ #endif
+-			lapb_clear_queues(lapb);
+-			lapb->state = LAPB_STATE_0;
+-			lapb_start_t1timer(lapb);
+-			lapb_stop_t2timer(lapb);
+-			lapb_disconnect_indication(lapb, LAPB_NOTCONNECTED);
+-			break;
++		lapb_clear_queues(lapb);
++		lapb->state = LAPB_STATE_0;
++		lapb_start_t1timer(lapb);
++		lapb_stop_t2timer(lapb);
++		lapb_disconnect_indication(lapb, LAPB_NOTCONNECTED);
++		break;
+ 
+-		case LAPB_RNR:
++	case LAPB_RNR:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX RNR(%d) R%d\n",
+-			       lapb->dev, frame->pf, frame->nr);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX RNR(%d) R%d\n",
++		       lapb->dev, frame->pf, frame->nr);
+ #endif
+-			lapb->condition |= LAPB_PEER_RX_BUSY_CONDITION;
+-			lapb_check_need_response(lapb, frame->cr, frame->pf);
+-			if (lapb_validate_nr(lapb, frame->nr)) {
+-				lapb_check_iframes_acked(lapb, frame->nr);
+-			} else {
+-				lapb->frmr_data = *frame;
+-				lapb->frmr_type = LAPB_FRMR_Z;
+-				lapb_transmit_frmr(lapb);
++		lapb->condition |= LAPB_PEER_RX_BUSY_CONDITION;
++		lapb_check_need_response(lapb, frame->cr, frame->pf);
++		if (lapb_validate_nr(lapb, frame->nr)) {
++			lapb_check_iframes_acked(lapb, frame->nr);
++		} else {
++			lapb->frmr_data = *frame;
++			lapb->frmr_type = LAPB_FRMR_Z;
++			lapb_transmit_frmr(lapb);
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
+ #endif
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state   = LAPB_STATE_4;
+-				lapb->n2count = 0;
+-			}
+-			break;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state   = LAPB_STATE_4;
++			lapb->n2count = 0;
++		}
++		break;
+ 
+-		case LAPB_RR:
++	case LAPB_RR:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX RR(%d) R%d\n",
+-			       lapb->dev, frame->pf, frame->nr);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX RR(%d) R%d\n",
++		       lapb->dev, frame->pf, frame->nr);
+ #endif
+-			lapb->condition &= ~LAPB_PEER_RX_BUSY_CONDITION;
+-			lapb_check_need_response(lapb, frame->cr, frame->pf);
+-			if (lapb_validate_nr(lapb, frame->nr)) {
+-				lapb_check_iframes_acked(lapb, frame->nr);
+-			} else {
+-				lapb->frmr_data = *frame;
+-				lapb->frmr_type = LAPB_FRMR_Z;
+-				lapb_transmit_frmr(lapb);
++		lapb->condition &= ~LAPB_PEER_RX_BUSY_CONDITION;
++		lapb_check_need_response(lapb, frame->cr, frame->pf);
++		if (lapb_validate_nr(lapb, frame->nr)) {
++			lapb_check_iframes_acked(lapb, frame->nr);
++		} else {
++			lapb->frmr_data = *frame;
++			lapb->frmr_type = LAPB_FRMR_Z;
++			lapb_transmit_frmr(lapb);
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
+ #endif
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state   = LAPB_STATE_4;
+-				lapb->n2count = 0;
+-			}
+-			break;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state   = LAPB_STATE_4;
++			lapb->n2count = 0;
++		}
++		break;
+ 
+-		case LAPB_REJ:
++	case LAPB_REJ:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX REJ(%d) R%d\n",
+-			       lapb->dev, frame->pf, frame->nr);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX REJ(%d) R%d\n",
++		       lapb->dev, frame->pf, frame->nr);
+ #endif
+-			lapb->condition &= ~LAPB_PEER_RX_BUSY_CONDITION;
+-			lapb_check_need_response(lapb, frame->cr, frame->pf);
+-			if (lapb_validate_nr(lapb, frame->nr)) {
+-				lapb_frames_acked(lapb, frame->nr);
+-				lapb_stop_t1timer(lapb);
+-				lapb->n2count = 0;
+-				lapb_requeue_frames(lapb);
+-			} else {
+-				lapb->frmr_data = *frame;
+-				lapb->frmr_type = LAPB_FRMR_Z;
+-				lapb_transmit_frmr(lapb);
++		lapb->condition &= ~LAPB_PEER_RX_BUSY_CONDITION;
++		lapb_check_need_response(lapb, frame->cr, frame->pf);
++		if (lapb_validate_nr(lapb, frame->nr)) {
++			lapb_frames_acked(lapb, frame->nr);
++			lapb_stop_t1timer(lapb);
++			lapb->n2count = 0;
++			lapb_requeue_frames(lapb);
++		} else {
++			lapb->frmr_data = *frame;
++			lapb->frmr_type = LAPB_FRMR_Z;
++			lapb_transmit_frmr(lapb);
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
+ #endif
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state   = LAPB_STATE_4;
+-				lapb->n2count = 0;
+-			}
+-			break;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state   = LAPB_STATE_4;
++			lapb->n2count = 0;
++		}
++		break;
+ 
+-		case LAPB_I:
++	case LAPB_I:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX I(%d) S%d R%d\n",
+-			       lapb->dev, frame->pf, frame->ns, frame->nr);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX I(%d) S%d R%d\n",
++		       lapb->dev, frame->pf, frame->ns, frame->nr);
+ #endif
+-			if (!lapb_validate_nr(lapb, frame->nr)) {
+-				lapb->frmr_data = *frame;
+-				lapb->frmr_type = LAPB_FRMR_Z;
+-				lapb_transmit_frmr(lapb);
++		if (!lapb_validate_nr(lapb, frame->nr)) {
++			lapb->frmr_data = *frame;
++			lapb->frmr_type = LAPB_FRMR_Z;
++			lapb_transmit_frmr(lapb);
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
+ #endif
+-				lapb_start_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state   = LAPB_STATE_4;
+-				lapb->n2count = 0;
++			lapb_start_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state   = LAPB_STATE_4;
++			lapb->n2count = 0;
++			break;
++		}
++		if (lapb->condition & LAPB_PEER_RX_BUSY_CONDITION)
++			lapb_frames_acked(lapb, frame->nr);
++		else
++			lapb_check_iframes_acked(lapb, frame->nr);
++
++		if (frame->ns == lapb->vr) {
++			int cn;
++			cn = lapb_data_indication(lapb, skb);
++			queued = 1;
++			/*
++			 * If upper layer has dropped the frame, we
++			 * basically ignore any further protocol
++			 * processing. This will cause the peer
++			 * to re-transmit the frame later like
++			 * a frame lost on the wire.
++			 */
++			if (cn == NET_RX_DROP) {
++				printk(KERN_DEBUG "LAPB: rx congestion\n");
+ 				break;
+ 			}
+-			if (lapb->condition & LAPB_PEER_RX_BUSY_CONDITION)
+-				lapb_frames_acked(lapb, frame->nr);
+-			else
+-				lapb_check_iframes_acked(lapb, frame->nr);
+-
+-			if (frame->ns == lapb->vr) {
+-				int cn;
+-				cn = lapb_data_indication(lapb, skb);
+-				queued = 1;
+-				/*
+-				 * If upper layer has dropped the frame, we
+-				 * basically ignore any further protocol
+-				 * processing. This will cause the peer
+-				 * to re-transmit the frame later like
+-				 * a frame lost on the wire.
+-				 */
+-				if (cn == NET_RX_DROP) {
+-					printk(KERN_DEBUG
+-					       "LAPB: rx congestion\n");
+-					break;
++			lapb->vr = (lapb->vr + 1) % modulus;
++			lapb->condition &= ~LAPB_REJECT_CONDITION;
++			if (frame->pf)
++				lapb_enquiry_response(lapb);
++			else {
++				if (!(lapb->condition &
++				      LAPB_ACK_PENDING_CONDITION)) {
++					lapb->condition |= LAPB_ACK_PENDING_CONDITION;
++					lapb_start_t2timer(lapb);
+ 				}
+-				lapb->vr = (lapb->vr + 1) % modulus;
+-				lapb->condition &= ~LAPB_REJECT_CONDITION;
++			}
++		} else {
++			if (lapb->condition & LAPB_REJECT_CONDITION) {
+ 				if (frame->pf)
+ 					lapb_enquiry_response(lapb);
+-				else {
+-					if (!(lapb->condition &
+-					      LAPB_ACK_PENDING_CONDITION)) {
+-						lapb->condition |= LAPB_ACK_PENDING_CONDITION;
+-						lapb_start_t2timer(lapb);
+-					}
+-				}
+ 			} else {
+-				if (lapb->condition & LAPB_REJECT_CONDITION) {
+-					if (frame->pf)
+-						lapb_enquiry_response(lapb);
+-				} else {
+-#if LAPB_DEBUG > 1
+-					printk(KERN_DEBUG
+-					       "lapb: (%p) S3 TX REJ(%d) R%d\n",
+-					       lapb->dev, frame->pf, lapb->vr);
+-#endif
+-					lapb->condition |= LAPB_REJECT_CONDITION;
+-					lapb_send_control(lapb, LAPB_REJ,
+-							  frame->pf,
+-							  LAPB_RESPONSE);
+-					lapb->condition &= ~LAPB_ACK_PENDING_CONDITION;
+-				}
++#if LAPB_DEBUG > 1
++				printk(KERN_DEBUG
++				       "lapb: (%p) S3 TX REJ(%d) R%d\n",
++				       lapb->dev, frame->pf, lapb->vr);
++#endif
++				lapb->condition |= LAPB_REJECT_CONDITION;
++				lapb_send_control(lapb, LAPB_REJ, frame->pf,
++						  LAPB_RESPONSE);
++				lapb->condition &= ~LAPB_ACK_PENDING_CONDITION;
+ 			}
+-			break;
++		}
++		break;
+ 
+-		case LAPB_FRMR:
++	case LAPB_FRMR:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX FRMR(%d) %02X "
+-			       "%02X %02X %02X %02X\n", lapb->dev, frame->pf,
+-			       skb->data[0], skb->data[1], skb->data[2],
+-			       skb->data[3], skb->data[4]);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX FRMR(%d) %02X "
++		       "%02X %02X %02X %02X\n", lapb->dev, frame->pf,
++		       skb->data[0], skb->data[1], skb->data[2],
++		       skb->data[3], skb->data[4]);
+ #endif
+-			lapb_establish_data_link(lapb);
++		lapb_establish_data_link(lapb);
+ #if LAPB_DEBUG > 0
+-			printk(KERN_DEBUG "lapb: (%p) S3 -> S1\n",
+-			       lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S3 -> S1\n", lapb->dev);
+ #endif
+-			lapb_requeue_frames(lapb);
+-			lapb->state = LAPB_STATE_1;
+-			break;
++		lapb_requeue_frames(lapb);
++		lapb->state = LAPB_STATE_1;
++		break;
+ 
+-		case LAPB_ILLEGAL:
++	case LAPB_ILLEGAL:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S3 RX ILLEGAL(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S3 RX ILLEGAL(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			lapb->frmr_data = *frame;
+-			lapb->frmr_type = LAPB_FRMR_W;
+-			lapb_transmit_frmr(lapb);
++		lapb->frmr_data = *frame;
++		lapb->frmr_type = LAPB_FRMR_W;
++		lapb_transmit_frmr(lapb);
+ #if LAPB_DEBUG > 0
+-			printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
++		printk(KERN_DEBUG "lapb: (%p) S3 -> S4\n", lapb->dev);
+ #endif
+-			lapb_start_t1timer(lapb);
+-			lapb_stop_t2timer(lapb);
+-			lapb->state   = LAPB_STATE_4;
+-			lapb->n2count = 0;
+-			break;
++		lapb_start_t1timer(lapb);
++		lapb_stop_t2timer(lapb);
++		lapb->state   = LAPB_STATE_4;
++		lapb->n2count = 0;
++		break;
+ 	}
+ 
+ 	if (!queued)
+@@ -621,75 +600,73 @@ static void lapb_state4_machine(struct lapb_cb *lapb, struct sk_buff *skb,
+ 				struct lapb_frame *frame)
+ {
+ 	switch (frame->type) {
+-		case LAPB_SABM:
++	case LAPB_SABM:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S4 RX SABM(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S4 RX SABM(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S4 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S4 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			} else {
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		} else {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S4 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S4 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S4 -> S3\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S4 -> S3\n", lapb->dev);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state     = LAPB_STATE_3;
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_connect_indication(lapb, LAPB_OK);
+-			}
+-			break;
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state     = LAPB_STATE_3;
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_connect_indication(lapb, LAPB_OK);
++		}
++		break;
+ 
+-		case LAPB_SABME:
++	case LAPB_SABME:
+ #if LAPB_DEBUG > 1
+-			printk(KERN_DEBUG "lapb: (%p) S4 RX SABME(%d)\n",
+-			       lapb->dev, frame->pf);
++		printk(KERN_DEBUG "lapb: (%p) S4 RX SABME(%d)\n",
++		       lapb->dev, frame->pf);
+ #endif
+-			if (lapb->mode & LAPB_EXTENDED) {
++		if (lapb->mode & LAPB_EXTENDED) {
+ #if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S4 TX UA(%d)\n",
+-				       lapb->dev, frame->pf);
++			printk(KERN_DEBUG "lapb: (%p) S4 TX UA(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+ #if LAPB_DEBUG > 0
+-				printk(KERN_DEBUG "lapb: (%p) S4 -> S3\n",
+-				       lapb->dev);
++			printk(KERN_DEBUG "lapb: (%p) S4 -> S3\n", lapb->dev);
+ #endif
+-				lapb_send_control(lapb, LAPB_UA, frame->pf,
+-						  LAPB_RESPONSE);
+-				lapb_stop_t1timer(lapb);
+-				lapb_stop_t2timer(lapb);
+-				lapb->state     = LAPB_STATE_3;
+-				lapb->condition = 0x00;
+-				lapb->n2count   = 0;
+-				lapb->vs        = 0;
+-				lapb->vr        = 0;
+-				lapb->va        = 0;
+-				lapb_connect_indication(lapb, LAPB_OK);
+-			} else {
+-#if LAPB_DEBUG > 1
+-				printk(KERN_DEBUG "lapb: (%p) S4 TX DM(%d)\n",
+-				       lapb->dev, frame->pf);
++			lapb_send_control(lapb, LAPB_UA, frame->pf,
++					  LAPB_RESPONSE);
++			lapb_stop_t1timer(lapb);
++			lapb_stop_t2timer(lapb);
++			lapb->state     = LAPB_STATE_3;
++			lapb->condition = 0x00;
++			lapb->n2count   = 0;
++			lapb->vs        = 0;
++			lapb->vr        = 0;
++			lapb->va        = 0;
++			lapb_connect_indication(lapb, LAPB_OK);
++		} else {
++#if LAPB_DEBUG > 1
++			printk(KERN_DEBUG "lapb: (%p) S4 TX DM(%d)\n",
++			       lapb->dev, frame->pf);
+ #endif
+-				lapb_send_control(lapb, LAPB_DM, frame->pf,
+-						  LAPB_RESPONSE);
+-			}
+-			break;
++			lapb_send_control(lapb, LAPB_DM, frame->pf,
++					  LAPB_RESPONSE);
++		}
++		break;
+ 	}
+ 
+ 	kfree_skb(skb);
 -- 
 1.7.6.rc1
 
