@@ -1,21 +1,58 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 00/12] net switch/case reformatting
-Date: Fri, 01 Jul 2011 16:15:50 -0700 (PDT)
-Message-ID: <20110701.161550.1316844563798183164.davem@davemloft.net>
-References: <cover.1309549243.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hams-owner@vger.kernel.org>
-In-Reply-To: <cover.1309549243.git.joe@perches.com>
-Sender: linux-hams-owner@vger.kernel.org
-List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: joe@perches.com
-Cc: linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, linux-x25@vger.kernel.org, linux-hams@vger.kernel.org, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org
-
 From: Joe Perches <joe@perches.com>
-Date: Fri,  1 Jul 2011 12:43:01 -0700
+Subject: [PATCH 23/24] x25: Remove unnecessary OOM logging messages
+Date: Mon, 29 Aug 2011 14:17:42 -0700
+Message-ID: <a4253b35f596dbe4b1079ff90412d4b51334c010.1314650069.git.joe@perches.com>
+References: <cover.1314650069.git.joe@perches.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <cover.1314650069.git.joe@perches.com>
+Sender: netdev-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Andrew Hendry <andrew.hendry@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> Just whitespace cleanups with a couple trivial corrections
+Removing unnecessary messages saves code and text.
 
-All applied, thanks Joe.
+Site specific OOM messages are duplications of a generic MM
+out of memory message and aren't really useful, so just
+delete them.
+
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ net/x25/x25_dev.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
+index e547ca1..b77852f 100644
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -147,10 +147,10 @@ void x25_establish_link(struct x25_neigh *nb)
+ 
+ 	switch (nb->dev->type) {
+ 	case ARPHRD_X25:
+-		if ((skb = alloc_skb(1, GFP_ATOMIC)) == NULL) {
+-			printk(KERN_ERR "x25_dev: out of memory\n");
++		skb = alloc_skb(1, GFP_ATOMIC);
++		if (skb == NULL)
+ 			return;
+-		}
++
+ 		ptr  = skb_put(skb, 1);
+ 		*ptr = X25_IFACE_CONNECT;
+ 		break;
+@@ -182,10 +182,8 @@ void x25_terminate_link(struct x25_neigh *nb)
+ 		return;
+ 
+ 	skb = alloc_skb(1, GFP_ATOMIC);
+-	if (!skb) {
+-		printk(KERN_ERR "x25_dev: out of memory\n");
++	if (!skb)
+ 		return;
+-	}
+ 
+ 	ptr  = skb_put(skb, 1);
+ 	*ptr = X25_IFACE_DISCONNECT;
+-- 
+1.7.6.405.gc1be0
