@@ -1,54 +1,48 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2/2] lapb-nl: Added driver
-Date: Fri, 1 Jun 2012 15:54:46 +0100
-Message-ID: <20120601155446.51751e61@pyramind.ukuu.org.uk>
-References: <1338478278-24732-1-git-send-email-slapin@ossfans.org>
-	<1338478278-24732-2-git-send-email-slapin@ossfans.org>
-	<20120601145201.07a35cc3@pyramind.ukuu.org.uk>
-	<20120601144040.GA24774@build.ihdev.net>
+From: Stephen Moorby <steve@keyparts.co.uk>
+Subject: [PATCH 1/1] net/x25: fix address parsing bug in x25_parse_address_block.
+Date: Wed, 19 Jun 2013 12:13:28 +0100
+Message-ID: <51C19258.9070504@keyparts.co.uk>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120601144040.GA24774@build.ihdev.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Sergey Lapin <slapin@ossfans.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: andrew.hendry@gmail.com, davem@davemloft.net, sasha.levin@oracle.com, akpm@linux-foundation.org, paulmck@linux.vnet.ibm.com, jiri@resnulli.us, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On the socket family side I was thinking not of a "lapb-nl" socket layer
-but a simple pure LAPB socket - that just uses interface name type
-addressing and only supported SOCK_RAW for raw data frames over LAPB
-encodings.
+ From 01ba835311f6d2e2bbffc74703d704dc07803b53 Mon Sep 17 00:00:00 2001
+From: Stephen Moorby <steve.moorby@ntlworld.com>
+Date: Wed, 19 Jun 2013 11:48:53 +0100
+Subject: [PATCH 1/1] net/x25: fix address parsing bug in
+  x25_parse_address_block.
 
+This problem was discovered when a linux box was incorrectly rejecting
+calls from some X.25 equipment.  The problem was diagnosed to an incorrect
+address length calculation in 'x25_parse_address_block', the calculation
+did not account for the address digits being BCD encoded.  The correct
+calculation is already performed on line 155.
 
-> > Again the sl->tty locking needs sorting (I think this may well be true of
-> > slip and the others too)
-> 
-> Could you please explain a bit more on this?
+Patched on linux-next 18-Jun-2013
+Tested on 2.6.32-45-generic
 
-In modern kernels the tty object is refcounted and not locked by any big
-global locks.
+Signed-off-by: Stephen Moorby <steve.moorby@ntlworld.com>
+---
+  net/x25/af_x25.c | 3 ++-
+  1 file changed, 2 insertions(+), 1 deletion(-)
 
-So in your open do
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 1d964e2..eb6c1f9 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -98,7 +98,8 @@ int x25_parse_address_block(struct sk_buff *skb,
+      }
 
-	tty = tty_kref_get(tty);
+      len = *skb->data;
+-    needed = 1 + (len >> 4) + (len & 0x0f);
++    /* need 1 for address length + bytes for BCD encoding of 2 addresses */
++    needed = 1 + (((len >> 4) + (len & 0x0f) + 1) >> 1);
 
-and in the close
-	tty_kref_put(tty);
-
-and you are guaranteed the tty won't vanish under you between those
-points.
-
-> > Why flush ?
-> Problems occured a long time ago, will remove and check.
-
-That should be handled by the core code now.
-
-> The whole thing is data packat transfer. Application is also notified when
-> packet is delivered. That's it, no fancy stuff. There is also UDP code, but it is
-> weird mess, and I think if it is to live or be removed. What do you think?
-
-Weird mess removal is always good stuff.
-
-Alan
+      if (!pskb_may_pull(skb, needed)) {
+          /* packet is too short to hold the addresses it claims
+-- 
+1.8.1.2
