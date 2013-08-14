@@ -1,43 +1,41 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 1/1] net/x25: fix address parsing bug in
- x25_parse_address_block.
-Date: Wed, 19 Jun 2013 17:59:28 -0700 (PDT)
-Message-ID: <20130619.175928.1277008545805789566.davem@davemloft.net>
-References: <1371673956-471-1-git-send-email-steve.moorby@ntlworld.com>
+From: =?UTF-8?B?VG9yYWxmIEbDtnJzdGVy?= <toralf.foerster@gmx.de>
+Subject: s2disk broken (bisected) in 3.10.4
+Date: Wed, 14 Aug 2013 22:12:58 +0200
+Message-ID: <520BE4CA.8090000@gmx.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1371673956-471-1-git-send-email-steve.moorby@ntlworld.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: steve.moorby@ntlworld.com
-Cc: sasha.levin@oracle.com, akpm@linux-foundation.org, paulmck@linux.vnet.ibm.com, jiri@resnulli.us, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+To: Dave Jones <davej@redhat.com>
+Cc: stable@vger.kernel.org, linux-x25@vger.kernel.org
 
-From: Stephen Moorby <steve.moorby@ntlworld.com>
-Date: Wed, 19 Jun 2013 21:32:36 +0100
+The following bisected commit=20
 
-> This problem was discovered when a linux box was incorrectly rejecting
-> calls from some X.25 equipment.  The problem was diagnosed to an incorrect
-> address length calculation in 'x25_parse_address_block', the calculation
-> did not account for the address digits being BCD encoded.  The correct
-> calculation is already performed on line 155.
-> 
-> Patched on linux-next 18-Jun-2013
-> Tested on 2.6.32-45-generic
-> 
-> Signed-off-by: Stephen Moorby <steve.moorby@ntlworld.com>
 
-This change has two problems:
+commit ea4c218f2c3e67f1bca8078ff1f80d7e0c2ab791
+Author: Dave Jones <davej@redhat.com>
+Date:   Fri Jun 28 12:13:52 2013 -0400
 
-1) If there is existing code that does the calculation correctly, don't
-   get creative and express the calculation differently than the existing
-   code.
+    x25: Fix broken locking in ioctl error paths.
 
-2) If there are two places doing the same thing, write a helper function
-   that does it in one place.
+    [ Upstream commit 4ccb93ce7439b63c31bc7597bfffd13567fa483d ]
 
-The exact reason this bug exists is because of code duplication, you are
-making it even worse by writing the same calculation two different ways.
+    Two of the x25 ioctl cases have error paths that break out of the f=
+unction without
+    unlocking the socket, leading to this warning:
 
-Please fix this up and resubmit, thanks.
+
+
+breaks s2disk at a 32 bit stable Gentoo Linux (booted from an external =
+USB drive).
+Reverting that commit on top of 3.10.6 solved the issue.
+
+After wakeup the cursor doesn't blink and the systems just hangs, magic=
+ sysrq works fortunately.
+
+--=20
+MfG/Sincerely
+Toralf F=C3=B6rster
+pgp finger print: 7B1A 07F4 EC82 0F90 D4C2 8936 872A E508 7DB6 9DA3
