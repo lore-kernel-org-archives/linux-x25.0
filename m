@@ -1,25 +1,46 @@
-From: =?UTF-8?B?VG9yYWxmIEbDtnJzdGVy?= <toralf.foerster@gmx.de>
-Subject: Re: s2disk broken (bisected) in 3.10.4
-Date: Thu, 15 Aug 2013 23:27:36 +0200
-Message-ID: <520D47C8.3030001@gmx.de>
-References: <520BE4CA.8090000@gmx.de> <20130814222322.GA2621@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] x25: add a sanity check parsing X.25 facilities
+Date: Tue, 3 Sep 2013 12:03:40 +0300
+Message-ID: <20130903090340.GB4351@elgon.mountain>
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20130814222322.GA2621@redhat.com>
-Sender: stable-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: Dave Jones <davej@redhat.com>
-Cc: stable@vger.kernel.org, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Andrew Hendry <andrew.hendry@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On 08/15/2013 12:23 AM, Dave Jones wrote:
-> <sceptical hat on>
-You're right - the issue happens erratically, I've to triple-check each
-bisect step ...
+This was found with a manual audit and I don't have a reproducer.  We
+limit ->calling_len and ->called_len when we get them from
+copy_from_user() in x25_ioctl() so when they come from skb->data then
+we should cap them there as well.
 
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+Possibly should be applied to -stable.  My guess is that this leads to
+memory corruption, but I don't know.
 
---=20
-MfG/Sincerely
-Toralf F=C3=B6rster
-pgp finger print: 7B1A 07F4 EC82 0F90 D4C2 8936 872A E508 7DB6 9DA3
+diff --git a/net/x25/x25_facilities.c b/net/x25/x25_facilities.c
+index 66c63873..b825325 100644
+--- a/net/x25/x25_facilities.c
++++ b/net/x25/x25_facilities.c
+@@ -156,6 +156,8 @@ int x25_parse_facilities(struct sk_buff *skb, struct x25_facilities *facilities,
+ 			case X25_FAC_CALLING_AE:
+ 				if (p[1] > X25_MAX_DTE_FACIL_LEN || p[1] <= 1)
+ 					return -1;
++				if (p[2] > X25_MAX_AE_LEN)
++					return -1;
+ 				dte_facs->calling_len = p[2];
+ 				memcpy(dte_facs->calling_ae, &p[3], p[1] - 1);
+ 				*vc_fac_mask |= X25_MASK_CALLING_AE;
+@@ -163,6 +165,8 @@ int x25_parse_facilities(struct sk_buff *skb, struct x25_facilities *facilities,
+ 			case X25_FAC_CALLED_AE:
+ 				if (p[1] > X25_MAX_DTE_FACIL_LEN || p[1] <= 1)
+ 					return -1;
++				if (p[2] > X25_MAX_AE_LEN)
++					return -1;
+ 				dte_facs->called_len = p[2];
+ 				memcpy(dte_facs->called_ae, &p[3], p[1] - 1);
+ 				*vc_fac_mask |= X25_MASK_CALLED_AE;
