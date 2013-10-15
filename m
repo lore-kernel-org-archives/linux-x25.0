@@ -1,22 +1,24 @@
 From: =?iso-8859-15?Q?Kelleter=2C_G=FCnther?= <GKelleter@datus.com>
 Subject: [PATCH] X.25: Fix address field length calculation
-Date: Wed, 2 Oct 2013 11:21:39 +0000
-Message-ID: <524C01C3.2020109@datus.com>
+Date: Tue, 15 Oct 2013 14:29:06 +0000
+Message-ID: <525D5131.9070007@datus.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: de-DE
-Content-ID: <9495D821795B7D4AA2C6AC4295CE3FAB@datus.local>
+Content-ID: <01736E88829C1B4A9589D66039BC9A5E@datus.local>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: "andrew.hendry@gmail.com" <andrew.hendry@gmail.com>
-Cc: "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "davem@davemloft.net" <davem@davemloft.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 Addresses are BCD encoded, not ASCII. x25_addr_ntoa got it right.
 
 Signed-off-by: Guenther Kelleter <gkelleter@datus.com>
 ---
+Wrong length calculation leads to rejection of CALL ACCEPT packets.
+
  net/x25/af_x25.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
