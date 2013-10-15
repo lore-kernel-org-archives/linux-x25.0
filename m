@@ -1,37 +1,31 @@
-From: =?iso-8859-15?Q?Kelleter=2C_G=FCnther?= <GKelleter@datus.com>
-Subject: [PATCH] X.25: Fix address field length calculation
-Date: Tue, 15 Oct 2013 14:29:06 +0000
-Message-ID: <525D5131.9070007@datus.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] X.25: Fix address field length calculation
+Date: Tue, 15 Oct 2013 10:29:50 -0700
+Message-ID: <1381858190.22110.25.camel@joe-AO722>
+References: <525D5131.9070007@datus.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
-Content-ID: <01736E88829C1B4A9589D66039BC9A5E@datus.local>
+In-Reply-To: <525D5131.9070007@datus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: "andrew.hendry@gmail.com" <andrew.hendry@gmail.com>
-Cc: "davem@davemloft.net" <davem@davemloft.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: "Kelleter, =?ISO-8859-1?Q?G=FCnther?=" <GKelleter@datus.com>
+Cc: "andrew.hendry@gmail.com" <andrew.hendry@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Addresses are BCD encoded, not ASCII. x25_addr_ntoa got it right.
+On Tue, 2013-10-15 at 14:29 +0000, Kelleter, G=FCnther wrote:
+> Addresses are BCD encoded, not ASCII. x25_addr_ntoa got it right.
+[]
+> Wrong length calculation leads to rejection of CALL ACCEPT packets.
+[]
+> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+[]
+> @@ -98,7 +98,7 @@ int x25_parse_address_block(struct sk_buff *skb,
+>  	}
+>   	len =3D *skb->data;
+> -	needed =3D 1 + (len >> 4) + (len & 0x0f);
+> +	needed =3D 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
 
-Signed-off-by: Guenther Kelleter <gkelleter@datus.com>
----
-Wrong length calculation leads to rejection of CALL ACCEPT packets.
+This calculation looks odd.
+Perhaps use bcd.h instead?
 
- net/x25/af_x25.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 45a3ab5..2daf224 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -98,7 +98,7 @@ int x25_parse_address_block(struct sk_buff *skb,
- 	}
-  	len = *skb->data;
--	needed = 1 + (len >> 4) + (len & 0x0f);
-+	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
-  	if (!pskb_may_pull(skb, needed)) {
- 		/* packet is too short to hold the addresses it claims
--- 
-1.8.3.4.71.g0878476
