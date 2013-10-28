@@ -1,39 +1,41 @@
-From: Guenther Kelleter <gkelleter@datus.com>
-Subject: [PATCH] X.25: Fix address field length calculation
-Date: Fri, 18 Oct 2013 14:03:14 +0200
-Message-ID: <1382097794-14547-1-git-send-email-gkelleter@datus.com>
+From: =?UTF-8?q?Michael=20Dr=C3=BCing?= <michael@drueing.de>
+Subject: [PATCH] net: x25: Fix dead URLs in Kconfig
+Date: Mon, 28 Oct 2013 18:33:12 +0100
+Message-ID: <1382981592-7449-1-git-send-email-michael@drueing.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, davem@davemloft.net
-Cc: Guenther Kelleter <gkelleter@datus.com>, linux-x25@vger.kernel.org, linux-netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="macroman"
+To: davem@davemloft.net
+Cc: andrew.hendry@gmail.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Michael=20Dr=C3=BCing?= <michael@drueing.de>
 
-Addresses are BCD encoded, not ASCII. x25_addr_ntoa got it right.
+Update the URLs in the Kconfig file to the new pages at sangoma.com and=
+ cisco.com
 
-Signed-off-by: Guenther Kelleter <gkelleter@datus.com>
+Signed-off-by: Michael Dr=C3=BCing <michael@drueing.de>
 ---
-Wrong length calculation leads to rejection of CALL ACCEPT packets.
+ net/x25/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-(patch resubmitted without corruption by stupid thunderbird. grrrr.)
-
- net/x25/af_x25.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 45a3ab5..2daf224 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -98,7 +98,7 @@ int x25_parse_address_block(struct sk_buff *skb,
- 	}
- 
- 	len = *skb->data;
--	needed = 1 + (len >> 4) + (len & 0x0f);
-+	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
- 
- 	if (!pskb_may_pull(skb, needed)) {
- 		/* packet is too short to hold the addresses it claims
--- 
-1.8.3.4.71.g0878476
+diff --git a/net/x25/Kconfig b/net/x25/Kconfig
+index c959312c..e2fa133 100644
+--- a/net/x25/Kconfig
++++ b/net/x25/Kconfig
+@@ -16,8 +16,8 @@ config X25
+ 	  if you want that) and the lower level data link layer protocol LAPB
+ 	  (say Y to "LAPB Data Link Driver" below if you want that).
+=20
+-	  You can read more about X.25 at <http://www.sangoma.com/x25.htm> an=
+d
+-	  <http://www.cisco.com/univercd/cc/td/doc/product/software/ios11/cbo=
+ok/cx25.htm>.
++	  You can read more about X.25 at <http://www.sangoma.com/tutorials/x=
+25/> and
++	  <http://docwiki.cisco.com/wiki/X.25>.
+ 	  Information about X.25 for Linux is contained in the files
+ 	  <file:Documentation/networking/x25.txt> and
+ 	  <file:Documentation/networking/x25-iface.txt>.
+--=20
+1.8.3.1
