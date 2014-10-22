@@ -1,26 +1,106 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3] x25: convert printks to pr_<level>
-Date: Mon, 09 Dec 2013 20:24:28 -0500 (EST)
-Message-ID: <20131209.202428.160565441998367426.davem@davemloft.net>
-References: <529FEDBC.9030302@huawei.com>
-	<52A02233.6040700@huawei.com>
-	<52A1B3F1.4020203@huawei.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <52A1B3F1.4020203@huawei.com>
-Sender: netdev-owner@vger.kernel.org
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 1/1 net-next] lapb: move EXPORT_SYMBOL after functions.
+Date: Wed, 22 Oct 2014 21:01:41 +0200
+Message-ID: <1414004501-7715-1-git-send-email-fabf@skynet.be>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: wangweidong1@huawei.com
-Cc: andrew.hendry@gmail.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, joe@perches.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: Fabian Frederick <fabf@skynet.be>, "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
-From: Wang Weidong <wangweidong1@huawei.com>
-Date: Fri, 6 Dec 2013 19:24:33 +0800
+See Documentation/CodingStyle Chapter 6
 
-> use pr_<level> instead of printk(LEVEL)
-> 
-> Suggested-by: Joe Perches <joe@perches.com>
-> Signed-off-by: Wang Weidong <wangweidong1@huawei.com>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+---
+ net/lapb/lapb_iface.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-Applied, thanks.
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index 3cdaa04..fc60d9d 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -73,6 +73,7 @@ static void __lapb_remove_cb(struct lapb_cb *lapb)
+ 		lapb_put(lapb);
+ 	}
+ }
++EXPORT_SYMBOL(lapb_register);
+ 
+ /*
+  *	Add a socket to the bound sockets list.
+@@ -195,6 +196,7 @@ out:
+ 	write_unlock_bh(&lapb_list_lock);
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_unregister);
+ 
+ int lapb_getparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ {
+@@ -227,6 +229,7 @@ int lapb_getparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ out:
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_getparms);
+ 
+ int lapb_setparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ {
+@@ -262,6 +265,7 @@ out_put:
+ out:
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_setparms);
+ 
+ int lapb_connect_request(struct net_device *dev)
+ {
+@@ -290,6 +294,7 @@ out_put:
+ out:
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_connect_request);
+ 
+ int lapb_disconnect_request(struct net_device *dev)
+ {
+@@ -334,6 +339,7 @@ out_put:
+ out:
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_disconnect_request);
+ 
+ int lapb_data_request(struct net_device *dev, struct sk_buff *skb)
+ {
+@@ -355,6 +361,7 @@ out_put:
+ out:
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_data_request);
+ 
+ int lapb_data_received(struct net_device *dev, struct sk_buff *skb)
+ {
+@@ -369,6 +376,7 @@ int lapb_data_received(struct net_device *dev, struct sk_buff *skb)
+ 
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_data_received);
+ 
+ void lapb_connect_confirmation(struct lapb_cb *lapb, int reason)
+ {
+@@ -415,15 +423,6 @@ int lapb_data_transmit(struct lapb_cb *lapb, struct sk_buff *skb)
+ 	return used;
+ }
+ 
+-EXPORT_SYMBOL(lapb_register);
+-EXPORT_SYMBOL(lapb_unregister);
+-EXPORT_SYMBOL(lapb_getparms);
+-EXPORT_SYMBOL(lapb_setparms);
+-EXPORT_SYMBOL(lapb_connect_request);
+-EXPORT_SYMBOL(lapb_disconnect_request);
+-EXPORT_SYMBOL(lapb_data_request);
+-EXPORT_SYMBOL(lapb_data_received);
+-
+ static int __init lapb_init(void)
+ {
+ 	return 0;
+-- 
+1.9.1
