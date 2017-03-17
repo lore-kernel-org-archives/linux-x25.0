@@ -1,25 +1,25 @@
-From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 23/23] net, ax25: convert ax25_cb.refcount from atomic_t to refcount_t
-Date: Fri, 17 Mar 2017 14:10:46 +0200
-Message-ID: <1489752646-8749-24-git-send-email-elena.reshetova@intel.com>
+From: Elena Reshetova <elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 13/23] net, xfrm: convert xfrm_state.refcnt from atomic_t to refcount_t
+Date: Fri, 17 Mar 2017 14:10:36 +0200
+Message-ID: <1489752646-8749-14-git-send-email-elena.reshetova@intel.com>
 References: <1489752646-8749-1-git-send-email-elena.reshetova@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-  t=1489753249; x=1521289249;
+  t=1489753010; x=1521289010;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references;
-  bh=gGAtCxvi0dasqTPcUFbsxSullveQMZa+h2rmfyrhOkM=;
-  b=lQyOf11wp4FAhyLebwECSJEWOLQd4gt7vDc8kknyRxu2gNzCWOF0M+R3
-   5Ej1BKli8AU7sB0fODrOFP3W2N0uHw==;
-In-Reply-To: <1489752646-8749-1-git-send-email-elena.reshetova@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+  bh=JSSpXArn2mUAKvu8LOoXP+WLcOGNFst89J0E9oKzs8Q=;
+  b=x8ZtYaZpWjevbwUKg3cJa15UWRwrfhTUxylYfOv2b7+9qRgsv0kEWolb
+   PLwxfAyKJyZQLC8L3SPdeLtukis6KA==;
+In-Reply-To: <1489752646-8749-1-git-send-email-elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, davem@davemloft.net, linux-x25@vger.kernel.org, linux-sctp@vger.kernel.org, vyasevich@gmail.com, nhorman@tuxdriver.com, linux-hams@vger.kernel.org, linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org, zyan@redhat.com, sage@redhat.com, bfields@fieldses.org, jlayton@poochiereds.net, steffen.klassert@secunet.com, herbert@gondor.apana.org.au, santosh.shilimkar@oracle.com, jreuter@yaina.de, ralf@linux-mips.org, peterz@infradead.org, keescook@chromium.org, Elena Reshetova <elena.reshetova@intel.com>, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>
+To: netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, linux-x25-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vyasevich-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org, linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ceph-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, zyan-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, sage-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, bfields-uC3wQj2KruNg9hUCZPvPmw@public.gmane.org, jlayton-vpEMnDpepFuMZCB2o+C8xQ@public.gmane.org, steffen.klassert-opNxpl+3fjRBDgjK7y7TUQ@public.gmane.org, herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org, santosh.shilimkar-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, jreuter-K7Hl1MveuGQ@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Elena Reshetova <elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hans Liljestrand <ishkamiel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Windsor <dwindsor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
 refcount_t type and corresponding API should be
 used instead of atomic_t when the variable is used as
@@ -27,55 +27,84 @@ a reference counter. This allows to avoid accidental
 refcounter overflows that might lead to use-after-free
 situations.
 
-Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David Windsor <dwindsor@gmail.com>
+Signed-off-by: Elena Reshetova <elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Hans Liljestrand <ishkamiel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: David Windsor <dwindsor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- include/net/ax25.h | 6 +++---
- net/ax25/af_ax25.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/xfrm.h    | 9 +++++----
+ net/xfrm/xfrm_state.c | 4 ++--
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/ax25.h b/include/net/ax25.h
-index e3467ba..c4a0cf6 100644
---- a/include/net/ax25.h
-+++ b/include/net/ax25.h
-@@ -244,7 +244,7 @@ typedef struct ax25_cb {
- 	unsigned char		window;
- 	struct timer_list	timer, dtimer;
- 	struct sock		*sk;		/* Backlink to socket */
--	atomic_t		refcount;
-+	refcount_t		refcount;
- } ax25_cb;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 14d82bf..163cda5 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -13,6 +13,7 @@
+ #include <linux/mutex.h>
+ #include <linux/audit.h>
+ #include <linux/slab.h>
++#include <linux/refcount.h>
  
- struct ax25_sock {
-@@ -266,11 +266,11 @@ static inline struct ax25_cb *sk_to_ax25(const struct sock *sk)
- 	hlist_for_each_entry(__ax25, list, ax25_node)
+ #include <net/sock.h>
+ #include <net/dst.h>
+@@ -130,7 +131,7 @@ struct xfrm_state {
+ 	struct hlist_node	bysrc;
+ 	struct hlist_node	byspi;
  
- #define ax25_cb_hold(__ax25) \
--	atomic_inc(&((__ax25)->refcount))
-+	refcount_inc(&((__ax25)->refcount))
+-	atomic_t		refcnt;
++	refcount_t		refcnt;
+ 	spinlock_t		lock;
  
- static __inline__ void ax25_cb_put(ax25_cb *ax25)
+ 	struct xfrm_id		id;
+@@ -802,18 +803,18 @@ void __xfrm_state_destroy(struct xfrm_state *);
+ 
+ static inline void __xfrm_state_put(struct xfrm_state *x)
  {
--	if (atomic_dec_and_test(&ax25->refcount)) {
-+	if (refcount_dec_and_test(&ax25->refcount)) {
- 		kfree(ax25->digipeat);
- 		kfree(ax25);
- 	}
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 90fcf5f..163e81f 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -510,7 +510,7 @@ ax25_cb *ax25_create_cb(void)
- 	if ((ax25 = kzalloc(sizeof(*ax25), GFP_ATOMIC)) == NULL)
- 		return NULL;
+-	atomic_dec(&x->refcnt);
++	refcount_dec(&x->refcnt);
+ }
  
--	atomic_set(&ax25->refcount, 1);
-+	refcount_set(&ax25->refcount, 1);
+ static inline void xfrm_state_put(struct xfrm_state *x)
+ {
+-	if (atomic_dec_and_test(&x->refcnt))
++	if (refcount_dec_and_test(&x->refcnt))
+ 		__xfrm_state_destroy(x);
+ }
  
- 	skb_queue_head_init(&ax25->write_queue);
- 	skb_queue_head_init(&ax25->frag_queue);
+ static inline void xfrm_state_hold(struct xfrm_state *x)
+ {
+-	atomic_inc(&x->refcnt);
++	refcount_inc(&x->refcnt);
+ }
+ 
+ static inline bool addr_match(const void *token1, const void *token2,
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 5a597db..a91109f 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -48,7 +48,7 @@ static HLIST_HEAD(xfrm_state_gc_list);
+ 
+ static inline bool xfrm_state_hold_rcu(struct xfrm_state __rcu *x)
+ {
+-	return atomic_inc_not_zero(&x->refcnt);
++	return refcount_inc_not_zero(&x->refcnt);
+ }
+ 
+ static inline unsigned int xfrm_dst_hash(struct net *net,
+@@ -486,7 +486,7 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
+ 
+ 	if (x) {
+ 		write_pnet(&x->xs_net, net);
+-		atomic_set(&x->refcnt, 1);
++		refcount_set(&x->refcnt, 1);
+ 		atomic_set(&x->tunnel_users, 0);
+ 		INIT_LIST_HEAD(&x->km.all);
+ 		INIT_HLIST_NODE(&x->bydst);
 -- 
 2.7.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
