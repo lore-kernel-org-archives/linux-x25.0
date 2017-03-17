@@ -1,17 +1,17 @@
 From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 14/18] net, lapb: convert lapb_cb.refcnt from atomic_t to refcount_t
-Date: Fri, 17 Mar 2017 13:12:55 +0200
-Message-ID: <1489749179-12063-15-git-send-email-elena.reshetova@intel.com>
+Subject: [PATCH 16/18] net, ipx: convert ipx_route.refcnt from atomic_t to refcount_t
+Date: Fri, 17 Mar 2017 13:12:57 +0200
+Message-ID: <1489749179-12063-17-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-  t=1489749350; x=1521285350;
+  t=1489749363; x=1521285363;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references;
-  bh=zLXmlaLhQaR3ICv5ByxjamqhU2a7B4hUJIpD9EgGLTI=;
-  b=gghvFKJhiAzdWWL4e4ANpW2fCwb9he0kkIqWVKfRwXEjFSKUzZOUlTJU
-   2Vtck/PbrFdtXOO5+hEMmqSSLIt9XQ==;
+  bh=X+RZwiG1zxCGMph03tlMj2lJpl4bkL9FiLnzMp2O0y4=;
+  b=E3ruO69PWPByLmkJ0ZE9T90WRsaAk0e09xUalbCL0FGpBY7p74OHMvTn
+   UjWL4WdjUW/f+jgjtWKZbIFdqp0Kfg==;
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
@@ -32,59 +32,51 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/lapb.h    | 3 ++-
- net/lapb/lapb_iface.c | 6 +++---
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ include/net/ipx.h   | 6 +++---
+ net/ipx/ipx_route.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/lapb.h b/include/net/lapb.h
-index 9510f87..85e7737 100644
---- a/include/net/lapb.h
-+++ b/include/net/lapb.h
-@@ -1,6 +1,7 @@
- #ifndef _LAPB_H
- #define _LAPB_H 
- #include <linux/lapb.h>
-+#include <linux/refcount.h>
- 
- #define	LAPB_HEADER_LEN	20		/* LAPB over Ethernet + a bit more */
- 
-@@ -101,7 +102,7 @@ struct lapb_cb {
- 	struct lapb_frame	frmr_data;
- 	unsigned char		frmr_type;
- 
+diff --git a/include/net/ipx.h b/include/net/ipx.h
+index 2de1281..af32b97 100644
+--- a/include/net/ipx.h
++++ b/include/net/ipx.h
+@@ -81,7 +81,7 @@ struct ipx_route {
+ 	unsigned char		ir_routed;
+ 	unsigned char		ir_router_node[IPX_NODE_LEN];
+ 	struct list_head	node; /* node in ipx_routes list */
 -	atomic_t		refcnt;
 +	refcount_t		refcnt;
  };
  
- /* lapb_iface.c */
-diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
-index b50b64a..e15314e 100644
---- a/net/lapb/lapb_iface.c
-+++ b/net/lapb/lapb_iface.c
-@@ -54,12 +54,12 @@ static void lapb_free_cb(struct lapb_cb *lapb)
+ struct ipx_cb {
+@@ -164,12 +164,12 @@ static __inline__ void ipxitf_put(struct ipx_interface *intrfc)
  
- static __inline__ void lapb_hold(struct lapb_cb *lapb)
+ static __inline__ void ipxrtr_hold(struct ipx_route *rt)
  {
--	atomic_inc(&lapb->refcnt);
-+	refcount_inc(&lapb->refcnt);
+-	        atomic_inc(&rt->refcnt);
++	        refcount_inc(&rt->refcnt);
  }
  
- static __inline__ void lapb_put(struct lapb_cb *lapb)
+ static __inline__ void ipxrtr_put(struct ipx_route *rt)
  {
--	if (atomic_dec_and_test(&lapb->refcnt))
-+	if (refcount_dec_and_test(&lapb->refcnt))
- 		lapb_free_cb(lapb);
+-	        if (atomic_dec_and_test(&rt->refcnt))
++	        if (refcount_dec_and_test(&rt->refcnt))
+ 			                kfree(rt);
  }
+ #endif /* _NET_INET_IPX_H_ */
+diff --git a/net/ipx/ipx_route.c b/net/ipx/ipx_route.c
+index 3e2a32a..b5d9144 100644
+--- a/net/ipx/ipx_route.c
++++ b/net/ipx/ipx_route.c
+@@ -59,7 +59,7 @@ int ipxrtr_add_route(__be32 network, struct ipx_interface *intrfc,
+ 		if (!rt)
+ 			goto out;
  
-@@ -136,7 +136,7 @@ static struct lapb_cb *lapb_create_cb(void)
- 	lapb->mode    = LAPB_DEFAULT_MODE;
- 	lapb->window  = LAPB_DEFAULT_WINDOW;
- 	lapb->state   = LAPB_STATE_0;
--	atomic_set(&lapb->refcnt, 1);
-+	refcount_set(&lapb->refcnt, 1);
- out:
- 	return lapb;
- }
+-		atomic_set(&rt->refcnt, 1);
++		refcount_set(&rt->refcnt, 1);
+ 		ipxrtr_hold(rt);
+ 		write_lock_bh(&ipx_routes_lock);
+ 		list_add(&rt->node, &ipx_routes);
 -- 
 2.7.4
 
