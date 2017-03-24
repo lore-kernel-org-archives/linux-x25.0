@@ -1,102 +1,122 @@
-From: Ilya Dryomov <idryomov@gmail.com>
-Subject: Re: [PATCH 04/23] net, ceph: convert ceph_snap_context.nref from
- atomic_t to refcount_t
-Date: Fri, 24 Mar 2017 14:20:42 +0100
-Message-ID: <CAOi1vP97Cq5UhxryxsLe2MuNi9zJZFDaY3_CT76uU=_H_sJ-Nw@mail.gmail.com>
-References: <1489752646-8749-1-git-send-email-elena.reshetova@intel.com> <1489752646-8749-5-git-send-email-elena.reshetova@intel.com>
+From: Ilya Dryomov <idryomov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 05/23] net, ceph: convert ceph_osd.o_ref from atomic_t to refcount_t
+Date: Fri, 24 Mar 2017 14:49:24 +0100
+Message-ID: <CAOi1vP8ajXGamJ_Et93sfAq4xr46sSuse8cP320j-aqnwrSqKg@mail.gmail.com>
+References: <1489752646-8749-1-git-send-email-elena.reshetova@intel.com> <1489752646-8749-6-git-send-email-elena.reshetova@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-hams-owner@vger.kernel.org>
+Return-path: <linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:in-reply-to:references:from:date:message-id:subject:to
          :cc;
-        bh=scU9pXESsLrO8vISqRBBwdZULekzN0gs/ycPjIl9HRI=;
-        b=aCUxil7k+35SFuMdSTgma6df4S6kdANUpxqg+b8krmTz/tTBF4Y5A3HobT3HoexIk2
-         xrNZ+CbpPa4JTdlQuTte4NxqKEcG9+woYdbXLJ0JaWqm/9eQ0J36MfS1aD9D7A77R/Jc
-         /BJcpj+2jGZ17xEn4+tbiw5Gk5AcibiEy+CiJf2b/Dq1qa26DoAbfYV+23m8gVo+IcBB
-         7ZVdSfK0bp7KbQ3ID0kNvzXUQSJ5K4aNjzJCLQccFUqQWIBdQOzj0p9wamSzgCmjpav+
-         UY2SuSGm6rhpXI8DD+LYK7Z4MKIflp+gH7C0JSeLknLdasQ5nOaR0meduBoSmFZjKW05
-         IbiQ==
-In-Reply-To: <1489752646-8749-5-git-send-email-elena.reshetova@intel.com>
-Sender: linux-hams-owner@vger.kernel.org
+        bh=6uejulfsP6Zn7aotqUkIHru4bYqKDlWP/dQxKfzfM8s=;
+        b=dXdueqPY4QryopvDedBAVNcikhONLv2WGhY3zDR1xWH1mCqb6Kr8Oe1h03pHhcDZmA
+         7zSndgvrEq61httuF9ix80vlsQxfbZIg0VAeMNiD38h97f9/cKOZ+VzBUulxCxKKu7Ks
+         wD0NqjhvhcdkIitlMwFXIBxOuxrU40N8nPxz3UW20wPIOfgZF8p+fYR1xIXJuXoFwn5Q
+         SMm4KzP+dM+XP0qx++iCE0GZ0FGIqKXsDtWWK15ns6CSTFsYf/A9dsGaezwyMijlhETQ
+         120SObRtIP0VYvJVqO4jQ+1j4NgY1+OdG7PHbCIaLL6NZ1UTCJt54aJqNsPrKSH4B70g
+         rZOw==
+In-Reply-To: <1489752646-8749-6-git-send-email-elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Elena Reshetova <elena.reshetova@intel.com>
-Cc: netdev <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-rdma@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, linux-sctp@vger.kernel.org, vyasevich@gmail.com, nhorman@tuxdriver.com, linux-hams@vger.kernel.org, linux-nfs@vger.kernel.org, Ceph Development <ceph-devel@vger.kernel.org>, "Yan, Zheng" <zyan@redhat.com>, Sage Weil <sage@redhat.com>, bfields@fieldses.org, Jeff Layton <jlayton@poochiereds.net>, steffen.klassert@secunet.com, Herbert Xu <herbert@gondor.apana.org.au>, santosh.shilimkar@oracle.com, jreuter@yaina.de, ralf@linux-mips.org, peterz@infradead.org, Kees Cook <keescook@chromium.org>, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>
+To: Elena Reshetova <elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: netdev <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, linux-x25-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vyasevich-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org, linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ceph Development <ceph-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Yan, Zheng" <zyan-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sage Weil <sage-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, bfields-uC3wQj2KruNg9hUCZPvPmw@public.gmane.org, Jeff Layton <jlayton-vpEMnDpepFuMZCB2o+C8xQ@public.gmane.org>, steffen.klassert-opNxpl+3fjRBDgjK7y7TUQ@public.gmane.org, Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>, santosh.shilimkar-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, jreuter-K7Hl1MveuGQ@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Hans Liljestrand <ishkamiel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Windsor <dwindsor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
 On Fri, Mar 17, 2017 at 1:10 PM, Elena Reshetova
-<elena.reshetova@intel.com> wrote:
+<elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
 > refcount_t type and corresponding API should be
 > used instead of atomic_t when the variable is used as
 > a reference counter. This allows to avoid accidental
 > refcounter overflows that might lead to use-after-free
 > situations.
 >
-> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Signed-off-by: David Windsor <dwindsor@gmail.com>
+> Signed-off-by: Elena Reshetova <elena.reshetova-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Hans Liljestrand <ishkamiel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: David Windsor <dwindsor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  include/linux/ceph/libceph.h | 3 ++-
->  net/ceph/snapshot.c          | 6 +++---
->  2 files changed, 5 insertions(+), 4 deletions(-)
+>  include/linux/ceph/osd_client.h |  3 ++-
+>  net/ceph/osd_client.c           | 16 ++++++++--------
+>  2 files changed, 10 insertions(+), 9 deletions(-)
 >
-> diff --git a/include/linux/ceph/libceph.h b/include/linux/ceph/libceph.h
-> index 1816c5e..26dc674 100644
-> --- a/include/linux/ceph/libceph.h
-> +++ b/include/linux/ceph/libceph.h
-> @@ -14,6 +14,7 @@
->  #include <linux/wait.h>
->  #include <linux/writeback.h>
->  #include <linux/slab.h>
+> diff --git a/include/linux/ceph/osd_client.h b/include/linux/ceph/osd_client.h
+> index 2ea0c28..5ce0cd6 100644
+> --- a/include/linux/ceph/osd_client.h
+> +++ b/include/linux/ceph/osd_client.h
+> @@ -5,6 +5,7 @@
+>  #include <linux/kref.h>
+>  #include <linux/mempool.h>
+>  #include <linux/rbtree.h>
 > +#include <linux/refcount.h>
 >
 >  #include <linux/ceph/types.h>
->  #include <linux/ceph/messenger.h>
-> @@ -159,7 +160,7 @@ struct ceph_client {
->   * dirtied.
+>  #include <linux/ceph/osdmap.h>
+> @@ -27,7 +28,7 @@ typedef void (*ceph_osdc_callback_t)(struct ceph_osd_request *);
+>
+>  /* a given osd we're communicating with */
+>  struct ceph_osd {
+> -       atomic_t o_ref;
+> +       refcount_t o_ref;
+>         struct ceph_osd_client *o_osdc;
+>         int o_osd;
+>         int o_incarnation;
+> diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
+> index b65bbf9..99a51f0 100644
+> --- a/net/ceph/osd_client.c
+> +++ b/net/ceph/osd_client.c
+> @@ -1005,7 +1005,7 @@ static bool osd_registered(struct ceph_osd *osd)
 >   */
->  struct ceph_snap_context {
-> -       atomic_t nref;
-> +       refcount_t nref;
->         u64 seq;
->         u32 num_snaps;
->         u64 snaps[];
-> diff --git a/net/ceph/snapshot.c b/net/ceph/snapshot.c
-> index 705414e..e14a5d0 100644
-> --- a/net/ceph/snapshot.c
-> +++ b/net/ceph/snapshot.c
-> @@ -49,7 +49,7 @@ struct ceph_snap_context *ceph_create_snap_context(u32 snap_count,
->         if (!snapc)
->                 return NULL;
->
-> -       atomic_set(&snapc->nref, 1);
-> +       refcount_set(&snapc->nref, 1);
->         snapc->num_snaps = snap_count;
->
->         return snapc;
-> @@ -59,7 +59,7 @@ EXPORT_SYMBOL(ceph_create_snap_context);
->  struct ceph_snap_context *ceph_get_snap_context(struct ceph_snap_context *sc)
+>  static void osd_init(struct ceph_osd *osd)
 >  {
->         if (sc)
-> -               atomic_inc(&sc->nref);
-> +               refcount_inc(&sc->nref);
->         return sc;
->  }
->  EXPORT_SYMBOL(ceph_get_snap_context);
-> @@ -68,7 +68,7 @@ void ceph_put_snap_context(struct ceph_snap_context *sc)
+> -       atomic_set(&osd->o_ref, 1);
+> +       refcount_set(&osd->o_ref, 1);
+>         RB_CLEAR_NODE(&osd->o_node);
+>         osd->o_requests = RB_ROOT;
+>         osd->o_linger_requests = RB_ROOT;
+> @@ -1050,9 +1050,9 @@ static struct ceph_osd *create_osd(struct ceph_osd_client *osdc, int onum)
+>
+>  static struct ceph_osd *get_osd(struct ceph_osd *osd)
 >  {
->         if (!sc)
->                 return;
-> -       if (atomic_dec_and_test(&sc->nref)) {
-> +       if (refcount_dec_and_test(&sc->nref)) {
->                 /*printk(" deleting snap_context %p\n", sc);*/
->                 kfree(sc);
+> -       if (atomic_inc_not_zero(&osd->o_ref)) {
+> -               dout("get_osd %p %d -> %d\n", osd, atomic_read(&osd->o_ref)-1,
+> -                    atomic_read(&osd->o_ref));
+> +       if (refcount_inc_not_zero(&osd->o_ref)) {
+> +               dout("get_osd %p %d -> %d\n", osd, refcount_read(&osd->o_ref)-1,
+> +                    refcount_read(&osd->o_ref));
+>                 return osd;
+>         } else {
+>                 dout("get_osd %p FAIL\n", osd);
+> @@ -1062,9 +1062,9 @@ static struct ceph_osd *get_osd(struct ceph_osd *osd)
+>
+>  static void put_osd(struct ceph_osd *osd)
+>  {
+> -       dout("put_osd %p %d -> %d\n", osd, atomic_read(&osd->o_ref),
+> -            atomic_read(&osd->o_ref) - 1);
+> -       if (atomic_dec_and_test(&osd->o_ref)) {
+> +       dout("put_osd %p %d -> %d\n", osd, refcount_read(&osd->o_ref),
+> +            refcount_read(&osd->o_ref) - 1);
+> +       if (refcount_dec_and_test(&osd->o_ref)) {
+>                 osd_cleanup(osd);
+>                 kfree(osd);
 >         }
+> @@ -4092,7 +4092,7 @@ void ceph_osdc_stop(struct ceph_osd_client *osdc)
+>                 close_osd(osd);
+>         }
+>         up_write(&osdc->lock);
+> -       WARN_ON(atomic_read(&osdc->homeless_osd.o_ref) != 1);
+> +       WARN_ON(refcount_read(&osdc->homeless_osd.o_ref) != 1);
+>         osd_cleanup(&osdc->homeless_osd);
+>
+>         WARN_ON(!list_empty(&osdc->osd_lru));
 
 Applied.
 
 Thanks,
 
                 Ilya
+--
+To unsubscribe from this list: send the line "unsubscribe linux-rdma" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
