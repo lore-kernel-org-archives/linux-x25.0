@@ -1,40 +1,56 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 05/18] net, bluetooth: convert rfcomm_dlc.refcnt from
- atomic_t to refcount_t
-Date: Mon, 27 Mar 2017 16:05:34 +0200
-Message-ID: <54BFC171-C8E2-47BB-811D-6E9832246256@holtmann.org>
-References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
- <1489749179-12063-6-git-send-email-elena.reshetova@intel.com>
-Mime-Version: 1.0 (Mac OS X Mail 10.2 \(3259\))
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1489749179-12063-6-git-send-email-elena.reshetova@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: linzhang <xiaolou4617@gmail.com>
+Subject: [PATCH] net: x25: fix one potential use-after-free issue
+Date: Mon, 15 May 2017 12:12:49 +0800
+Message-ID: <1494821569-18572-1-git-send-email-xiaolou4617@gmail.com>
+Return-path: <netdev-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=bNgUJnizgpU4F9RaKQdvAH7v0kBkzGrw+xtB7bYxMuo=;
+        b=E3/az/PCfU08Wk+kD3dES5shVkskvGtExZm5zYYoytZXeAEryrU4UKc3P6Lmpi8A2f
+         l4rboN0xP50L1lmw/MwfNIm0MW5m1e8oWffzznSZzgopfPcvNSxqcGVfPOFWXySjvyUi
+         CW6/trzMNj8ysV4kWCvTiJcqkyQuea0qKeQLmzZlPE0Bnx46ZqcdLOJgTm+YlLy4Riny
+         WftcA0Ae74U58YzlG1XUrInlT5rNreEQ0d7E6EACtuIpKexkIUMI7O6j3uy8l3sSdTD8
+         QPlcyB3TSjQG0DOrgnki9y+DyZ4DkYx6WGCTUcGFDm7qEYA1b6Lc2Fa5hy0EcBl94m0z
+         WwnA==
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Elena Reshetova <elena.reshetova@intel.com>
-Cc: Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>, James Morris <jmorris@namei.org>, Patrick McHardy <kaber@trash.net>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, 3chas3@gmail.com, ralf@linux-mips.org, stephen@networkplumber.org, jchapman@katalix.com, jhs@mojatatu.com, bridge@lists.linux-foundation.org, linux-hams@vger.kernel.org, linux-x25@vger.kernel.org, linux-bluetooth@vger.kernel.org, Johan Hedberg <johan.hedberg@gmail.com>, peterz@infradead.org, keescook@chromium.org, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>
+Content-Transfer-Encoding: 7bit
+To: andrew.hendry@gmail.com, davem@davemloft.net
+Cc: nhorman@tuxdriver.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linzhang <xiaolou4617@gmail.com>
 
-Hi Elena,
+The function x25_init is not properly unregister related resources
+on error handler.It is will result in kernel oops if x25_init init
+failed, so add right unregister call on error handler.
 
-> refcount_t type and corresponding API should be
-> used instead of atomic_t when the variable is used as
-> a reference counter. This allows to avoid accidental
-> refcounter overflows that might lead to use-after-free
-> situations.
-> 
-> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Signed-off-by: David Windsor <dwindsor@gmail.com>
-> ---
-> include/net/bluetooth/rfcomm.h | 8 +++++---
-> net/bluetooth/rfcomm/core.c    | 4 ++--
-> 2 files changed, 7 insertions(+), 5 deletions(-)
+Signed-off-by: linzhang <xiaolou4617@gmail.com>
+---
+ net/x25/af_x25.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-patch has been applied to bluetooth-next tree.
-
-Regards
-
-Marcel
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 8b911c2..e01e09a 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1811,12 +1811,14 @@ static int __init x25_init(void)
+ 	x25_register_sysctl();
+ 	rc = x25_proc_init();
+ 	if (rc != 0)
+-		goto out_dev;
++		goto out_sysctl;
+ out:
+ 	return rc;
+-out_dev:
++out_sysctl:
++	x25_unregister_sysctl();
+ 	unregister_netdevice_notifier(&x25_dev_notifier);
+ out_sock:
++	dev_remove_pack(&x25_packet_type);
+ 	sock_unregister(AF_X25);
+ out_proto:
+ 	proto_unregister(&x25_proto);
+-- 
+1.8.3.1
 
