@@ -1,37 +1,45 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] net: x25: fix one potential use-after-free issue
-Date: Mon, 15 May 2017 14:47:01 -0400 (EDT)
-Message-ID: <20170515.144701.1280299270304471194.davem@davemloft.net>
-References: <1494821569-18572-1-git-send-email-xiaolou4617@gmail.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1494821569-18572-1-git-send-email-xiaolou4617@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: xiaolou4617@gmail.com
-Cc: andrew.hendry@gmail.com, nhorman@tuxdriver.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-
 From: linzhang <xiaolou4617@gmail.com>
-Date: Mon, 15 May 2017 12:12:49 +0800
+Subject: [PATCH net v2] net: x25: fix one potential use-after-free issue
+Date: Tue, 16 May 2017 11:52:54 +0800
+Message-ID: <1494906774-16352-1-git-send-email-xiaolou4617@gmail.com>
+Return-path: <netdev-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=Xe9SpBZliAjVKcNzyKhrbC9f9JgPk4lbaoe5QlH36Og=;
+        b=PHeNkKcR1etLcZiOlkeo/wkIl20IUDLJQENskoEOvMDppw/15pZic3Fem8eM1PWfi0
+         4yxds6rR3f4nxASssl9HmaMHbk/Ro/dGrSiWdx3lUseLfrILtgSIpzjH8Y/sjltid1sZ
+         Rp1hrs61ZzBYfggxEQdr86ME1kZ2G2bEa8kxs2li3YjIAJNUHAOycT6Ewp+Uc3gbMdIr
+         0lQQxPqyTTSA19ZF8F0yhumxcvlvWC45s6qLc2GiG6F5Jkw6QUAR/1aE/NTEl8Waz8JL
+         ZOhcUfB1lKZEIxSLTMuaMpWOSUwgpcI6rJI/AvctxChKAZ8p4PslBiAP/zTqpGBKF4RU
+         tw1g==
+Sender: netdev-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: andrew.hendry@gmail.com, davem@davemloft.net
+Cc: nhorman@tuxdriver.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linzhang <xiaolou4617@gmail.com>
 
-> The function x25_init is not properly unregister related resources
-> on error handler.It is will result in kernel oops if x25_init init
-> failed, so add right unregister call on error handler.
-> 
-> Signed-off-by: linzhang <xiaolou4617@gmail.com>
+The function x25_init is not properly unregister related resources
+on error handler.It is will result in kernel oops if x25_init init
+failed, so add properly unregister call on error handler.
 
-I think we need to go a bit further and make x25_register_sysctl()
-properly check for and return failure.
+Also, i adjust the coding style and make x25_register_sysctl properly
+return failure.
 
-Something like:
+Signed-off-by: linzhang <xiaolou4617@gmail.com>
+---
+ include/net/x25.h        |  4 ++--
+ net/x25/af_x25.c         | 34 +++++++++++++++++++++-------------
+ net/x25/sysctl_net_x25.c |  5 ++++-
+ 3 files changed, 27 insertions(+), 16 deletions(-)
 
 diff --git a/include/net/x25.h b/include/net/x25.h
-index c383aa4..6d30a01 100644
+index c383aa4..339820c 100644
 --- a/include/net/x25.h
 +++ b/include/net/x25.h
-@@ -298,10 +298,10 @@ void x25_check_rbuf(struct sock *);
+@@ -298,10 +298,10 @@ int x25_decode(struct sock *, struct sk_buff *, int *, int *, int *, int *,
  
  /* sysctl_net_x25.c */
  #ifdef CONFIG_SYSCTL
@@ -40,39 +48,75 @@ index c383aa4..6d30a01 100644
  void x25_unregister_sysctl(void);
  #else
 -static inline void x25_register_sysctl(void) {};
-+static inline int x25_register_sysctl(void) { return 0; };
++static inline int x25_register_sysctl(void) { return 0 };
  static inline void x25_unregister_sysctl(void) {};
  #endif /* CONFIG_SYSCTL */
  
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 8b911c2..b7d6614 100644
+index 8b911c2..75c64de 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
-@@ -1808,12 +1808,17 @@ static int __init x25_init(void)
+@@ -1791,34 +1791,42 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
  
- 	pr_info("Linux Version 0.2\n");
+ static int __init x25_init(void)
+ {
+-	int rc = proto_register(&x25_proto, 0);
++	int rc;
  
--	x25_register_sysctl();
-+	rc = x25_register_sysctl();
+-	if (rc != 0)
++	rc = proto_register(&x25_proto, 0);
++	if (rc)
+ 		goto out;
+ 
+ 	rc = sock_register(&x25_family_ops);
+-	if (rc != 0)
+-		goto out_proto;
++	if (rc)
++		goto out_sock;
+ 
+ 	dev_add_pack(&x25_packet_type);
+ 
+ 	rc = register_netdevice_notifier(&x25_dev_notifier);
+-	if (rc != 0)
+-		goto out_sock;
 +	if (rc)
 +		goto out_dev;
-+
- 	rc = x25_proc_init();
- 	if (rc != 0)
--		goto out_dev;
+ 
+-	pr_info("Linux Version 0.2\n");
++	rc = x25_register_sysctl();
++	if (rc)
 +		goto out_sysctl;
+ 
+-	x25_register_sysctl();
+ 	rc = x25_proc_init();
+-	if (rc != 0)
+-		goto out_dev;
++	if (rc)
++		goto out_proc;
++
++	pr_info("Linux Version 0.2\n");
++
  out:
  	return rc;
-+out_sysctl:
+-out_dev:
++out_proc:
 +	x25_unregister_sysctl();
- out_dev:
++out_sysctl:
  	unregister_netdevice_notifier(&x25_dev_notifier);
- out_sock:
+-out_sock:
++out_dev:
++	dev_remove_pack(&x25_packet_type);
+ 	sock_unregister(AF_X25);
+-out_proto:
++out_sock:
+ 	proto_unregister(&x25_proto);
+ 	goto out;
+ }
 diff --git a/net/x25/sysctl_net_x25.c b/net/x25/sysctl_net_x25.c
 index a06dfe1..ba078c8 100644
 --- a/net/x25/sysctl_net_x25.c
 +++ b/net/x25/sysctl_net_x25.c
-@@ -73,9 +73,12 @@ static struct ctl_table x25_table[] = {
+@@ -73,9 +73,12 @@
  	{ },
  };
  
@@ -86,4 +130,6 @@ index a06dfe1..ba078c8 100644
  }
  
  void x25_unregister_sysctl(void)
+-- 
+1.8.3.1
 
