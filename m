@@ -1,113 +1,54 @@
-From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 22/36] net,
-	rds: convert rds_mr.r_refcount from atomic_t to refcount_t
-Date: Tue,  4 Jul 2017 15:53:17 +0300
-Message-ID: <1499172811-16271-23-git-send-email-elena.reshetova@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 00/36] v2 net subsystem misc refcounter conversions
+Date: Tue, 04 Jul 2017 23:00:40 +0100 (WEST)
+Message-ID: <20170704.230040.195111189904913382.davem@davemloft.net>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Return-path: <bridge-bounces@lists.linux-foundation.org>
-In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-List-Id: <linux-x25.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
-	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/bridge/>
-List-Post: <mailto:bridge@lists.linux-foundation.org>
-List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
-	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Sender: bridge-bounces@lists.linux-foundation.org
-Errors-To: bridge-bounces@lists.linux-foundation.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-To: netdev@vger.kernel.org
-Cc: peterz@infradead.org, jchapman@katalix.com, bfields@fieldses.org, linux-sctp@vger.kernel.org, jlayton@poochiereds.net, Elena Reshetova <elena.reshetova@intel.com>, steffen.klassert@secunet.com, zyan@redhat.com, herbert@gondor.apana.org.au, linux-x25@vger.kernel.org, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, 3chas3@gmail.com, kuznet@ms2.inr.ac.ru, jreuter@yaina.de, keescook@chromium.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, Hans Liljestrand <ishkamiel@gmail.com>, linux-hams@vger.kernel.org, David Windsor <dwindsor@gmail.com>, linux-nfs@vger.kernel.org, sage@redhat.com, nhorman@tuxdriver.com, yoshfuji@linux-ipv6.org, vyasevich@gmail.com, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org, kaber@trash.net, davem@davemloft.net
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+Content-Type: Text/Plain; charset="us-ascii"
+To: elena.reshetova@intel.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, jmorris@namei.org, kaber@trash.net, yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru, 3chas3@gmail.com, ralf@linux-mips.org, stephen@networkplumber.org, jchapman@katalix.com, jhs@mojatatu.com, bridge@lists.linux-foundation.org, linux-hams@vger.kernel.org, linux-x25@vger.kernel.org, peterz@infradead.org, keescook@chromium.org, linux-rdma@vger.kernel.org, linux-sctp@vger.kernel.org, vyasevich@gmail.com, nhorman@tuxdriver.com, linux-nfs@vger.kernel.org, zyan@redhat.com, sage@redhat.com, bfields@fieldses.org, jlayton@poochiereds.net, steffen.klassert@secunet.com, herbert@gondor.apana.org.au, santosh.shilimkar@oracle.com, jreuter@yaina.de
 
-refcount_t type and corresponding API should be
-used instead of atomic_t when the variable is used as
-a reference counter. This allows to avoid accidental
-refcounter overflows that might lead to use-after-free
-situations.
+From: Elena Reshetova <elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:52:55 +0300
 
-Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David Windsor <dwindsor@gmail.com>
----
- net/rds/rdma.c | 10 +++++-----
- net/rds/rds.h  |  4 ++--
- 2 files changed, 7 insertions(+), 7 deletions(-)
+> Changes in v2:
+>  * rebase on top of net-next
+>  * currently by default refcount_t = atomic_t (*) and uses all 
+>    atomic standard operations unless CONFIG_REFCOUNT_FULL is enabled.
+>    This is a compromise for the systems that are critical on
+>    performance (such as net) and cannot accept even slight delay
+>    on the refcounter operations.
+> 
+> This series, for various misc network components, replaces atomic_t reference
+> counters with the new refcount_t type and API (see include/linux/refcount.h).
+> By doing this we prevent intentional or accidental
+> underflows or overflows that can led to use-after-free vulnerabilities.
+> These are the last networking-related conversions with the exception of
+> network drivers (to be send separately).
+> 
+> Please excuse the long patch set, but seems like breaking it up
+> won't save that much on CC list and most of the changes are
+> trivial.
+> 
+> The patches are fully independent and can be cherry-picked separately.
+> In order to try with refcount functionality enabled in run-time,
+> CONFIG_REFCOUNT_FULL must be enabled.
+> 
+> NOTE: automatic kernel builder for some reason doesn't like all my
+> network branches and regularly times out the builds on these branches.
+> Suggestion for "waiting a day for a good coverage" doesn't work, as
+> we have seen with generic network conversions. So please wait for the
+> full report from kernel test rebot before merging further up.
+> This has been compile-tested in 116 configs, but 71 timed out (including
+> all s390-related configs again). I am trying to see if they can fix
+> build coverage for me in meanwhile.
+> 
+> * The respective change is currently merged into -next as
+>   "locking/refcount: Create unchecked atomic_t implementation".
 
-diff --git a/net/rds/rdma.c b/net/rds/rdma.c
-index f06fac4..8886f15 100644
---- a/net/rds/rdma.c
-+++ b/net/rds/rdma.c
-@@ -84,7 +84,7 @@ static struct rds_mr *rds_mr_tree_walk(struct rb_root *root, u64 key,
- 	if (insert) {
- 		rb_link_node(&insert->r_rb_node, parent, p);
- 		rb_insert_color(&insert->r_rb_node, root);
--		atomic_inc(&insert->r_refcount);
-+		refcount_inc(&insert->r_refcount);
- 	}
- 	return NULL;
- }
-@@ -99,7 +99,7 @@ static void rds_destroy_mr(struct rds_mr *mr)
- 	unsigned long flags;
- 
- 	rdsdebug("RDS: destroy mr key is %x refcnt %u\n",
--			mr->r_key, atomic_read(&mr->r_refcount));
-+			mr->r_key, refcount_read(&mr->r_refcount));
- 
- 	if (test_and_set_bit(RDS_MR_DEAD, &mr->r_state))
- 		return;
-@@ -223,7 +223,7 @@ static int __rds_rdma_map(struct rds_sock *rs, struct rds_get_mr_args *args,
- 		goto out;
- 	}
- 
--	atomic_set(&mr->r_refcount, 1);
-+	refcount_set(&mr->r_refcount, 1);
- 	RB_CLEAR_NODE(&mr->r_rb_node);
- 	mr->r_trans = rs->rs_transport;
- 	mr->r_sock = rs;
-@@ -307,7 +307,7 @@ static int __rds_rdma_map(struct rds_sock *rs, struct rds_get_mr_args *args,
- 
- 	rdsdebug("RDS: get_mr key is %x\n", mr->r_key);
- 	if (mr_ret) {
--		atomic_inc(&mr->r_refcount);
-+		refcount_inc(&mr->r_refcount);
- 		*mr_ret = mr;
- 	}
- 
-@@ -756,7 +756,7 @@ int rds_cmsg_rdma_dest(struct rds_sock *rs, struct rds_message *rm,
- 	if (!mr)
- 		err = -EINVAL;	/* invalid r_key */
- 	else
--		atomic_inc(&mr->r_refcount);
-+		refcount_inc(&mr->r_refcount);
- 	spin_unlock_irqrestore(&rs->rs_rdma_lock, flags);
- 
- 	if (mr) {
-diff --git a/net/rds/rds.h b/net/rds/rds.h
-index 35ceaa2..ea72d6e 100644
---- a/net/rds/rds.h
-+++ b/net/rds/rds.h
-@@ -277,7 +277,7 @@ struct rds_incoming {
- 
- struct rds_mr {
- 	struct rb_node		r_rb_node;
--	atomic_t		r_refcount;
-+	refcount_t		r_refcount;
- 	u32			r_key;
- 
- 	/* A copy of the creation flags */
-@@ -857,7 +857,7 @@ int rds_cmsg_atomic(struct rds_sock *rs, struct rds_message *rm,
- void __rds_put_mr_final(struct rds_mr *mr);
- static inline void rds_mr_put(struct rds_mr *mr)
- {
--	if (atomic_dec_and_test(&mr->r_refcount))
-+	if (refcount_dec_and_test(&mr->r_refcount))
- 		__rds_put_mr_final(mr);
- }
- 
--- 
-2.7.4
-
+Series applied, that's enough for this cycle, please.
