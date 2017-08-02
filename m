@@ -1,80 +1,36 @@
-From: "Reshetova, Elena" <elena.reshetova@intel.com>
-Subject: Re: [PATCH 00/36] v2 net subsystem misc refcounter
-	conversions
-Date: Wed, 5 Jul 2017 09:03:06 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B6FF20D45@IRSMSX102.ger.corp.intel.com>
-References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-	<20170704.230040.195111189904913382.davem@davemloft.net>
-Mime-Version: 1.0
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH] X25: constify null_x25_address
+Date: Wed,  2 Aug 2017 11:35:00 +0200
+Message-ID: <1501666500-25911-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <bridge-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170704.230040.195111189904913382.davem@davemloft.net>
-Content-Language: en-US
-List-Id: <linux-x25.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
-	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/bridge/>
-List-Post: <mailto:bridge@lists.linux-foundation.org>
-List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
-	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Sender: bridge-bounces@lists.linux-foundation.org
-Errors-To: bridge-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: "peterz@infradead.org" <peterz@infradead.org>, "jchapman@katalix.com" <jchapman@katalix.com>, "bfields@fieldses.org" <bfields@fieldses.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, "steffen.klassert@secunet.com" <steffen.klassert@secunet.com>, "zyan@redhat.com" <zyan@redhat.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "jmorris@namei.org" <jmorris@namei.org>, "3chas3@gmail.com" <3chas3@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "jreuter@yaina.de" <jreuter@yaina.de>, "keescook@chromium.org" <keescook@chromium.org>, "santosh.shilimkar@oracle.com" <santosh.shilimkar@oracle.com>
+Content-Transfer-Encoding: 7bit
+To: Andrew Hendry <andrew.hendry@gmail.com>
+Cc: kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
+null_x25_address is only used to access the string it contains, so it can
+be const.
 
-> From: Elena Reshetova <elena.reshetova@intel.com>
-> Date: Tue,  4 Jul 2017 15:52:55 +0300
->=20
-> > Changes in v2:
-> >  * rebase on top of net-next
-> >  * currently by default refcount_t =3D atomic_t (*) and uses all
-> >    atomic standard operations unless CONFIG_REFCOUNT_FULL is enabled.
-> >    This is a compromise for the systems that are critical on
-> >    performance (such as net) and cannot accept even slight delay
-> >    on the refcounter operations.
-> >
-> > This series, for various misc network components, replaces atomic_t ref=
-erence
-> > counters with the new refcount_t type and API (see include/linux/refcou=
-nt.h).
-> > By doing this we prevent intentional or accidental
-> > underflows or overflows that can led to use-after-free vulnerabilities.
-> > These are the last networking-related conversions with the exception of
-> > network drivers (to be send separately).
-> >
-> > Please excuse the long patch set, but seems like breaking it up
-> > won't save that much on CC list and most of the changes are
-> > trivial.
-> >
-> > The patches are fully independent and can be cherry-picked separately.
-> > In order to try with refcount functionality enabled in run-time,
-> > CONFIG_REFCOUNT_FULL must be enabled.
-> >
-> > NOTE: automatic kernel builder for some reason doesn't like all my
-> > network branches and regularly times out the builds on these branches.
-> > Suggestion for "waiting a day for a good coverage" doesn't work, as
-> > we have seen with generic network conversions. So please wait for the
-> > full report from kernel test rebot before merging further up.
-> > This has been compile-tested in 116 configs, but 71 timed out (includin=
-g
-> > all s390-related configs again). I am trying to see if they can fix
-> > build coverage for me in meanwhile.
-> >
-> > * The respective change is currently merged into -next as
-> >   "locking/refcount: Create unchecked atomic_t implementation".
->=20
-> Series applied, that's enough for this cycle, please.
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Thank you very much David! I really appreciate you taking so many of these =
-conversions in
-one go! I will stop for now :)=20
+---
+ net/x25/af_x25.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-With regards to net, I only have networking drivers left (16 patches in tot=
-al), but I can submit them in the
-next round. Will go bug other subsystem maintainers next :)=20
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 5a1a98d..ac09593 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -74,7 +74,7 @@
+ 
+ static const struct proto_ops x25_proto_ops;
+ 
+-static struct x25_address null_x25_address = {"               "};
++static const struct x25_address null_x25_address = {"               "};
+ 
+ #ifdef CONFIG_COMPAT
+ struct compat_x25_subscrip_struct {
 
-Best Regards,
-Elena.
