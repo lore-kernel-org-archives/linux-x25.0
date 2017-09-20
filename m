@@ -1,17 +1,17 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 20/31] net/core: Collapse redundant sk_timer callback data assignments
-Date: Thu, 31 Aug 2017 16:29:32 -0700
-Message-ID: <1504222183-61202-21-git-send-email-keescook@chromium.org>
-References: <1504222183-61202-1-git-send-email-keescook@chromium.org>
+Subject: [PATCH v2 20/31] net/core: Collapse redundant sk_timer callback data assignments
+Date: Wed, 20 Sep 2017 16:27:44 -0700
+Message-ID: <1505950075-50223-21-git-send-email-keescook@chromium.org>
+References: <1505950075-50223-1-git-send-email-keescook@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=7Ws0SrovvoTs9a/Wn2s6JtcLCwHn1178wN/01Hz8rdk=;
-        b=hhlxdM0aruQZpGE1+bCGMLGbEo0/ebj/3BkJzOlglPLgusgZcydx87JtnsTCJ/zI9r
-         fsFARSkKv8eUiFLhLGkHcjB+zKFrcqqqNRcBqegS4cKoX69QcbWDhORvBrcUFYyAqqLl
-         j2vG7OrgzV7Kv8gC9yLDvhCDsjx/h3l3y79Gk=
-In-Reply-To: <1504222183-61202-1-git-send-email-keescook@chromium.org>
+        bh=Rmf+kiaUkx462J21mW2+zEWPFaeTkaIiKsdsjVVE81M=;
+        b=YoBDwa7XX+707ZJN1io4tYyjWH5VFDvP0mz0vSvpOdLafmRyDUS3biWKuGlW/sWQK+
+         mD7p2YM7VwmL2LleFqns27DIz5MiB4lGUc4kJ5q0KKTSLzgIHeHAytm5D7s/zVQ+iwZU
+         Ww3im0wSIfm5gdoezRCWTXW78mXV+uta/u+pU=
+In-Reply-To: <1505950075-50223-1-git-send-email-keescook@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 MIME-Version: 1.0
@@ -45,10 +45,10 @@ Signed-off-by: Kees Cook <keescook@chromium.org>
  5 files changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/net/core/sock.c b/net/core/sock.c
-index ac2a404c73eb..5281a998ab32 100644
+index 9b7b6bbb2a23..3a0233106f62 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -2623,7 +2623,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+@@ -2678,7 +2678,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
  	sk_init_common(sk);
  	sk->sk_send_head	=	NULL;
  
@@ -82,7 +82,7 @@ index bc5469d6d9cb..6baa415b199a 100644
  	sk->sk_timer.expires  = jiffies + 5 * HZ;
  
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 5a1a98df3499..a5ac385b9120 100644
+index ac095936552d..c590c0bd1393 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
 @@ -414,7 +414,6 @@ static void __x25_destroy_socket(struct sock *sk)
