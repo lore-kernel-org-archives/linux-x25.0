@@ -1,110 +1,120 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 20/31] net/core: Collapse redundant sk_timer callback data assignments
-Date: Wed, 20 Sep 2017 16:27:44 -0700
-Message-ID: <1505950075-50223-21-git-send-email-keescook@chromium.org>
-References: <1505950075-50223-1-git-send-email-keescook@chromium.org>
+Subject: [PATCH] net/lapb: Convert timers to use timer_setup()
+Date: Wed, 4 Oct 2017 17:49:47 -0700
+Message-ID: <20171005004947.GA23109@beast>
+Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Rmf+kiaUkx462J21mW2+zEWPFaeTkaIiKsdsjVVE81M=;
-        b=YoBDwa7XX+707ZJN1io4tYyjWH5VFDvP0mz0vSvpOdLafmRyDUS3biWKuGlW/sWQK+
-         mD7p2YM7VwmL2LleFqns27DIz5MiB4lGUc4kJ5q0KKTSLzgIHeHAytm5D7s/zVQ+iwZU
-         Ww3im0wSIfm5gdoezRCWTXW78mXV+uta/u+pU=
-In-Reply-To: <1505950075-50223-1-git-send-email-keescook@chromium.org>
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=y/TCE2gbBcRIhE2zxwH1v1QOk4WfyJilWP/o1ZmIsVM=;
+        b=GHbgAmxBrNfRjSs3X2EYMTfzdCr9fkTJFLO7FKCEtryOK1gqjbgQHr6HDESd09Yrcp
+         U6AqyNLAhCkd71GJjfXImxmc6KM4QV1EB1OUlW0eZhqdKSoK2/vh5IiiTg7b6/TfVRAX
+         6OSg2ixvplyZbxEeLRPjbKXNWwip6WoXnN0PE=
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, "David S. Miller" <davem@davemloft.net>, Ralf Baechle <ralf@linux-mips.org>, Andrew Hendry <andrew.hendry@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, David Howells <dhowells@redhat.com>, Colin Ian King <colin.king@canonical.com>, Ingo Molnar <mingo@kernel.org>, linzhang <xiaolou4617@gmail.com>, netdev@vger.kernel.org, linux-hams@vger.kernel.org, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Hans Liljestrand <ishkamiel@gmail.com>, "Reshetova, Elena" <elena.reshetova@intel.com>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 
-The core sk_timer initializer can provide the common .data assignment
-instead of it being set separately in users.
+In preparation for unconditionally passing the struct timer_list pointer to
+all timer callbacks, switch to using the new timer_setup() and from_timer()
+to pass the timer pointer explicitly.
 
 Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Andrew Hendry <andrew.hendry@gmail.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linzhang <xiaolou4617@gmail.com>
-Cc: netdev@vger.kernel.org
-Cc: linux-hams@vger.kernel.org
+Cc: Hans Liljestrand <ishkamiel@gmail.com>
+Cc: "Reshetova, Elena" <elena.reshetova@intel.com>
 Cc: linux-x25@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- net/core/sock.c       | 2 +-
- net/netrom/nr_timer.c | 1 -
- net/rose/rose_timer.c | 1 -
- net/x25/af_x25.c      | 1 -
- net/x25/x25_timer.c   | 1 -
- 5 files changed, 1 insertion(+), 5 deletions(-)
+This requires commit 686fef928bba ("timer: Prepare to change timer
+callback argument type") in v4.14-rc3, but should be otherwise
+stand-alone.
+---
+ net/lapb/lapb_iface.c |  4 ++--
+ net/lapb/lapb_timer.c | 18 ++++++++----------
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 9b7b6bbb2a23..3a0233106f62 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2678,7 +2678,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
- 	sk_init_common(sk);
- 	sk->sk_send_head	=	NULL;
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index e15314e3b464..db6e0afe3a20 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -127,8 +127,8 @@ static struct lapb_cb *lapb_create_cb(void)
+ 	skb_queue_head_init(&lapb->write_queue);
+ 	skb_queue_head_init(&lapb->ack_queue);
  
--	init_timer(&sk->sk_timer);
-+	setup_timer(&sk->sk_timer, NULL, (unsigned long)sk);
+-	init_timer(&lapb->t1timer);
+-	init_timer(&lapb->t2timer);
++	timer_setup(&lapb->t1timer, NULL, 0);
++	timer_setup(&lapb->t2timer, NULL, 0);
  
- 	sk->sk_allocation	=	GFP_KERNEL;
- 	sk->sk_rcvbuf		=	sysctl_rmem_default;
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index 94d05806a9a2..f84ce71f1f5f 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -45,7 +45,6 @@ void nr_init_timers(struct sock *sk)
- 	setup_timer(&nr->idletimer, nr_idletimer_expiry, (unsigned long)sk);
+ 	lapb->t1      = LAPB_DEFAULT_T1;
+ 	lapb->t2      = LAPB_DEFAULT_T2;
+diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
+index 1a5535bc3b8d..8bb469cb3abe 100644
+--- a/net/lapb/lapb_timer.c
++++ b/net/lapb/lapb_timer.c
+@@ -35,15 +35,14 @@
+ #include <linux/interrupt.h>
+ #include <net/lapb.h>
  
- 	/* initialized by sock_init_data */
--	sk->sk_timer.data     = (unsigned long)sk;
- 	sk->sk_timer.function = &nr_heartbeat_expiry;
- }
+-static void lapb_t1timer_expiry(unsigned long);
+-static void lapb_t2timer_expiry(unsigned long);
++static void lapb_t1timer_expiry(struct timer_list *);
++static void lapb_t2timer_expiry(struct timer_list *);
  
-diff --git a/net/rose/rose_timer.c b/net/rose/rose_timer.c
-index bc5469d6d9cb..6baa415b199a 100644
---- a/net/rose/rose_timer.c
-+++ b/net/rose/rose_timer.c
-@@ -36,7 +36,6 @@ void rose_start_heartbeat(struct sock *sk)
+ void lapb_start_t1timer(struct lapb_cb *lapb)
  {
- 	del_timer(&sk->sk_timer);
+ 	del_timer(&lapb->t1timer);
  
--	sk->sk_timer.data     = (unsigned long)sk;
- 	sk->sk_timer.function = &rose_heartbeat_expiry;
- 	sk->sk_timer.expires  = jiffies + 5 * HZ;
+-	lapb->t1timer.data     = (unsigned long)lapb;
+-	lapb->t1timer.function = &lapb_t1timer_expiry;
++	lapb->t1timer.function = (TIMER_FUNC_TYPE)lapb_t1timer_expiry;
+ 	lapb->t1timer.expires  = jiffies + lapb->t1;
  
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index ac095936552d..c590c0bd1393 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -414,7 +414,6 @@ static void __x25_destroy_socket(struct sock *sk)
- 		/* Defer: outstanding buffers */
- 		sk->sk_timer.expires  = jiffies + 10 * HZ;
- 		sk->sk_timer.function = x25_destroy_timer;
--		sk->sk_timer.data = (unsigned long)sk;
- 		add_timer(&sk->sk_timer);
- 	} else {
- 		/* drop last reference so sock_put will free */
-diff --git a/net/x25/x25_timer.c b/net/x25/x25_timer.c
-index 5c5db1a36399..de5cec41d100 100644
---- a/net/x25/x25_timer.c
-+++ b/net/x25/x25_timer.c
-@@ -36,7 +36,6 @@ void x25_init_timers(struct sock *sk)
- 	setup_timer(&x25->timer, x25_timer_expiry, (unsigned long)sk);
+ 	add_timer(&lapb->t1timer);
+@@ -53,8 +52,7 @@ void lapb_start_t2timer(struct lapb_cb *lapb)
+ {
+ 	del_timer(&lapb->t2timer);
  
- 	/* initialized by sock_init_data */
--	sk->sk_timer.data     = (unsigned long)sk;
- 	sk->sk_timer.function = &x25_heartbeat_expiry;
+-	lapb->t2timer.data     = (unsigned long)lapb;
+-	lapb->t2timer.function = &lapb_t2timer_expiry;
++	lapb->t2timer.function = (TIMER_FUNC_TYPE)lapb_t2timer_expiry;
+ 	lapb->t2timer.expires  = jiffies + lapb->t2;
+ 
+ 	add_timer(&lapb->t2timer);
+@@ -75,9 +73,9 @@ int lapb_t1timer_running(struct lapb_cb *lapb)
+ 	return timer_pending(&lapb->t1timer);
  }
+ 
+-static void lapb_t2timer_expiry(unsigned long param)
++static void lapb_t2timer_expiry(struct timer_list *t)
+ {
+-	struct lapb_cb *lapb = (struct lapb_cb *)param;
++	struct lapb_cb *lapb = from_timer(lapb, t, t2timer);
+ 
+ 	if (lapb->condition & LAPB_ACK_PENDING_CONDITION) {
+ 		lapb->condition &= ~LAPB_ACK_PENDING_CONDITION;
+@@ -85,9 +83,9 @@ static void lapb_t2timer_expiry(unsigned long param)
+ 	}
+ }
+ 
+-static void lapb_t1timer_expiry(unsigned long param)
++static void lapb_t1timer_expiry(struct timer_list *t)
+ {
+-	struct lapb_cb *lapb = (struct lapb_cb *)param;
++	struct lapb_cb *lapb = from_timer(lapb, t, t1timer);
+ 
+ 	switch (lapb->state) {
  
 -- 
 2.7.4
 
+
+-- 
+Kees Cook
+Pixel Security
