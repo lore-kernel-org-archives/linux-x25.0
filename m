@@ -1,62 +1,95 @@
-From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Subject: Re: [PATCH] net: make getname() functions return length rather
- than use int* parameter
-Date: Mon, 12 Feb 2018 12:47:38 -0500 (EST)
-Message-ID: <20180212.124738.870301786818646917.davem@davemloft.net>
+From: Denys Vlasenko <dvlasenk-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] net: make getname() functions return length rather than
+ use int* parameter
+Date: Mon, 12 Feb 2018 18:59:06 +0100
+Message-ID: <4f0c5a1d-f75d-4c54-8cdd-5660b2233252@redhat.com>
 References: <20180212141518.3354-1-dvlasenk@redhat.com>
+ <20180212.124738.870301786818646917.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20180212141518.3354-1-dvlasenk-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20180212.124738.870301786818646917.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Content-Language: en-US
+Sender: linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="iso-8859-1"
-To: dvlasenk-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-decnet-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-x25-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-RnJvbTogRGVueXMgVmxhc2Vua28gPGR2bGFzZW5rQHJlZGhhdC5jb20+DQpEYXRlOiBNb24sIDEy
-IEZlYiAyMDE4IDE1OjE1OjE4ICswMTAwDQoNCj4gQmVmb3JlOg0KPiBBbGwgdGhlc2UgZnVuY3Rp
-b25zIGVpdGhlciByZXR1cm4gYSBuZWdhdGl2ZSBlcnJvciBpbmRpY2F0b3IsDQo+IG9yIHN0b3Jl
-IGxlbmd0aCBvZiBzb2NrYWRkciBpbnRvICJpbnQgKnNvY2tsZW4iIHBhcmFtZXRlcg0KPiBhbmQg
-cmV0dXJuIHplcm8gb24gc3VjY2Vzcy4NCj4gDQo+ICJpbnQgKnNvY2tsZW4iIHBhcmFtZXRlciBp
-cyBhd2t3YXJkLiBGb3IgZXhhbXBsZSwgaWYgY2FsbGVyIGRvZXMgbm90DQo+IGNhcmUsIGl0IHN0
-aWxsIG5lZWRzIHRvIHByb3ZpZGUgb24tc3RhY2sgc3RvcmFnZSBmb3IgdGhlIHZhbHVlDQo+IGl0
-IGRvZXMgbm90IG5lZWQuDQo+IA0KPiBOb25lIG9mIHRoZSBtYW55IEZPT19nZXRuYW1lKCkgZnVu
-Y3Rpb25zIG9mIHZhcmlvdXMgcHJvdG9jb2xzDQo+IGV2ZXIgdXNlZCBvbGQgdmFsdWUgb2YgKnNv
-Y2tsZW4uIFRoZXkgYWx3YXlzIGp1c3Qgb3ZlcndyaXRlIGl0Lg0KPiANCj4gVGhpcyBjaGFuZ2Ug
-ZHJvcHMgdGhpcyBwYXJhbWV0ZXIsIGFuZCBtYWtlcyBhbGwgdGhlc2UgZnVuY3Rpb25zLCBvbiBz
-dWNjZXNzLA0KPiByZXR1cm4gbGVuZ3RoIG9mIHNvY2thZGRyLiBJdCdzIGFsd2F5cyA+PSAwIGFu
-ZCBjYW4gYmUgZGlmZmVyZW50aWF0ZWQNCj4gZnJvbSBhbiBlcnJvci4NCj4gDQo+IFRlc3RzIGlu
-IGNhbGxlcnMgYXJlIGNoYW5nZWQgZnJvbSAiaWYgKGVycikiIHRvICJpZiAoZXJyIDwgMCkiLCB3
-aGVyZSBuZWVkZWQuDQo+IA0KPiBycGNfc29ja25hbWUoKSBsb3N0ICJpbnQgYnVmbGVuIiBwYXJh
-bWV0ZXIsIHNpbmNlIGl0cyBvbmx5IHVzZSB3YXMNCj4gdG8gYmUgcGFzc2VkIHRvIGtlcm5lbF9n
-ZXRzb2NrbmFtZSgpIGFzICZidWZsZW4gYW5kIHN1YnNlcXVlbnRseQ0KPiBub3QgdXNlZCBpbiBh
-bnkgd2F5Lg0KPiANCj4gVXNlcnNwYWNlIEFQSSBpcyBub3QgY2hhbmdlZC4NCj4gDQo+ICAgICB0
-ZXh0ICAgIGRhdGEgICAgIGJzcyAgICAgIGRlYyAgICAgaGV4IGZpbGVuYW1lDQo+IDMwMTA4NDMw
-IDI2MzM2MjQgIDg3MzY3MiAzMzYxNTcyNiAyMDBlZjZlIHZtbGludXguYmVmb3JlLm8NCj4gMzAx
-MDgxMDkgMjYzMzYxMiAgODczNjcyIDMzNjE1MzkzIDIwMGVlMjEgdm1saW51eC5vDQo+IA0KPiBT
-aWduZWQtb2ZmLWJ5OiBEZW55cyBWbGFzZW5rbyA8ZHZsYXNlbmtAcmVkaGF0LmNvbT4NCg0KUGxl
-YXNlIGRvIGFuIGFsbG1vZGNvbmZpZyBidWlsZCwgdGhlcmUgYXJlIHN0aWxsIHNvbWUgY29udmVy
-c2lvbnMgeW91DQptaXNzZWQ6DQoNCnNlY3VyaXR5L3RvbW95by9uZXR3b3JrLmM6IEluIGZ1bmN0
-aW9uIKF0b21veW9fc29ja2V0X2xpc3Rlbl9wZXJtaXNzaW9uojoNCnNlY3VyaXR5L3RvbW95by9u
-ZXR3b3JrLmM6NjU4OjE5OiB3YXJuaW5nOiBwYXNzaW5nIGFyZ3VtZW50IDMgb2YgoXNvY2stPm9w
-cy0+Z2V0bmFtZaIgbWFrZXMgaW50ZWdlciBmcm9tIHBvaW50ZXIgd2l0aG91dCBhIGNhc3QgWy1X
-aW50LWNvbnZlcnNpb25dDQogICAgICAgICAgICAmYWRkciwgJmFkZHJfbGVuLCAwKTsNCiAgICAg
-ICAgICAgICAgICAgICBeDQpzZWN1cml0eS90b21veW8vbmV0d29yay5jOjY1ODoxOTogbm90ZTog
-ZXhwZWN0ZWQgoWludKIgYnV0IGFyZ3VtZW50IGlzIG9mIHR5cGUgoWludCAqog0Kc2VjdXJpdHkv
-dG9tb3lvL25ldHdvcmsuYzo2NTc6MjE6IGVycm9yOiB0b28gbWFueSBhcmd1bWVudHMgdG8gZnVu
-Y3Rpb24goXNvY2stPm9wcy0+Z2V0bmFtZaINCiAgIGNvbnN0IGludCBlcnJvciA9IHNvY2stPm9w
-cy0+Z2V0bmFtZShzb2NrLCAoc3RydWN0IHNvY2thZGRyICopDQogICAgICAgICAgICAgICAgICAg
-ICBefn5+DQpmcy9kbG0vbG93Y29tbXMuYzogSW4gZnVuY3Rpb24goWxvd2NvbW1zX2Vycm9yX3Jl
-cG9ydKI6DQpmcy9kbG0vbG93Y29tbXMuYzo0OTU6NjogZXJyb3I6IHRvbyBtYW55IGFyZ3VtZW50
-cyB0byBmdW5jdGlvbiCha2VybmVsX2dldHBlZXJuYW1log0KICAgICAga2VybmVsX2dldHBlZXJu
-YW1lKGNvbi0+c29jaywgKHN0cnVjdCBzb2NrYWRkciAqKSZzYWRkciwgJmJ1ZmxlbikpIHsNCiAg
-ICAgIF5+fn5+fn5+fn5+fn5+fn5+fg0KZnMvZGxtL2xvd2NvbW1zLmM6IEluIGZ1bmN0aW9uIKF0
-Y3BfYWNjZXB0X2Zyb21fc29ja6I6DQpmcy9kbG0vbG93Y29tbXMuYzo3NjE6Nzogd2FybmluZzog
-cGFzc2luZyBhcmd1bWVudCAzIG9mIKFuZXdzb2NrLT5vcHMtPmdldG5hbWWiIG1ha2VzIGludGVn
-ZXIgZnJvbSBwb2ludGVyIHdpdGhvdXQgYSBjYXN0IFstV2ludC1jb252ZXJzaW9uXQ0KICAgICAg
-ICZsZW4sIDIpKSB7DQogICAgICAgXg0KZnMvZGxtL2xvd2NvbW1zLmM6NzYxOjc6IG5vdGU6IGV4
-cGVjdGVkIKFpbnSiIGJ1dCBhcmd1bWVudCBpcyBvZiB0eXBlIKFpbnQgKqINCmZzL2RsbS9sb3dj
-b21tcy5jOjc2MDo2OiBlcnJvcjogdG9vIG1hbnkgYXJndW1lbnRzIHRvIGZ1bmN0aW9uIKFuZXdz
-b2NrLT5vcHMtPmdldG5hbWWiDQogIGlmIChuZXdzb2NrLT5vcHMtPmdldG5hbWUobmV3c29jaywg
-KHN0cnVjdCBzb2NrYWRkciAqKSZwZWVyYWRkciwNCiAgICAgIF5+fn5+fn4NCg==
+On 02/12/2018 06:47 PM, David Miller wrote:
+> From: Denys Vlasenko <dvlasenk-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Date: Mon, 12 Feb 2018 15:15:18 +0100
+>=20
+>> Before:
+>> All these functions either return a negative error indicator,
+>> or store length of sockaddr into "int *socklen" parameter
+>> and return zero on success.
+>>
+>> "int *socklen" parameter is awkward. For example, if caller does not
+>> care, it still needs to provide on-stack storage for the value
+>> it does not need.
+>>
+>> None of the many FOO_getname() functions of various protocols
+>> ever used old value of *socklen. They always just overwrite it.
+>>
+>> This change drops this parameter, and makes all these functions, on succ=
+ess,
+>> return length of sockaddr. It's always >=3D 0 and can be differentiated
+>> from an error.
+>>
+>> Tests in callers are changed from "if (err)" to "if (err < 0)", where ne=
+eded.
+>>
+>> rpc_sockname() lost "int buflen" parameter, since its only use was
+>> to be passed to kernel_getsockname() as &buflen and subsequently
+>> not used in any way.
+>>
+>> Userspace API is not changed.
+>>
+>>      text    data     bss      dec     hex filename
+>> 30108430 2633624  873672 33615726 200ef6e vmlinux.before.o
+>> 30108109 2633612  873672 33615393 200ee21 vmlinux.o
+>>
+>> Signed-off-by: Denys Vlasenko <dvlasenk-H+wXaHxf7aLQT0dZR+AlfA@public.gm=
+ane.org>
+>=20
+> Please do an allmodconfig build, there are still some conversions you
+> missed:
+>=20
+> security/tomoyo/network.c: In function =A1tomoyo_socket_listen_permission=
+=A2:
+> security/tomoyo/network.c:658:19: warning: passing argument 3 of =A1sock-=
+>ops->getname=A2 makes integer from pointer without a cast [-Wint-conversio=
+n]
+>              &addr, &addr_len, 0);
+>                     ^
+> security/tomoyo/network.c:658:19: note: expected =A1int=A2 but argument i=
+s of type =A1int *=A2
+> security/tomoyo/network.c:657:21: error: too many arguments to function =
+=A1sock->ops->getname=A2
+>     const int error =3D sock->ops->getname(sock, (struct sockaddr *)
+>                       ^~~~
+> fs/dlm/lowcomms.c: In function =A1lowcomms_error_report=A2:
+> fs/dlm/lowcomms.c:495:6: error: too many arguments to function =A1kernel_=
+getpeername=A2
+>        kernel_getpeername(con->sock, (struct sockaddr *)&saddr, &buflen))=
+ {
+>        ^~~~~~~~~~~~~~~~~~
+> fs/dlm/lowcomms.c: In function =A1tcp_accept_from_sock=A2:
+> fs/dlm/lowcomms.c:761:7: warning: passing argument 3 of =A1newsock->ops->=
+getname=A2 makes integer from pointer without a cast [-Wint-conversion]
+>         &len, 2)) {
+>         ^
+> fs/dlm/lowcomms.c:761:7: note: expected =A1int=A2 but argument is of type=
+ =A1int *=A2
+> fs/dlm/lowcomms.c:760:6: error: too many arguments to function =A1newsock=
+->ops->getname=A2
+>    if (newsock->ops->getname(newsock, (struct sockaddr *)&peeraddr,
+>        ^~~~~~~
+
+Sorry. Will send updated patch.
+ =20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
