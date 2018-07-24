@@ -1,19 +1,19 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH PATCH net-next 04/18] llc: fix whitespace issues
-Date: Tue, 24 Jul 2018 12:29:04 -0700
-Message-ID: <20180724192918.31165-5-sthemmin@microsoft.com>
+Subject: [PATCH PATCH net-next 03/18] rds: remove trailing whitespace and blank lines
+Date: Tue, 24 Jul 2018 12:29:03 -0700
+Message-ID: <20180724192918.31165-4-sthemmin@microsoft.com>
 References: <20180724192918.31165-1-sthemmin@microsoft.com>
 Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=TOG3gbQ0wiKcdP7qol0utTOWrusMvE0orEuqi6Fe9AU=;
-        b=15MDCe3GSd9s70r7ENjcNCtu9kY3DpoakkW16tvXVWp1+3qZClYnGMKwHRj8jE6lqf
-         HEDW27TKGZlG6WJHOJ4Ur16uI6qPJoxPgxRFpxWG1OAZcyqOQuVWYk0kQ4j4VAt7xnC3
-         PCI2SfFzxvGmQaru5NckHsK8dJT5BEB8X4TWBnJqTT0yD/9IoTHXevC5eVp+uHj1KE8M
-         pvq/b/cy8CTmohXKAnpfccShcKvzkB9lN+NTHxC3euL22Bq4D8Es3jriHZe2FwWqjAdQ
-         GsaJnpujb5cADFqtDUAjxfo/9WqzZGbliAbuVjm3exd6CB94rd8GFtS0+d88KExsIX+t
-         aSBw==
+        bh=ylKfJaimLjTgmxAJQScqxq3ucHE3lp7QsqR4M2ZQYhk=;
+        b=HXKWMWYmCSCSJXpMj+nuNPMdfLgQ3lg6RCI5b8/K0hzFM7S9CoJksxFWEMvUcajvIU
+         XmjlSvY9Th6J8mHb3aXWmvpE2LhujF4gvKupfFidl+wIa9MABE0SukG/lQ3ECD0doc6p
+         0ioiKwtMyvEcaSaVzNQn5CFW6E6ptergYBY38iVIhwQ2ypDEFZkh0HdC3LCB+gU/BNiX
+         61W+PZQ4Txbfw/KOGjwtlhPrDtyfqIf28wVk4f+45jde5A1OLWecofyVoD22rYdnzW6Z
+         9zUIp2zeUE26w2AR96PI2d+ObXN47svJgxSrX6iRa4VKXYHn+JWNJuqf9UmQjRzSNcmJ
+         4q0w==
 In-Reply-To: <20180724192918.31165-1-sthemmin@microsoft.com>
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
@@ -25,42 +25,76 @@ Cc: netdev@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-hams@vge
 
 Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- net/llc/Kconfig  | 2 +-
- net/llc/Makefile | 2 +-
- net/llc/llc_if.c | 1 -
- 3 files changed, 2 insertions(+), 3 deletions(-)
+ net/rds/Kconfig          | 1 -
+ net/rds/Makefile         | 1 -
+ net/rds/ib.c             | 1 -
+ net/rds/message.c        | 1 -
+ net/rds/rdma_transport.c | 1 -
+ net/rds/tcp.c            | 1 -
+ net/rds/transport.c      | 1 -
+ 7 files changed, 7 deletions(-)
 
-diff --git a/net/llc/Kconfig b/net/llc/Kconfig
-index b91c65108162..176a6c1521a5 100644
---- a/net/llc/Kconfig
-+++ b/net/llc/Kconfig
-@@ -6,5 +6,5 @@ config LLC2
- 	tristate "ANSI/IEEE 802.2 LLC type 2 Support"
- 	select LLC
- 	help
--	  This is a Logical Link Layer type 2, connection oriented support. 
-+	  This is a Logical Link Layer type 2, connection oriented support.
- 	  Select this if you want to have support for PF_LLC sockets.
-diff --git a/net/llc/Makefile b/net/llc/Makefile
-index 4e260cff3c5d..5e0ef436daae 100644
---- a/net/llc/Makefile
-+++ b/net/llc/Makefile
-@@ -4,7 +4,7 @@
- # Copyright (c) 1997 by Procom Technology,Inc.
- #		2001-2003 by Arnaldo Carvalho de Melo <acme@conectiva.com.br>
- #
--# This program can be redistributed or modified under the terms of the 
-+# This program can be redistributed or modified under the terms of the
- # GNU General Public License as published by the Free Software Foundation.
- # This program is distributed without any warranty or implied warranty
- # of merchantability or fitness for a particular purpose.
-diff --git a/net/llc/llc_if.c b/net/llc/llc_if.c
-index 6daf391b3e84..8db03c2d5440 100644
---- a/net/llc/llc_if.c
-+++ b/net/llc/llc_if.c
-@@ -151,4 +151,3 @@ int llc_send_disc(struct sock *sk)
- 	sock_put(sk);
- 	return rc;
+diff --git a/net/rds/Kconfig b/net/rds/Kconfig
+index bffde4b46c5d..41f75563b54b 100644
+--- a/net/rds/Kconfig
++++ b/net/rds/Kconfig
+@@ -24,4 +24,3 @@ config RDS_DEBUG
+         bool "RDS debugging messages"
+ 	depends on RDS
+         default n
+-
+diff --git a/net/rds/Makefile b/net/rds/Makefile
+index b5d568bd479c..e647f9de104a 100644
+--- a/net/rds/Makefile
++++ b/net/rds/Makefile
+@@ -15,4 +15,3 @@ rds_tcp-y :=		tcp.o tcp_connect.o tcp_listen.o tcp_recv.o \
+ 			tcp_send.o tcp_stats.o
+ 
+ ccflags-$(CONFIG_RDS_DEBUG)	:=	-DRDS_DEBUG
+-
+diff --git a/net/rds/ib.c b/net/rds/ib.c
+index 63d95ea7cdff..a4245c42d43b 100644
+--- a/net/rds/ib.c
++++ b/net/rds/ib.c
+@@ -568,4 +568,3 @@ int rds_ib_init(void)
+ }
+ 
+ MODULE_LICENSE("GPL");
+-
+diff --git a/net/rds/message.c b/net/rds/message.c
+index a35f76971984..4b00b1152a5f 100644
+--- a/net/rds/message.c
++++ b/net/rds/message.c
+@@ -514,4 +514,3 @@ void rds_message_unmapped(struct rds_message *rm)
+ 	wake_up_interruptible(&rm->m_flush_wait);
+ }
+ EXPORT_SYMBOL_GPL(rds_message_unmapped);
+-
+diff --git a/net/rds/rdma_transport.c b/net/rds/rdma_transport.c
+index bd67e55354f4..ad78929036ef 100644
+--- a/net/rds/rdma_transport.c
++++ b/net/rds/rdma_transport.c
+@@ -281,4 +281,3 @@ module_exit(rds_rdma_exit);
+ MODULE_AUTHOR("Oracle Corporation <rds-devel@oss.oracle.com>");
+ MODULE_DESCRIPTION("RDS: IB transport");
+ MODULE_LICENSE("Dual BSD/GPL");
+-
+diff --git a/net/rds/tcp.c b/net/rds/tcp.c
+index 7028d6e51947..f23925af0b8d 100644
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -717,4 +717,3 @@ module_init(rds_tcp_init);
+ MODULE_AUTHOR("Oracle Corporation <rds-devel@oss.oracle.com>");
+ MODULE_DESCRIPTION("RDS: TCP transport");
+ MODULE_LICENSE("Dual BSD/GPL");
+-
+diff --git a/net/rds/transport.c b/net/rds/transport.c
+index c9788dbce441..46f709a4b577 100644
+--- a/net/rds/transport.c
++++ b/net/rds/transport.c
+@@ -159,4 +159,3 @@ unsigned int rds_trans_stats_info_copy(struct rds_info_iterator *iter,
+ 
+ 	return total;
  }
 -
 -- 
