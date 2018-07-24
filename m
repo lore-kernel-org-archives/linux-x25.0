@@ -1,19 +1,19 @@
 From: Stephen Hemminger <stephen-OTpzqLSitTUnbdJkjeBofR2eb7JE58TQ@public.gmane.org>
-Subject: [PATCH PATCH net-next 05/18] mpls: remove trailing whitepace
-Date: Tue, 24 Jul 2018 12:29:05 -0700
-Message-ID: <20180724192918.31165-6-sthemmin@microsoft.com>
+Subject: [PATCH PATCH net-next 06/18] xfrm: remove blank lines at EOF
+Date: Tue, 24 Jul 2018 12:29:06 -0700
+Message-ID: <20180724192918.31165-7-sthemmin@microsoft.com>
 References: <20180724192918.31165-1-sthemmin@microsoft.com>
 Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=+RZJu+k4B5EQTC1vi27FXNRijZA4Hly2GZG2Q8cP1fo=;
-        b=rxvCg+NyCSzELumi6ddB7jbCdrPo9SS1D9lVBxOSs7YXYgRbeWKElkxV3/HSDnZkzW
-         nxvjzR0whA08GRC3o/Sgtggupj844tNmG4xzn6N924fXno+w+u9EVvfMlAxHAwu8EC1M
-         q8ArJlEjiDbS4XO1ekW3clPkKJYzX6uVAHuxjhtCLCoUfjfsW5774l8P2ky/GC+luLD8
-         BVGEUMXG2XJWrqr56jasadV+BDdKbt5J+4SQrxOYbFMktIh3iXgVuUF9dwxIwMG8cpyw
-         iccFIPbY1DvjPzshmsfhH4gQCzv3ej7ZkDb/jEl0fRcJcUy32WGvPIz/GfYzInho98Lt
-         lI0g==
+        bh=sazKkNhpO0O5LBK6G8bOBIuXeRVsGuXdH3mGT0Gi4BQ=;
+        b=XVm9C9YDiHH4qZQACjO1Rd/M6FeIVbVzsEFVUVuPuTjc0sLkNY8om3APRpiYNeCvDW
+         A/gtvhGif8fCeJmQ7stHFW2BeYvEsmIkGw7jJrq1/0EzAhEvHKsp8LjkhKRLpWuh/WZG
+         ln8ahxjhAX68FIvSGh7PBHW1Pa11agVJnnUNhiGYfXUklC0Yk3Dd7tOafFIu/i7bLUrL
+         MvlqvbF2LPFH6sCe4lTKYUTY0wtd3b/JOt3f3j6xXYwWse/GlW1qbnMYFCaB0sH0u53B
+         AKdvItpepc0Ixub9fSFnB0XJl9W1sUiL3o0iqJ2XvyaMyFm6gqczuuh4ZdRJ5OAU03A7
+         xZvA==
 In-Reply-To: <20180724192918.31165-1-sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
 Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
@@ -25,22 +25,24 @@ Cc: netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, v9fs-developer-5NWGOfrQmneRv
 
 Signed-off-by: Stephen Hemminger <stephen-OTpzqLSitTUnbdJkjeBofR2eb7JE58TQ@public.gmane.org>
 ---
- net/mpls/mpls_iptunnel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/Kconfig     | 1 -
+ net/xfrm/xfrm_user.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/net/mpls/mpls_iptunnel.c b/net/mpls/mpls_iptunnel.c
-index 6e558a419f60..94f53a9b7d1a 100644
---- a/net/mpls/mpls_iptunnel.c
-+++ b/net/mpls/mpls_iptunnel.c
-@@ -224,7 +224,7 @@ static int mpls_fill_encap_info(struct sk_buff *skb,
- 				struct lwtunnel_state *lwtstate)
- {
- 	struct mpls_iptunnel_encap *tun_encap_info;
--	
-+
- 	tun_encap_info = mpls_lwtunnel_encap(lwtstate);
+diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
+index 286ed25c1a69..eab952cca7d0 100644
+--- a/net/xfrm/Kconfig
++++ b/net/xfrm/Kconfig
+@@ -87,4 +87,3 @@ config NET_KEY_MIGRATE
+ 	  <draft-sugimoto-mip6-pfkey-migrate>.
  
- 	if (nla_put_labels(skb, MPLS_IPTUNNEL_DST, tun_encap_info->labels,
--- 
-2.18.0
-
+ 	  If unsure, say N.
+-
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 080035f056d9..09cceab450b8 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -3280,4 +3280,3 @@ module_init(xfrm_user_init);
+ module_exit(xfrm_user_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_XFRM);
