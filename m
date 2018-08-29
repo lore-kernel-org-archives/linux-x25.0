@@ -1,206 +1,883 @@
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: Re: [PATCH PATCH net-next 15/18] sunrpc: whitespace fixes
-Date: Fri, 27 Jul 2018 16:39:39 -0400
-Message-ID: <c4ca53ea-80d8-9fa1-15ce-ce9c5e4bc6ac@Netapp.com>
-References: <20180724192918.31165-1-sthemmin@microsoft.com>
- <20180724192918.31165-16-sthemmin@microsoft.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=netapp.onmicrosoft.com; s=selector1-netapp-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ya3eFeY9GkehIb6kjyIYsc4H3lPgwhKU8iIpNQiPGLg=;
- b=GVfTKFjprVwR+qtQz0zcj4ZlSSvUrpIeklnZjxZbspjhRmKOj1J0WdbE7dM9WMeEjeylm+9xEw/CaLThN4XR2c3p3FU5yLqx3mbQqhnkRaFCfO6FFmEGP0oeFAs/L/nnvu81S7RvTNDmB48SyjQslL6OYzdx16ciqBYLDq3ODRQ=
-In-Reply-To: <20180724192918.31165-16-sthemmin@microsoft.com>
-Content-Language: en-GB
-Sender: netdev-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH net-next 1/3] net: rework SIOCGSTAMP ioctl handling
+Date: Wed, 29 Aug 2018 14:59:10 +0200
+Message-ID: <20180829130308.3504560-1-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Stephen Hemminger <stephen@networkplumber.org>, davem@davemloft.net, ericvh@gmail.com, rminnich@sandia.gov, lucho@ionkov.net, ralf@linux-mips.org, jreuter@yaina.de, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, alex.aring@gmail.com, stefan@datenfreihafen.org, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us, vyasevich@gmail.com, nhorman@tuxdriver.com, marcelo.leitner@gmail.com, trond.myklebust@hammerspace.com, steffen.klassert@secunet.com, herbert@gondor.apana.org.au
-Cc: netdev@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, linux-rdma@vger.kernel.org, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, linux-x25@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>
+Content-Transfer-Encoding: 7bit
+To: netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+Cc: linux-arch@vger.kernel.org, y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>, Eric Dumazet <edumazet@google.com>, Willem de Bruijn <willemb@google.com>, linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org, linux-x25@vger.kernel.org
 
-On 07/24/2018 03:29 PM, Stephen Hemminger wrote:
-> Remove trailing whitespace and blank line at EOF
+The SIOCGSTAMP/SIOCGSTAMPNS ioctl commands are implemented by many
+socket protocol handlers, and all of those end up calling the same
+sock_get_timestamp()/sock_get_timestampns() helper functions, which
+results in a lot of duplicate code.
 
-Looks good to me, I've applied it to my tree.
+With the introduction of 64-bit time_t on 32-bit architectures, this
+gets worse, as we then need four different ioctl commands in each
+socket protocol implementation.
 
-Thanks!
-Anna
+To simplify that, let's add a new .gettstamp() operation in
+struct proto_ops, and move ioctl implementation into the common
+sock_ioctl()/compat_sock_ioctl_trans() functions that these all go
+through.
 
-> 
-> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-> ---
->  net/sunrpc/auth_gss/auth_gss.c          | 2 +-
->  net/sunrpc/auth_gss/gss_generic_token.c | 1 -
->  net/sunrpc/auth_gss/gss_krb5_crypto.c   | 1 -
->  net/sunrpc/auth_gss/gss_krb5_keys.c     | 1 -
->  net/sunrpc/auth_gss/gss_krb5_seal.c     | 1 -
->  net/sunrpc/auth_gss/gss_krb5_unseal.c   | 1 -
->  net/sunrpc/auth_gss/gss_krb5_wrap.c     | 1 -
->  net/sunrpc/auth_gss/svcauth_gss.c       | 2 +-
->  net/sunrpc/backchannel_rqst.c           | 1 -
->  net/sunrpc/clnt.c                       | 2 +-
->  net/sunrpc/rpcb_clnt.c                  | 2 +-
->  net/sunrpc/stats.c                      | 1 -
->  net/sunrpc/sunrpc.h                     | 1 -
->  net/sunrpc/xprt.c                       | 2 +-
->  net/sunrpc/xprtsock.c                   | 1 -
->  15 files changed, 5 insertions(+), 15 deletions(-)
-> 
-> diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-> index be8f103d22fd..b67ad98a36a6 100644
-> --- a/net/sunrpc/auth_gss/auth_gss.c
-> +++ b/net/sunrpc/auth_gss/auth_gss.c
-> @@ -1571,7 +1571,7 @@ static int gss_cred_is_negative_entry(struct rpc_cred *cred)
->  	if (test_bit(RPCAUTH_CRED_NEGATIVE, &cred->cr_flags)) {
->  		unsigned long now = jiffies;
->  		unsigned long begin, expire;
-> -		struct gss_cred *gss_cred; 
-> +		struct gss_cred *gss_cred;
->  
->  		gss_cred = container_of(cred, struct gss_cred, gc_base);
->  		begin = gss_cred->gc_upcall_timestamp;
-> diff --git a/net/sunrpc/auth_gss/gss_generic_token.c b/net/sunrpc/auth_gss/gss_generic_token.c
-> index 254defe446a7..fe97f3106536 100644
-> --- a/net/sunrpc/auth_gss/gss_generic_token.c
-> +++ b/net/sunrpc/auth_gss/gss_generic_token.c
-> @@ -231,4 +231,3 @@ g_verify_token_header(struct xdr_netobj *mech, int *body_size,
->  }
->  
->  EXPORT_SYMBOL_GPL(g_verify_token_header);
-> -
-> diff --git a/net/sunrpc/auth_gss/gss_krb5_crypto.c b/net/sunrpc/auth_gss/gss_krb5_crypto.c
-> index 8654494b4d0a..a1acee106faa 100644
-> --- a/net/sunrpc/auth_gss/gss_krb5_crypto.c
-> +++ b/net/sunrpc/auth_gss/gss_krb5_crypto.c
-> @@ -1077,4 +1077,3 @@ krb5_rc4_setup_enc_key(struct krb5_ctx *kctx, struct crypto_skcipher *cipher,
->  	dprintk("%s: returning %d\n", __func__, err);
->  	return err;
->  }
-> -
-> diff --git a/net/sunrpc/auth_gss/gss_krb5_keys.c b/net/sunrpc/auth_gss/gss_krb5_keys.c
-> index 870133146026..f7fe2d2b851f 100644
-> --- a/net/sunrpc/auth_gss/gss_krb5_keys.c
-> +++ b/net/sunrpc/auth_gss/gss_krb5_keys.c
-> @@ -324,4 +324,3 @@ u32 gss_krb5_aes_make_key(const struct gss_krb5_enctype *gk5e,
->  err_out:
->  	return ret;
->  }
-> -
-> diff --git a/net/sunrpc/auth_gss/gss_krb5_seal.c b/net/sunrpc/auth_gss/gss_krb5_seal.c
-> index 94a2b3f082a8..eaad9bc7a0bd 100644
-> --- a/net/sunrpc/auth_gss/gss_krb5_seal.c
-> +++ b/net/sunrpc/auth_gss/gss_krb5_seal.c
-> @@ -229,4 +229,3 @@ gss_get_mic_kerberos(struct gss_ctx *gss_ctx, struct xdr_buf *text,
->  		return gss_get_mic_v2(ctx, text, token);
->  	}
->  }
-> -
-> diff --git a/net/sunrpc/auth_gss/gss_krb5_unseal.c b/net/sunrpc/auth_gss/gss_krb5_unseal.c
-> index b601a73cc9db..ef2b25b86d2f 100644
-> --- a/net/sunrpc/auth_gss/gss_krb5_unseal.c
-> +++ b/net/sunrpc/auth_gss/gss_krb5_unseal.c
-> @@ -225,4 +225,3 @@ gss_verify_mic_kerberos(struct gss_ctx *gss_ctx,
->  		return gss_verify_mic_v2(ctx, message_buffer, read_token);
->  	}
->  }
-> -
-> diff --git a/net/sunrpc/auth_gss/gss_krb5_wrap.c b/net/sunrpc/auth_gss/gss_krb5_wrap.c
-> index a737c2da0837..286fd22404f2 100644
-> --- a/net/sunrpc/auth_gss/gss_krb5_wrap.c
-> +++ b/net/sunrpc/auth_gss/gss_krb5_wrap.c
-> @@ -623,4 +623,3 @@ gss_unwrap_kerberos(struct gss_ctx *gctx, int offset, struct xdr_buf *buf)
->  		return gss_unwrap_kerberos_v2(kctx, offset, buf);
->  	}
->  }
-> -
-> diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-> index 5089dbb96d58..860f2a1bbb67 100644
-> --- a/net/sunrpc/auth_gss/svcauth_gss.c
-> +++ b/net/sunrpc/auth_gss/svcauth_gss.c
-> @@ -1389,7 +1389,7 @@ static void destroy_use_gss_proxy_proc_entry(struct net *net)
->  	struct sunrpc_net *sn = net_generic(net, sunrpc_net_id);
->  
->  	if (sn->use_gssp_proc) {
-> -		remove_proc_entry("use-gss-proxy", sn->proc_net_rpc); 
-> +		remove_proc_entry("use-gss-proxy", sn->proc_net_rpc);
->  		clear_gssp_clnt(sn);
->  	}
->  }
-> diff --git a/net/sunrpc/backchannel_rqst.c b/net/sunrpc/backchannel_rqst.c
-> index c2c68a15b59d..3c15a99b9700 100644
-> --- a/net/sunrpc/backchannel_rqst.c
-> +++ b/net/sunrpc/backchannel_rqst.c
-> @@ -362,4 +362,3 @@ void xprt_complete_bc_request(struct rpc_rqst *req, uint32_t copied)
->  	wake_up(&bc_serv->sv_cb_waitq);
->  	spin_unlock(&bc_serv->sv_cb_lock);
->  }
-> -
-> diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> index d839c33ae7d9..3818e4d55c66 100644
-> --- a/net/sunrpc/clnt.c
-> +++ b/net/sunrpc/clnt.c
-> @@ -892,7 +892,7 @@ rpc_free_client(struct rpc_clnt *clnt)
->  /*
->   * Free an RPC client
->   */
-> -static struct rpc_clnt * 
-> +static struct rpc_clnt *
->  rpc_free_auth(struct rpc_clnt *clnt)
->  {
->  	if (clnt->cl_auth == NULL)
-> diff --git a/net/sunrpc/rpcb_clnt.c b/net/sunrpc/rpcb_clnt.c
-> index c526f8fb37c9..c7872bc13860 100644
-> --- a/net/sunrpc/rpcb_clnt.c
-> +++ b/net/sunrpc/rpcb_clnt.c
-> @@ -213,7 +213,7 @@ static void rpcb_set_local(struct net *net, struct rpc_clnt *clnt,
->  	sn->rpcb_local_clnt = clnt;
->  	sn->rpcb_local_clnt4 = clnt4;
->  	sn->rpcb_is_af_local = is_af_local ? 1 : 0;
-> -	smp_wmb(); 
-> +	smp_wmb();
->  	sn->rpcb_users = 1;
->  	dprintk("RPC:       created new rpcb local clients (rpcb_local_clnt: "
->  		"%p, rpcb_local_clnt4: %p) for net %x%s\n",
-> diff --git a/net/sunrpc/stats.c b/net/sunrpc/stats.c
-> index f68aa46c9dd7..86f316503c7c 100644
-> --- a/net/sunrpc/stats.c
-> +++ b/net/sunrpc/stats.c
-> @@ -310,4 +310,3 @@ void rpc_proc_exit(struct net *net)
->  	dprintk("RPC:       unregistering /proc/net/rpc\n");
->  	remove_proc_entry("rpc", net->proc_net);
->  }
-> -
-> diff --git a/net/sunrpc/sunrpc.h b/net/sunrpc/sunrpc.h
-> index 09a0315ea77b..c9bacb3c930f 100644
-> --- a/net/sunrpc/sunrpc.h
-> +++ b/net/sunrpc/sunrpc.h
-> @@ -57,4 +57,3 @@ int svc_send_common(struct socket *sock, struct xdr_buf *xdr,
->  int rpc_clients_notifier_register(void);
->  void rpc_clients_notifier_unregister(void);
->  #endif /* _NET_SUNRPC_SUNRPC_H */
-> -
-> diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-> index 3fabf9f6a0f9..a8db2e3f8904 100644
-> --- a/net/sunrpc/xprt.c
-> +++ b/net/sunrpc/xprt.c
-> @@ -880,7 +880,7 @@ static void xprt_wait_on_pinned_rqst(struct rpc_rqst *req)
->  __must_hold(&req->rq_xprt->recv_lock)
->  {
->  	struct rpc_task *task = req->rq_task;
-> -	
-> +
->  	if (task && test_bit(RPC_TASK_MSG_RECV, &task->tk_runstate)) {
->  		spin_unlock(&req->rq_xprt->recv_lock);
->  		set_bit(RPC_TASK_MSG_RECV_WAIT, &task->tk_runstate);
-> diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-> index 9e1c5024aba9..6b7539c0466e 100644
-> --- a/net/sunrpc/xprtsock.c
-> +++ b/net/sunrpc/xprtsock.c
-> @@ -3375,4 +3375,3 @@ module_param_named(tcp_max_slot_table_entries, xprt_max_tcp_slot_table_entries,
->  		   max_slot_table_size, 0644);
->  module_param_named(udp_slot_table_entries, xprt_udp_slot_table_entries,
->  		   slot_table_size, 0644);
-> -
-> 
+We can reuse the sock_get_timestamp() implementation, but generalize
+it so it can deal with both native and compat mode, as well as
+timeval and timespec structures.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ include/linux/net.h          |  2 ++
+ include/net/compat.h         |  3 --
+ include/net/sock.h           |  4 +--
+ net/appletalk/ddp.c          |  7 +----
+ net/atm/ioctl.c              | 16 -----------
+ net/atm/pvc.c                |  1 +
+ net/atm/svc.c                |  1 +
+ net/ax25/af_ax25.c           |  9 +-----
+ net/bluetooth/af_bluetooth.c |  8 ------
+ net/bluetooth/l2cap_sock.c   |  1 +
+ net/bluetooth/rfcomm/sock.c  |  1 +
+ net/bluetooth/sco.c          |  1 +
+ net/can/af_can.c             |  6 ----
+ net/can/bcm.c                |  1 +
+ net/can/raw.c                |  1 +
+ net/compat.c                 | 54 ------------------------------------
+ net/core/sock.c              | 38 +++++++++++--------------
+ net/dccp/ipv4.c              |  1 +
+ net/dccp/ipv6.c              |  1 +
+ net/ieee802154/socket.c      |  6 ++--
+ net/ipv4/af_inet.c           |  9 ++----
+ net/ipv6/af_inet6.c          |  8 ++----
+ net/ipv6/raw.c               |  1 +
+ net/l2tp/l2tp_ip.c           |  1 +
+ net/l2tp/l2tp_ip6.c          |  1 +
+ net/netrom/af_netrom.c       | 14 +---------
+ net/packet/af_packet.c       |  7 ++---
+ net/qrtr/qrtr.c              |  4 +--
+ net/rose/af_rose.c           |  7 +----
+ net/sctp/ipv6.c              |  1 +
+ net/sctp/protocol.c          |  1 +
+ net/socket.c                 | 48 ++++++++++----------------------
+ net/x25/af_x25.c             | 27 +-----------------
+ 33 files changed, 63 insertions(+), 228 deletions(-)
+
+diff --git a/include/linux/net.h b/include/linux/net.h
+index e0930678c8bf..2be3e9c772fe 100644
+--- a/include/linux/net.h
++++ b/include/linux/net.h
+@@ -155,6 +155,8 @@ struct proto_ops {
+ 	int	 	(*compat_ioctl) (struct socket *sock, unsigned int cmd,
+ 				      unsigned long arg);
+ #endif
++	int		(*gettstamp) (struct socket *sock, void __user *userstamp,
++				      bool timeval, bool time32);
+ 	int		(*listen)    (struct socket *sock, int len);
+ 	int		(*shutdown)  (struct socket *sock, int flags);
+ 	int		(*setsockopt)(struct socket *sock, int level,
+diff --git a/include/net/compat.h b/include/net/compat.h
+index 4c6d75612b6c..f277653c7e17 100644
+--- a/include/net/compat.h
++++ b/include/net/compat.h
+@@ -30,9 +30,6 @@ struct compat_cmsghdr {
+ 	compat_int_t	cmsg_type;
+ };
+ 
+-int compat_sock_get_timestamp(struct sock *, struct timeval __user *);
+-int compat_sock_get_timestampns(struct sock *, struct timespec __user *);
+-
+ #else /* defined(CONFIG_COMPAT) */
+ /*
+  * To avoid compiler warnings:
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 433f45fc2d68..ef6c9409dc75 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1584,6 +1584,8 @@ int sock_setsockopt(struct socket *sock, int level, int op,
+ 
+ int sock_getsockopt(struct socket *sock, int level, int op,
+ 		    char __user *optval, int __user *optlen);
++int sock_gettstamp(struct socket *sock, void __user *userstamp,
++		   bool timeval, bool time32);
+ struct sk_buff *sock_alloc_send_skb(struct sock *sk, unsigned long size,
+ 				    int noblock, int *errcode);
+ struct sk_buff *sock_alloc_send_pskb(struct sock *sk, unsigned long header_len,
+@@ -2423,8 +2425,6 @@ static inline bool sk_listener(const struct sock *sk)
+ }
+ 
+ void sock_enable_timestamp(struct sock *sk, int flag);
+-int sock_get_timestamp(struct sock *, struct timeval __user *);
+-int sock_get_timestampns(struct sock *, struct timespec __user *);
+ int sock_recv_errqueue(struct sock *sk, struct msghdr *msg, int len, int level,
+ 		       int type);
+ 
+diff --git a/net/appletalk/ddp.c b/net/appletalk/ddp.c
+index 9b6bc5abe946..a21a643997aa 100644
+--- a/net/appletalk/ddp.c
++++ b/net/appletalk/ddp.c
+@@ -1806,12 +1806,6 @@ static int atalk_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		rc = put_user(amount, (int __user *)argp);
+ 		break;
+ 	}
+-	case SIOCGSTAMP:
+-		rc = sock_get_timestamp(sk, argp);
+-		break;
+-	case SIOCGSTAMPNS:
+-		rc = sock_get_timestampns(sk, argp);
+-		break;
+ 	/* Routing */
+ 	case SIOCADDRT:
+ 	case SIOCDELRT:
+@@ -1871,6 +1865,7 @@ static const struct proto_ops atalk_dgram_ops = {
+ 	.getname	= atalk_getname,
+ 	.poll		= datagram_poll,
+ 	.ioctl		= atalk_ioctl,
++	.gettstamp	= sock_gettstamp,
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl	= atalk_compat_ioctl,
+ #endif
+diff --git a/net/atm/ioctl.c b/net/atm/ioctl.c
+index 2ff0e5e470e3..d955b683aa7c 100644
+--- a/net/atm/ioctl.c
++++ b/net/atm/ioctl.c
+@@ -81,22 +81,6 @@ static int do_vcc_ioctl(struct socket *sock, unsigned int cmd,
+ 				 (int __user *)argp) ? -EFAULT : 0;
+ 		goto done;
+ 	}
+-	case SIOCGSTAMP: /* borrowed from IP */
+-#ifdef CONFIG_COMPAT
+-		if (compat)
+-			error = compat_sock_get_timestamp(sk, argp);
+-		else
+-#endif
+-			error = sock_get_timestamp(sk, argp);
+-		goto done;
+-	case SIOCGSTAMPNS: /* borrowed from IP */
+-#ifdef CONFIG_COMPAT
+-		if (compat)
+-			error = compat_sock_get_timestampns(sk, argp);
+-		else
+-#endif
+-			error = sock_get_timestampns(sk, argp);
+-		goto done;
+ 	case ATM_SETSC:
+ 		net_warn_ratelimited("ATM_SETSC is obsolete; used by %s:%d\n",
+ 				     current->comm, task_pid_nr(current));
+diff --git a/net/atm/pvc.c b/net/atm/pvc.c
+index 2cb10af16afc..02bd2a436bdf 100644
+--- a/net/atm/pvc.c
++++ b/net/atm/pvc.c
+@@ -118,6 +118,7 @@ static const struct proto_ops pvc_proto_ops = {
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl = vcc_compat_ioctl,
+ #endif
++	.gettstamp =	sock_gettstamp,
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	pvc_shutdown,
+ 	.setsockopt =	pvc_setsockopt,
+diff --git a/net/atm/svc.c b/net/atm/svc.c
+index 2f91b766ac42..908cbb8654f5 100644
+--- a/net/atm/svc.c
++++ b/net/atm/svc.c
+@@ -641,6 +641,7 @@ static const struct proto_ops svc_proto_ops = {
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl =	svc_compat_ioctl,
+ #endif
++	.gettstamp =	sock_gettstamp,
+ 	.listen =	svc_listen,
+ 	.shutdown =	svc_shutdown,
+ 	.setsockopt =	svc_setsockopt,
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index c603d33d5410..121f7b877df9 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1707,14 +1707,6 @@ static int ax25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		break;
+ 	}
+ 
+-	case SIOCGSTAMP:
+-		res = sock_get_timestamp(sk, argp);
+-		break;
+-
+-	case SIOCGSTAMPNS:
+-		res = sock_get_timestampns(sk, argp);
+-		break;
+-
+ 	case SIOCAX25ADDUID:	/* Add a uid to the uid/call map table */
+ 	case SIOCAX25DELUID:	/* Delete a uid from the uid/call map table */
+ 	case SIOCAX25GETUID: {
+@@ -1943,6 +1935,7 @@ static const struct proto_ops ax25_proto_ops = {
+ 	.getname	= ax25_getname,
+ 	.poll		= datagram_poll,
+ 	.ioctl		= ax25_ioctl,
++	.gettstamp	= sock_gettstamp,
+ 	.listen		= ax25_listen,
+ 	.shutdown	= ax25_shutdown,
+ 	.setsockopt	= ax25_setsockopt,
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index deacc52d7ff1..34e15ca66779 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -511,14 +511,6 @@ int bt_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		err = put_user(amount, (int __user *) arg);
+ 		break;
+ 
+-	case SIOCGSTAMP:
+-		err = sock_get_timestamp(sk, (struct timeval __user *) arg);
+-		break;
+-
+-	case SIOCGSTAMPNS:
+-		err = sock_get_timestampns(sk, (struct timespec __user *) arg);
+-		break;
+-
+ 	default:
+ 		err = -ENOIOCTLCMD;
+ 		break;
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index 686bdc6b35b0..e8fed07a49d5 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1655,6 +1655,7 @@ static const struct proto_ops l2cap_sock_ops = {
+ 	.recvmsg	= l2cap_sock_recvmsg,
+ 	.poll		= bt_sock_poll,
+ 	.ioctl		= bt_sock_ioctl,
++	.gettstamp	= sock_gettstamp,
+ 	.mmap		= sock_no_mmap,
+ 	.socketpair	= sock_no_socketpair,
+ 	.shutdown	= l2cap_sock_shutdown,
+diff --git a/net/bluetooth/rfcomm/sock.c b/net/bluetooth/rfcomm/sock.c
+index d606e9212291..a1dde6fab323 100644
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -1049,6 +1049,7 @@ static const struct proto_ops rfcomm_sock_ops = {
+ 	.setsockopt	= rfcomm_sock_setsockopt,
+ 	.getsockopt	= rfcomm_sock_getsockopt,
+ 	.ioctl		= rfcomm_sock_ioctl,
++	.gettstamp	= sock_gettstamp,
+ 	.poll		= bt_sock_poll,
+ 	.socketpair	= sock_no_socketpair,
+ 	.mmap		= sock_no_mmap
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 8f0f9279eac9..e7e5b3ed0394 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -1200,6 +1200,7 @@ static const struct proto_ops sco_sock_ops = {
+ 	.recvmsg	= sco_sock_recvmsg,
+ 	.poll		= bt_sock_poll,
+ 	.ioctl		= bt_sock_ioctl,
++	.gettstamp	= sock_gettstamp,
+ 	.mmap		= sock_no_mmap,
+ 	.socketpair	= sock_no_socketpair,
+ 	.shutdown	= sco_sock_shutdown,
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 1684ba5b51eb..e8fd5dc1780a 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -89,13 +89,7 @@ static atomic_t skbcounter = ATOMIC_INIT(0);
+ 
+ int can_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ {
+-	struct sock *sk = sock->sk;
+-
+ 	switch (cmd) {
+-
+-	case SIOCGSTAMP:
+-		return sock_get_timestamp(sk, (struct timeval __user *)arg);
+-
+ 	default:
+ 		return -ENOIOCTLCMD;
+ 	}
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 0af8f0db892a..db3e521b9f47 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -1662,6 +1662,7 @@ static const struct proto_ops bcm_ops = {
+ 	.getname       = sock_no_getname,
+ 	.poll          = datagram_poll,
+ 	.ioctl         = can_ioctl,	/* use can_ioctl() from af_can.c */
++	.gettstamp     = sock_gettstamp,
+ 	.listen        = sock_no_listen,
+ 	.shutdown      = sock_no_shutdown,
+ 	.setsockopt    = sock_no_setsockopt,
+diff --git a/net/can/raw.c b/net/can/raw.c
+index 1051eee82581..968f6f8082a1 100644
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -845,6 +845,7 @@ static const struct proto_ops raw_ops = {
+ 	.getname       = raw_getname,
+ 	.poll          = datagram_poll,
+ 	.ioctl         = can_ioctl,	/* use can_ioctl() from af_can.c */
++	.gettstamp     = sock_gettstamp,
+ 	.listen        = sock_no_listen,
+ 	.shutdown      = sock_no_shutdown,
+ 	.setsockopt    = raw_setsockopt,
+diff --git a/net/compat.c b/net/compat.c
+index 47a614b370cd..e5456dd4c7a5 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -455,60 +455,6 @@ static int compat_sock_getsockopt(struct socket *sock, int level, int optname,
+ 	return sock_getsockopt(sock, level, optname, optval, optlen);
+ }
+ 
+-int compat_sock_get_timestamp(struct sock *sk, struct timeval __user *userstamp)
+-{
+-	struct compat_timeval __user *ctv;
+-	int err;
+-	struct timeval tv;
+-
+-	if (COMPAT_USE_64BIT_TIME)
+-		return sock_get_timestamp(sk, userstamp);
+-
+-	ctv = (struct compat_timeval __user *) userstamp;
+-	err = -ENOENT;
+-	sock_enable_timestamp(sk, SOCK_TIMESTAMP);
+-	tv = ktime_to_timeval(sk->sk_stamp);
+-	if (tv.tv_sec == -1)
+-		return err;
+-	if (tv.tv_sec == 0) {
+-		sk->sk_stamp = ktime_get_real();
+-		tv = ktime_to_timeval(sk->sk_stamp);
+-	}
+-	err = 0;
+-	if (put_user(tv.tv_sec, &ctv->tv_sec) ||
+-			put_user(tv.tv_usec, &ctv->tv_usec))
+-		err = -EFAULT;
+-	return err;
+-}
+-EXPORT_SYMBOL(compat_sock_get_timestamp);
+-
+-int compat_sock_get_timestampns(struct sock *sk, struct timespec __user *userstamp)
+-{
+-	struct compat_timespec __user *ctv;
+-	int err;
+-	struct timespec ts;
+-
+-	if (COMPAT_USE_64BIT_TIME)
+-		return sock_get_timestampns (sk, userstamp);
+-
+-	ctv = (struct compat_timespec __user *) userstamp;
+-	err = -ENOENT;
+-	sock_enable_timestamp(sk, SOCK_TIMESTAMP);
+-	ts = ktime_to_timespec(sk->sk_stamp);
+-	if (ts.tv_sec == -1)
+-		return err;
+-	if (ts.tv_sec == 0) {
+-		sk->sk_stamp = ktime_get_real();
+-		ts = ktime_to_timespec(sk->sk_stamp);
+-	}
+-	err = 0;
+-	if (put_user(ts.tv_sec, &ctv->tv_sec) ||
+-			put_user(ts.tv_nsec, &ctv->tv_nsec))
+-		err = -EFAULT;
+-	return err;
+-}
+-EXPORT_SYMBOL(compat_sock_get_timestampns);
+-
+ static int __compat_sys_getsockopt(int fd, int level, int optname,
+ 				   char __user *optval,
+ 				   int __user *optlen)
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 3730eb855095..df17bbfaca27 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2897,37 +2897,31 @@ bool lock_sock_fast(struct sock *sk)
+ }
+ EXPORT_SYMBOL(lock_sock_fast);
+ 
+-int sock_get_timestamp(struct sock *sk, struct timeval __user *userstamp)
++int sock_gettstamp(struct socket *sock, void __user *userstamp,
++		   bool timeval, bool time32)
+ {
+-	struct timeval tv;
+-
+-	sock_enable_timestamp(sk, SOCK_TIMESTAMP);
+-	tv = ktime_to_timeval(sk->sk_stamp);
+-	if (tv.tv_sec == -1)
+-		return -ENOENT;
+-	if (tv.tv_sec == 0) {
+-		sk->sk_stamp = ktime_get_real();
+-		tv = ktime_to_timeval(sk->sk_stamp);
+-	}
+-	return copy_to_user(userstamp, &tv, sizeof(tv)) ? -EFAULT : 0;
+-}
+-EXPORT_SYMBOL(sock_get_timestamp);
+-
+-int sock_get_timestampns(struct sock *sk, struct timespec __user *userstamp)
+-{
+-	struct timespec ts;
++	struct sock *sk = sock->sk;
++	struct timespec64 ts;
+ 
+ 	sock_enable_timestamp(sk, SOCK_TIMESTAMP);
+-	ts = ktime_to_timespec(sk->sk_stamp);
++	ts = ktime_to_timespec64(sk->sk_stamp);
+ 	if (ts.tv_sec == -1)
+ 		return -ENOENT;
+ 	if (ts.tv_sec == 0) {
+ 		sk->sk_stamp = ktime_get_real();
+-		ts = ktime_to_timespec(sk->sk_stamp);
++		ts = ktime_to_timespec64(sk->sk_stamp);
+ 	}
+-	return copy_to_user(userstamp, &ts, sizeof(ts)) ? -EFAULT : 0;
++
++	if (timeval)
++		ts.tv_nsec /= 1000;
++#ifdef CONFIG_COMPAT_32BIT_TIME
++	if (time32)
++		return put_old_timespec32(&ts, userstamp);
++#endif
++
++	return put_timespec64(&ts, userstamp);
+ }
+-EXPORT_SYMBOL(sock_get_timestampns);
++EXPORT_SYMBOL(sock_gettstamp);
+ 
+ void sock_enable_timestamp(struct sock *sk, int flag)
+ {
+diff --git a/net/dccp/ipv4.c b/net/dccp/ipv4.c
+index b08feb219b44..8103f3525773 100644
+--- a/net/dccp/ipv4.c
++++ b/net/dccp/ipv4.c
+@@ -986,6 +986,7 @@ static const struct proto_ops inet_dccp_ops = {
+ 	/* FIXME: work on tcp_poll to rename it to inet_csk_poll */
+ 	.poll		   = dccp_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	/* FIXME: work on inet_listen to rename it to sock_common_listen */
+ 	.listen		   = inet_dccp_listen,
+ 	.shutdown	   = inet_shutdown,
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index 6344f1b18a6a..dacdb5b2638d 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -1072,6 +1072,7 @@ static const struct proto_ops inet6_dccp_ops = {
+ 	.getname	   = inet6_getname,
+ 	.poll		   = dccp_poll,
+ 	.ioctl		   = inet6_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = inet_dccp_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index bc6b912603f1..ce2dfb997537 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -164,10 +164,6 @@ static int ieee802154_sock_ioctl(struct socket *sock, unsigned int cmd,
+ 	struct sock *sk = sock->sk;
+ 
+ 	switch (cmd) {
+-	case SIOCGSTAMP:
+-		return sock_get_timestamp(sk, (struct timeval __user *)arg);
+-	case SIOCGSTAMPNS:
+-		return sock_get_timestampns(sk, (struct timespec __user *)arg);
+ 	case SIOCGIFADDR:
+ 	case SIOCSIFADDR:
+ 		return ieee802154_dev_ioctl(sk, (struct ifreq __user *)arg,
+@@ -426,6 +422,7 @@ static const struct proto_ops ieee802154_raw_ops = {
+ 	.getname	   = sock_no_getname,
+ 	.poll		   = datagram_poll,
+ 	.ioctl		   = ieee802154_sock_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = sock_no_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+@@ -988,6 +985,7 @@ static const struct proto_ops ieee802154_dgram_ops = {
+ 	.getname	   = sock_no_getname,
+ 	.poll		   = datagram_poll,
+ 	.ioctl		   = ieee802154_sock_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = sock_no_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 20fda8fb8ffd..3490275bab50 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -911,12 +911,6 @@ int inet_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 	struct rtentry rt;
+ 
+ 	switch (cmd) {
+-	case SIOCGSTAMP:
+-		err = sock_get_timestamp(sk, (struct timeval __user *)arg);
+-		break;
+-	case SIOCGSTAMPNS:
+-		err = sock_get_timestampns(sk, (struct timespec __user *)arg);
+-		break;
+ 	case SIOCADDRT:
+ 	case SIOCDELRT:
+ 		if (copy_from_user(&rt, p, sizeof(struct rtentry)))
+@@ -988,6 +982,7 @@ const struct proto_ops inet_stream_ops = {
+ 	.getname	   = inet_getname,
+ 	.poll		   = tcp_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = inet_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+@@ -1023,6 +1018,7 @@ const struct proto_ops inet_dgram_ops = {
+ 	.getname	   = inet_getname,
+ 	.poll		   = udp_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+@@ -1055,6 +1051,7 @@ static const struct proto_ops inet_sockraw_ops = {
+ 	.getname	   = inet_getname,
+ 	.poll		   = datagram_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index 673bba31eb18..77f9716958a7 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -532,12 +532,6 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 	struct net *net = sock_net(sk);
+ 
+ 	switch (cmd) {
+-	case SIOCGSTAMP:
+-		return sock_get_timestamp(sk, (struct timeval __user *)arg);
+-
+-	case SIOCGSTAMPNS:
+-		return sock_get_timestampns(sk, (struct timespec __user *)arg);
+-
+ 	case SIOCADDRT:
+ 	case SIOCDELRT:
+ 
+@@ -570,6 +564,7 @@ const struct proto_ops inet6_stream_ops = {
+ 	.getname	   = inet6_getname,
+ 	.poll		   = tcp_poll,			/* ok		*/
+ 	.ioctl		   = inet6_ioctl,		/* must change  */
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = inet_listen,		/* ok		*/
+ 	.shutdown	   = inet_shutdown,		/* ok		*/
+ 	.setsockopt	   = sock_common_setsockopt,	/* ok		*/
+@@ -603,6 +598,7 @@ const struct proto_ops inet6_dgram_ops = {
+ 	.getname	   = inet6_getname,
+ 	.poll		   = udp_poll,			/* ok		*/
+ 	.ioctl		   = inet6_ioctl,		/* must change  */
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,		/* ok		*/
+ 	.shutdown	   = inet_shutdown,		/* ok		*/
+ 	.setsockopt	   = sock_common_setsockopt,	/* ok		*/
+diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
+index 413d98bf24f4..a913ccfff021 100644
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -1344,6 +1344,7 @@ const struct proto_ops inet6_sockraw_ops = {
+ 	.getname	   = inet6_getname,
+ 	.poll		   = datagram_poll,		/* ok		*/
+ 	.ioctl		   = inet6_ioctl,		/* must change  */
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,		/* ok		*/
+ 	.shutdown	   = inet_shutdown,		/* ok		*/
+ 	.setsockopt	   = sock_common_setsockopt,	/* ok		*/
+diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
+index 35f6f86d4dcc..b7b844d9edec 100644
+--- a/net/l2tp/l2tp_ip.c
++++ b/net/l2tp/l2tp_ip.c
+@@ -615,6 +615,7 @@ static const struct proto_ops l2tp_ip_ops = {
+ 	.getname	   = l2tp_ip_getname,
+ 	.poll		   = datagram_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
+index 237f1a4a0b0c..c379ebfa4cb7 100644
+--- a/net/l2tp/l2tp_ip6.c
++++ b/net/l2tp/l2tp_ip6.c
+@@ -751,6 +751,7 @@ static const struct proto_ops l2tp_ip6_ops = {
+ 	.getname	   = l2tp_ip6_getname,
+ 	.poll		   = datagram_poll,
+ 	.ioctl		   = inet6_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sock_no_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
+index 03f37c4e64fe..687103e0a3c8 100644
+--- a/net/netrom/af_netrom.c
++++ b/net/netrom/af_netrom.c
+@@ -1194,7 +1194,6 @@ static int nr_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ {
+ 	struct sock *sk = sock->sk;
+ 	void __user *argp = (void __user *)arg;
+-	int ret;
+ 
+ 	switch (cmd) {
+ 	case TIOCOUTQ: {
+@@ -1220,18 +1219,6 @@ static int nr_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		return put_user(amount, (int __user *)argp);
+ 	}
+ 
+-	case SIOCGSTAMP:
+-		lock_sock(sk);
+-		ret = sock_get_timestamp(sk, argp);
+-		release_sock(sk);
+-		return ret;
+-
+-	case SIOCGSTAMPNS:
+-		lock_sock(sk);
+-		ret = sock_get_timestampns(sk, argp);
+-		release_sock(sk);
+-		return ret;
+-
+ 	case SIOCGIFADDR:
+ 	case SIOCSIFADDR:
+ 	case SIOCGIFDSTADDR:
+@@ -1357,6 +1344,7 @@ static const struct proto_ops nr_proto_ops = {
+ 	.getname	=	nr_getname,
+ 	.poll		=	datagram_poll,
+ 	.ioctl		=	nr_ioctl,
++	.gettstamp	=	sock_gettstamp,
+ 	.listen		=	nr_listen,
+ 	.shutdown	=	sock_no_shutdown,
+ 	.setsockopt	=	nr_setsockopt,
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 5610061e7f2e..06097f1e060b 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4053,11 +4053,6 @@ static int packet_ioctl(struct socket *sock, unsigned int cmd,
+ 		spin_unlock_bh(&sk->sk_receive_queue.lock);
+ 		return put_user(amount, (int __user *)arg);
+ 	}
+-	case SIOCGSTAMP:
+-		return sock_get_timestamp(sk, (struct timeval __user *)arg);
+-	case SIOCGSTAMPNS:
+-		return sock_get_timestampns(sk, (struct timespec __user *)arg);
+-
+ #ifdef CONFIG_INET
+ 	case SIOCADDRT:
+ 	case SIOCDELRT:
+@@ -4415,6 +4410,7 @@ static const struct proto_ops packet_ops_spkt = {
+ 	.getname =	packet_getname_spkt,
+ 	.poll =		datagram_poll,
+ 	.ioctl =	packet_ioctl,
++	.gettstamp =	sock_gettstamp,
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	sock_no_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -4436,6 +4432,7 @@ static const struct proto_ops packet_ops = {
+ 	.getname =	packet_getname,
+ 	.poll =		packet_poll,
+ 	.ioctl =	packet_ioctl,
++	.gettstamp =	sock_gettstamp,
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	sock_no_shutdown,
+ 	.setsockopt =	packet_setsockopt,
+diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
+index 86e1e37eb4e8..9da159f3fc2a 100644
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -967,9 +967,6 @@ static int qrtr_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 			break;
+ 		}
+ 		break;
+-	case SIOCGSTAMP:
+-		rc = sock_get_timestamp(sk, argp);
+-		break;
+ 	case SIOCADDRT:
+ 	case SIOCDELRT:
+ 	case SIOCSIFADDR:
+@@ -1032,6 +1029,7 @@ static const struct proto_ops qrtr_proto_ops = {
+ 	.recvmsg	= qrtr_recvmsg,
+ 	.getname	= qrtr_getname,
+ 	.ioctl		= qrtr_ioctl,
++	.gettstamp	= sock_gettstamp,
+ 	.poll		= datagram_poll,
+ 	.shutdown	= sock_no_shutdown,
+ 	.setsockopt	= sock_no_setsockopt,
+diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
+index d00a0ef39a56..64bcbb22c8f7 100644
+--- a/net/rose/af_rose.c
++++ b/net/rose/af_rose.c
+@@ -1299,12 +1299,6 @@ static int rose_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		return put_user(amount, (unsigned int __user *) argp);
+ 	}
+ 
+-	case SIOCGSTAMP:
+-		return sock_get_timestamp(sk, (struct timeval __user *) argp);
+-
+-	case SIOCGSTAMPNS:
+-		return sock_get_timestampns(sk, (struct timespec __user *) argp);
+-
+ 	case SIOCGIFADDR:
+ 	case SIOCSIFADDR:
+ 	case SIOCGIFDSTADDR:
+@@ -1472,6 +1466,7 @@ static const struct proto_ops rose_proto_ops = {
+ 	.getname	=	rose_getname,
+ 	.poll		=	datagram_poll,
+ 	.ioctl		=	rose_ioctl,
++	.gettstamp	=	sock_gettstamp,
+ 	.listen		=	rose_listen,
+ 	.shutdown	=	sock_no_shutdown,
+ 	.setsockopt	=	rose_setsockopt,
+diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
+index fc6c5e4bffa5..62da13b888e0 100644
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -1028,6 +1028,7 @@ static const struct proto_ops inet6_seqpacket_ops = {
+ 	.getname	   = sctp_getname,
+ 	.poll		   = sctp_poll,
+ 	.ioctl		   = inet6_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sctp_inet_listen,
+ 	.shutdown	   = inet_shutdown,
+ 	.setsockopt	   = sock_common_setsockopt,
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index e948db29ab53..b640eeedc8b4 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -1026,6 +1026,7 @@ static const struct proto_ops inet_seqpacket_ops = {
+ 	.getname	   = inet_getname,	/* Semantics are different.  */
+ 	.poll		   = sctp_poll,
+ 	.ioctl		   = inet_ioctl,
++	.gettstamp	   = sock_gettstamp,
+ 	.listen		   = sctp_inet_listen,
+ 	.shutdown	   = inet_shutdown,	/* Looks harmless.  */
+ 	.setsockopt	   = sock_common_setsockopt, /* IP_SOL IP_OPTION is a problem */
+diff --git a/net/socket.c b/net/socket.c
+index b9d71b503720..6814e8dc8af1 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1069,6 +1069,15 @@ static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 
+ 			err = open_related_ns(&net->ns, get_net_ns);
+ 			break;
++		case SIOCGSTAMP:
++		case SIOCGSTAMPNS:
++			if (!sock->ops->gettstamp) {
++				err = -ENOIOCTLCMD;
++				break;
++			}
++			err = sock->ops->gettstamp(sock, argp,
++						   cmd == SIOCGSTAMP, false);
++			break;
+ 		default:
+ 			err = sock_do_ioctl(net, sock, cmd, arg);
+ 			break;
+@@ -2740,38 +2749,6 @@ void socket_seq_show(struct seq_file *seq)
+ #endif				/* CONFIG_PROC_FS */
+ 
+ #ifdef CONFIG_COMPAT
+-static int do_siocgstamp(struct net *net, struct socket *sock,
+-			 unsigned int cmd, void __user *up)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct timeval ktv;
+-	int err;
+-
+-	set_fs(KERNEL_DS);
+-	err = sock_do_ioctl(net, sock, cmd, (unsigned long)&ktv);
+-	set_fs(old_fs);
+-	if (!err)
+-		err = compat_put_timeval(&ktv, up);
+-
+-	return err;
+-}
+-
+-static int do_siocgstampns(struct net *net, struct socket *sock,
+-			   unsigned int cmd, void __user *up)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct timespec kts;
+-	int err;
+-
+-	set_fs(KERNEL_DS);
+-	err = sock_do_ioctl(net, sock, cmd, (unsigned long)&kts);
+-	set_fs(old_fs);
+-	if (!err)
+-		err = compat_put_timespec(&kts, up);
+-
+-	return err;
+-}
+-
+ static int compat_dev_ifconf(struct net *net, struct compat_ifconf __user *uifc32)
+ {
+ 	struct compat_ifconf ifc32;
+@@ -3119,9 +3096,12 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
+ 	case SIOCDELRT:
+ 		return routing_ioctl(net, sock, cmd, argp);
+ 	case SIOCGSTAMP:
+-		return do_siocgstamp(net, sock, cmd, argp);
+ 	case SIOCGSTAMPNS:
+-		return do_siocgstampns(net, sock, cmd, argp);
++		if (!sock->ops->gettstamp)
++			return -ENOIOCTLCMD;
++		return sock->ops->gettstamp(sock, argp, cmd == SIOCGSTAMP,
++					    !COMPAT_USE_64BIT_TIME);
++
+ 	case SIOCBONDSLAVEINFOQUERY:
+ 	case SIOCBONDINFOQUERY:
+ 	case SIOCSHWTSTAMP:
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index d49aa79b7997..fe2673d17009 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1388,18 +1388,6 @@ static int x25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 		break;
+ 	}
+ 
+-	case SIOCGSTAMP:
+-		rc = -EINVAL;
+-		if (sk)
+-			rc = sock_get_timestamp(sk,
+-						(struct timeval __user *)argp);
+-		break;
+-	case SIOCGSTAMPNS:
+-		rc = -EINVAL;
+-		if (sk)
+-			rc = sock_get_timestampns(sk,
+-					(struct timespec __user *)argp);
+-		break;
+ 	case SIOCGIFADDR:
+ 	case SIOCSIFADDR:
+ 	case SIOCGIFDSTADDR:
+@@ -1671,8 +1659,6 @@ static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
+ 				unsigned long arg)
+ {
+ 	void __user *argp = compat_ptr(arg);
+-	struct sock *sk = sock->sk;
+-
+ 	int rc = -ENOIOCTLCMD;
+ 
+ 	switch(cmd) {
+@@ -1680,18 +1666,6 @@ static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
+ 	case TIOCINQ:
+ 		rc = x25_ioctl(sock, cmd, (unsigned long)argp);
+ 		break;
+-	case SIOCGSTAMP:
+-		rc = -EINVAL;
+-		if (sk)
+-			rc = compat_sock_get_timestamp(sk,
+-					(struct timeval __user*)argp);
+-		break;
+-	case SIOCGSTAMPNS:
+-		rc = -EINVAL;
+-		if (sk)
+-			rc = compat_sock_get_timestampns(sk,
+-					(struct timespec __user*)argp);
+-		break;
+ 	case SIOCGIFADDR:
+ 	case SIOCSIFADDR:
+ 	case SIOCGIFDSTADDR:
+@@ -1755,6 +1729,7 @@ static const struct proto_ops x25_proto_ops = {
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl = compat_x25_ioctl,
+ #endif
++	.gettstamp =	sock_gettstamp,
+ 	.listen =	x25_listen,
+ 	.shutdown =	sock_no_shutdown,
+ 	.setsockopt =	x25_setsockopt,
+-- 
+2.18.0
+
