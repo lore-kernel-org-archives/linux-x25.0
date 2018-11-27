@@ -1,80 +1,63 @@
-From: Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: Re: [PATCH net-next 1/3] net: rework SIOCGSTAMP ioctl handling
-Date: Fri, 21 Sep 2018 11:14:36 +0200
-Message-ID: <5cca03b6-8d3d-5f18-778f-a5d5e70c2218@datenfreihafen.org>
-References: <20180829130308.3504560-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180829130308.3504560-1-arnd@arndb.de>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: [PATCH 2/3] net/x25: fix null_x25_address handling
+Date: Tue, 27 Nov 2018 09:50:28 +0100
+Message-ID: <20181127085029.9589-2-ms@dev.tdt.de>
+References: <20181127085029.9589-1-ms@dev.tdt.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181127085029.9589-1-ms@dev.tdt.de>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
-Cc: linux-arch@vger.kernel.org, y2038@lists.linaro.org, Eric Dumazet <edumazet@google.com>, Willem de Bruijn <willemb@google.com>, linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org, linux-x25@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: andrew.hendry@gmail.com, davem@davemloft.net
+Cc: stephen@networkplumber.org, joe@perches.com, anto.cardace@gmail.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-Hello Arnd.
+ o x25_find_listener(): the compare for the null_x25_address was wrong.
+   We have to check the x25_addr of the listener socket instead of the
+   x25_addr of the incomming call.
 
-On 8/29/18 2:59 PM, Arnd Bergmann wrote:
-> The SIOCGSTAMP/SIOCGSTAMPNS ioctl commands are implemented by many
-> socket protocol handlers, and all of those end up calling the same
-> sock_get_timestamp()/sock_get_timestampns() helper functions, which
-> results in a lot of duplicate code.
-> 
-> With the introduction of 64-bit time_t on 32-bit architectures, this
-> gets worse, as we then need four different ioctl commands in each
-> socket protocol implementation.
-> 
-> To simplify that, let's add a new .gettstamp() operation in
-> struct proto_ops, and move ioctl implementation into the common
-> sock_ioctl()/compat_sock_ioctl_trans() functions that these all go
-> through.
-> 
-> We can reuse the sock_get_timestamp() implementation, but generalize
-> it so it can deal with both native and compat mode, as well as
-> timeval and timespec structures.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  include/linux/net.h          |  2 ++
->  include/net/compat.h         |  3 --
->  include/net/sock.h           |  4 +--
->  net/appletalk/ddp.c          |  7 +----
->  net/atm/ioctl.c              | 16 -----------
->  net/atm/pvc.c                |  1 +
->  net/atm/svc.c                |  1 +
->  net/ax25/af_ax25.c           |  9 +-----
->  net/bluetooth/af_bluetooth.c |  8 ------
->  net/bluetooth/l2cap_sock.c   |  1 +
->  net/bluetooth/rfcomm/sock.c  |  1 +
->  net/bluetooth/sco.c          |  1 +
->  net/can/af_can.c             |  6 ----
->  net/can/bcm.c                |  1 +
->  net/can/raw.c                |  1 +
->  net/compat.c                 | 54 ------------------------------------
->  net/core/sock.c              | 38 +++++++++++--------------
->  net/dccp/ipv4.c              |  1 +
->  net/dccp/ipv6.c              |  1 +
->  net/ieee802154/socket.c      |  6 ++--
->  net/ipv4/af_inet.c           |  9 ++----
->  net/ipv6/af_inet6.c          |  8 ++----
->  net/ipv6/raw.c               |  1 +
->  net/l2tp/l2tp_ip.c           |  1 +
->  net/l2tp/l2tp_ip6.c          |  1 +
->  net/netrom/af_netrom.c       | 14 +---------
->  net/packet/af_packet.c       |  7 ++---
->  net/qrtr/qrtr.c              |  4 +--
->  net/rose/af_rose.c           |  7 +----
->  net/sctp/ipv6.c              |  1 +
->  net/sctp/protocol.c          |  1 +
->  net/socket.c                 | 48 ++++++++++----------------------
->  net/x25/af_x25.c             | 27 +-----------------
->  33 files changed, 63 insertions(+), 228 deletions(-)
+ o x25_bind(): it was not possible to bind a socket to null_x25_address
 
-For the net/ieee802154/socket. part I am fine with this change.
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+ net/x25/af_x25.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 5226a7f43050..5121729b8b63 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -288,7 +288,7 @@ static struct sock *x25_find_listener(struct x25_address *addr,
+ 	sk_for_each(s, &x25_list)
+ 		if ((!strcmp(addr->x25_addr,
+ 			x25_sk(s)->source_addr.x25_addr) ||
+-				!strcmp(addr->x25_addr,
++				!strcmp(x25_sk(s)->source_addr.x25_addr,
+ 					null_x25_address.x25_addr)) &&
+ 					s->sk_state == TCP_LISTEN) {
+ 			/*
+@@ -688,11 +688,15 @@ static int x25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 		goto out;
+ 	}
+ 
+-	len = strlen(addr->sx25_addr.x25_addr);
+-	for (i = 0; i < len; i++) {
+-		if (!isdigit(addr->sx25_addr.x25_addr[i])) {
+-			rc = -EINVAL;
+-			goto out;
++	/* check for the null_x25_address */
++	if (strcmp(addr->sx25_addr.x25_addr, null_x25_address.x25_addr)) {
++
++		len = strlen(addr->sx25_addr.x25_addr);
++		for (i = 0; i < len; i++) {
++			if (!isdigit(addr->sx25_addr.x25_addr[i])) {
++				rc = -EINVAL;
++				goto out;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.11.0
 
-regards
-Stefan Schmidt
