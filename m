@@ -1,7 +1,7 @@
-From: syzbot <syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com>
-Subject: KASAN: use-after-free Read in x25_device_event
-Date: Sat, 29 Dec 2018 10:50:03 -0800
-Message-ID: <000000000000cdc755057e2da575@google.com>
+From: syzbot <syzbot+564c57b4bf1df3ce1c94@syzkaller.appspotmail.com>
+Subject: INFO: rcu detected stall in x25_connect
+Date: Mon, 31 Dec 2018 00:03:03 -0800
+Message-ID: <0000000000009b5ae5057e4cd7d1@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -16,147 +16,88 @@ syzbot found the following crash on:
 
 HEAD commit:    38355a5f9a22 bnx2x: Fix NULL pointer dereference in bnx2x_..
 git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=144e49ed400000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7321a72d3309c029
-dashboard link: https://syzkaller.appspot.com/bug?extid=04babcefcd396fabec37
+console output: https://syzkaller.appspot.com/x/log.txt?x=15fe1677400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=a91d685acb971514
+dashboard link: https://syzkaller.appspot.com/bug?extid=564c57b4bf1df3ce1c94
 compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
 
 Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com
+Reported-by: syzbot+564c57b4bf1df3ce1c94@syzkaller.appspotmail.com
 
-==================================================================
-BUG: KASAN: use-after-free in x25_kill_by_device net/x25/af_x25.c:217  
-[inline]
-BUG: KASAN: use-after-free in x25_device_event+0x297/0x2b0  
-net/x25/af_x25.c:252
-Read of size 8 at addr ffff8881b5c85ad0 by task syz-executor2/22350
-
-CPU: 1 PID: 22350 Comm: syz-executor2 Not tainted 4.20.0-rc7+ #248
+rcu: INFO: rcu_preempt self-detected stall on CPU
+rcu: 	1-...!: (1 GPs behind) idle=b82/1/0x4000000000000002  
+softirq=245727/245728 fqs=2
+rcu: 	 (t=10500 jiffies g=375665 q=22)
+rcu: rcu_preempt kthread starved for 10496 jiffies! g375665 f0x0  
+RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=0
+rcu: RCU grace-period kthread stack dump:
+rcu_preempt     I22568    10      2 0x80000000
+Call Trace:
+  context_switch kernel/sched/core.c:2831 [inline]
+  __schedule+0x86c/0x1ed0 kernel/sched/core.c:3472
+  schedule+0xfe/0x460 kernel/sched/core.c:3516
+  schedule_timeout+0x140/0x260 kernel/time/timer.c:1804
+  rcu_gp_fqs_loop+0x762/0xa80 kernel/rcu/tree.c:1934
+  rcu_gp_kthread+0x341/0xc70 kernel/rcu/tree.c:2090
+  kthread+0x35a/0x440 kernel/kthread.c:246
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
+NMI backtrace for cpu 1
+CPU: 1 PID: 23613 Comm: syz-executor0 Not tainted 4.20.0-rc7+ #249
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
+  <IRQ>
   __dump_stack lib/dump_stack.c:77 [inline]
   dump_stack+0x1d3/0x2c6 lib/dump_stack.c:113
-  print_address_description.cold.8+0x9/0x1ff mm/kasan/report.c:256
-  kasan_report_error mm/kasan/report.c:354 [inline]
-  kasan_report.cold.9+0x242/0x309 mm/kasan/report.c:412
-  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
-  x25_kill_by_device net/x25/af_x25.c:217 [inline]
-  x25_device_event+0x297/0x2b0 net/x25/af_x25.c:252
-  notifier_call_chain+0x17e/0x380 kernel/notifier.c:93
-  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
-  raw_notifier_call_chain+0x2d/0x40 kernel/notifier.c:401
-  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1733
-  call_netdevice_notifiers net/core/dev.c:1751 [inline]
-  __dev_notify_flags+0x29b/0x480 net/core/dev.c:7547
-  dev_change_flags+0xfd/0x150 net/core/dev.c:7581
-  dev_ifsioc+0x7d6/0xa80 net/core/dev_ioctl.c:237
-  dev_ioctl+0x1b5/0xcc0 net/core/dev_ioctl.c:488
-  sock_do_ioctl+0x1f6/0x420 net/socket.c:973
-  sock_ioctl+0x313/0x690 net/socket.c:1074
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0x1de/0x1790 fs/ioctl.c:696
-  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+  nmi_cpu_backtrace.cold.4+0x63/0xa2 lib/nmi_backtrace.c:101
+  nmi_trigger_cpumask_backtrace+0x1c2/0x22c lib/nmi_backtrace.c:62
+  arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
+  trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
+  rcu_dump_cpu_stacks+0x16f/0x1bc kernel/rcu/tree.c:1195
+  print_cpu_stall.cold.65+0x1f3/0x3c6 kernel/rcu/tree.c:1334
+  check_cpu_stall kernel/rcu/tree.c:1408 [inline]
+  rcu_pending kernel/rcu/tree.c:2961 [inline]
+  rcu_check_callbacks+0xac1/0x1410 kernel/rcu/tree.c:2506
+  update_process_times+0x2d/0x70 kernel/time/timer.c:1636
+  tick_sched_handle+0x9f/0x180 kernel/time/tick-sched.c:164
+  tick_sched_timer+0x45/0x130 kernel/time/tick-sched.c:1274
+  __run_hrtimer kernel/time/hrtimer.c:1398 [inline]
+  __hrtimer_run_queues+0x41c/0x10d0 kernel/time/hrtimer.c:1460
+  hrtimer_interrupt+0x313/0x780 kernel/time/hrtimer.c:1518
+  local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1034 [inline]
+  smp_apic_timer_interrupt+0x1a1/0x760 arch/x86/kernel/apic/apic.c:1059
+  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:807
+  </IRQ>
+RIP: 0010:__x25_find_socket+0x6c/0x110 net/x25/af_x25.c:327
+Code: 2f e8 d8 a9 87 fa 48 8d 7b 68 48 89 f8 48 c1 e8 03 42 80 3c 20 00 0f  
+85 a1 00 00 00 48 8b 5b 68 48 85 db 74 7c e8 b4 a9 87 fa <48> 83 eb 68 74  
+71 e8 a9 a9 87 fa 48 8d bb 88 04 00 00 48 89 f8 48
+RSP: 0018:ffff88806485faa8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000040000 RBX: ffff88809f242a68 RCX: ffffc90005df9000
+RDX: 0000000000040000 RSI: ffffffff86f6b08c RDI: ffff88809f242a68
+RBP: ffff88806485fad0 R08: ffff88808e4e8700 R09: fffffbfff13fc688
+R10: fffffbfff13fc688 R11: ffffffff89fe3443 R12: dffffc0000000000
+R13: 0000000000000001 R14: ffff88809b212940 R15: 0000000000000000
+  x25_new_lci net/x25/af_x25.c:357 [inline]
+  x25_connect+0x380/0x1050 net/x25/af_x25.c:786
+  __sys_connect+0x37d/0x4c0 net/socket.c:1664
+  __do_sys_connect net/socket.c:1675 [inline]
+  __se_sys_connect net/socket.c:1672 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1672
   do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x457759
+RIP: 0033:0x4579b9
 Code: fd b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
 ff 0f 83 cb b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f4c06d4fc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457759
-RDX: 00000000200005c0 RSI: 0000000000008914 RDI: 0000000000000005
-RBP: 000000000073bfa0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f4c06d506d4
-R13: 00000000004c2c32 R14: 00000000004d52f8 R15: 00000000ffffffff
-
-Allocated by task 10606:
-  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
-  set_track mm/kasan/kasan.c:460 [inline]
-  kasan_kmalloc+0xc7/0xe0 mm/kasan/kasan.c:553
-  kmem_cache_alloc_trace+0x152/0x750 mm/slab.c:3620
-  kmalloc include/linux/slab.h:546 [inline]
-  x25_link_device_up+0xb2/0x500 net/x25/x25_link.c:249
-  x25_device_event+0x116/0x2b0 net/x25/af_x25.c:242
-  notifier_call_chain+0x17e/0x380 kernel/notifier.c:93
-  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
-  raw_notifier_call_chain+0x2d/0x40 kernel/notifier.c:401
-  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1733
-  call_netdevice_notifiers net/core/dev.c:1751 [inline]
-  __dev_notify_flags+0x17a/0x480 net/core/dev.c:7545
-  dev_change_flags+0xfd/0x150 net/core/dev.c:7581
-  dev_ifsioc+0x7d6/0xa80 net/core/dev_ioctl.c:237
-  dev_ioctl+0x1b5/0xcc0 net/core/dev_ioctl.c:488
-  sock_do_ioctl+0x1f6/0x420 net/socket.c:973
-  sock_ioctl+0x313/0x690 net/socket.c:1074
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0x1de/0x1790 fs/ioctl.c:696
-  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
-  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 22299:
-  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
-  set_track mm/kasan/kasan.c:460 [inline]
-  __kasan_slab_free+0x102/0x150 mm/kasan/kasan.c:521
-  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
-  __cache_free mm/slab.c:3498 [inline]
-  kfree+0xcf/0x230 mm/slab.c:3817
-  x25_neigh_put include/net/x25.h:253 [inline]
-  __x25_remove_neigh+0x233/0x310 net/x25/x25_link.c:290
-  x25_link_device_down+0xc7/0x130 net/x25/x25_link.c:308
-  x25_device_event+0x262/0x2b0 net/x25/af_x25.c:254
-  notifier_call_chain+0x17e/0x380 kernel/notifier.c:93
-  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
-  raw_notifier_call_chain+0x2d/0x40 kernel/notifier.c:401
-  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1733
-  call_netdevice_notifiers net/core/dev.c:1751 [inline]
-  __dev_notify_flags+0x29b/0x480 net/core/dev.c:7547
-  dev_change_flags+0xfd/0x150 net/core/dev.c:7581
-  dev_ifsioc+0x7d6/0xa80 net/core/dev_ioctl.c:237
-  dev_ioctl+0x1b5/0xcc0 net/core/dev_ioctl.c:488
-  sock_do_ioctl+0x1f6/0x420 net/socket.c:973
-  sock_ioctl+0x313/0x690 net/socket.c:1074
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0x1de/0x1790 fs/ioctl.c:696
-  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
-  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8881b5c85ac0
-  which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 16 bytes inside of
-  256-byte region [ffff8881b5c85ac0, ffff8881b5c85bc0)
-The buggy address belongs to the page:
-page:ffffea0006d72140 count:1 mapcount:0 mapping:ffff8881da8007c0  
-index:0xffff8881b5c85e80
-flags: 0x2fffc0000000200(slab)
-raw: 02fffc0000000200 ffffea00075f33c8 ffffea000731be48 ffff8881da8007c0
-raw: ffff8881b5c85e80 ffff8881b5c850c0 0000000100000008 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8881b5c85980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881b5c85a00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ffff8881b5c85a80: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-                                                  ^
-  ffff8881b5c85b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881b5c85b80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-==================================================================
+RSP: 002b:00007fb14afb2c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00000000004579b9
+RDX: 0000000000000012 RSI: 0000000020000040 RDI: 0000000000000004
+RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fb14afb36d4
+R13: 00000000004be22e R14: 00000000004ce488 R15: 00000000ffffffff
 
 
 ---
