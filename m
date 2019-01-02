@@ -1,37 +1,39 @@
-From: syzbot <syzbot+426b913e690764e50c83@syzkaller.appspotmail.com>
-Subject: KASAN: use-after-free Read in x25_write_internal
-Date: Wed, 02 Jan 2019 03:02:03 -0800
-Message-ID: <0000000000006ee231057e779375@google.com>
+From: syzbot <syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com>
+Subject: KASAN: use-after-free Read in refcount_sub_and_test_checked (2)
+Date: Wed, 02 Jan 2019 03:26:03 -0800
+Message-ID: <0000000000004a6d7c057e77e97e@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
 Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, anto.cardace@gmail.com, davem@davemloft.net, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
+To: andrew.hendry@gmail.com, davem@davemloft.net, dvlasenk@redhat.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
 Hello,
 
 syzbot found the following crash on:
 
-HEAD commit:    7418e6520f22 isdn: hisax: hfc_pci: Fix a possible concurre..
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=137658e7400000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=fbee5876573727cd
-dashboard link: https://syzkaller.appspot.com/bug?extid=426b913e690764e50c83
+HEAD commit:    b71acb0e3721 Merge branch 'linus' of git://git.kernel.org/..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=12227977400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4b137b8ba637eb77
+dashboard link: https://syzkaller.appspot.com/bug?extid=b0775615fa4c4479b691
 compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
 
 Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+426b913e690764e50c83@syzkaller.appspotmail.com
+Reported-by: syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com
 
 ==================================================================
-BUG: KASAN: use-after-free in x25_write_internal+0xded/0xef0  
-net/x25/x25_subr.c:173
-Read of size 4 at addr ffff8880923f6bdc by task syz-executor1/30378
+BUG: KASAN: use-after-free in atomic_read  
+include/asm-generic/atomic-instrumented.h:21 [inline]
+BUG: KASAN: use-after-free in refcount_sub_and_test_checked+0x9d/0x310  
+lib/refcount.c:179
+Read of size 4 at addr ffff88808c97fec8 by task syz-executor4/9549
 
-CPU: 0 PID: 30378 Comm: syz-executor1 Not tainted 4.20.0+ #252
+CPU: 1 PID: 9549 Comm: syz-executor4 Not tainted 4.20.0+ #363
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
@@ -40,33 +42,32 @@ Call Trace:
   print_address_description.cold.8+0x9/0x1ff mm/kasan/report.c:256
   kasan_report_error mm/kasan/report.c:354 [inline]
   kasan_report.cold.9+0x242/0x309 mm/kasan/report.c:412
-  __asan_report_load4_noabort+0x14/0x20 mm/kasan/report.c:432
-  x25_write_internal+0xded/0xef0 net/x25/x25_subr.c:173
-  x25_release+0x1f8/0x350 net/x25/af_x25.c:660
-  __sock_release+0xd7/0x250 net/socket.c:579
-  sock_close+0x19/0x20 net/socket.c:1141
-  __fput+0x385/0xa30 fs/file_table.c:278
-  ____fput+0x15/0x20 fs/file_table.c:309
-  task_work_run+0x1e8/0x2a0 kernel/task_work.c:113
-  get_signal+0x1558/0x1980 kernel/signal.c:2347
-  do_signal+0x9c/0x21c0 arch/x86/kernel/signal.c:816
-  exit_to_usermode_loop+0x2e5/0x380 arch/x86/entry/common.c:162
-  prepare_exit_to_usermode arch/x86/entry/common.c:197 [inline]
-  syscall_return_slowpath arch/x86/entry/common.c:268 [inline]
-  do_syscall_64+0x6be/0x820 arch/x86/entry/common.c:293
+  check_memory_region_inline mm/kasan/kasan.c:260 [inline]
+  check_memory_region+0x13e/0x1b0 mm/kasan/kasan.c:267
+  kasan_check_read+0x11/0x20 mm/kasan/kasan.c:272
+  atomic_read include/asm-generic/atomic-instrumented.h:21 [inline]
+  refcount_sub_and_test_checked+0x9d/0x310 lib/refcount.c:179
+  refcount_dec_and_test_checked+0x1a/0x20 lib/refcount.c:212
+  x25_neigh_put include/net/x25.h:252 [inline]
+  x25_connect+0xc45/0x1050 net/x25/af_x25.c:823
+  __sys_connect+0x37d/0x4c0 net/socket.c:1664
+  __do_sys_connect net/socket.c:1675 [inline]
+  __se_sys_connect net/socket.c:1672 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1672
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4579b9
-Code: fd b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+RIP: 0033:0x457ec9
+Code: 6d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f959bdb5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: fffffffffffffe00 RBX: 0000000000000003 RCX: 00000000004579b9
+ff 0f 83 3b b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f61b98b5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457ec9
 RDX: 0000000000000012 RSI: 0000000020000080 RDI: 0000000000000005
-RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f959bdb66d4
-R13: 00000000004be22e R14: 00000000004ce488 R15: 00000000ffffffff
+RBP: 000000000073c0e0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f61b98b66d4
+R13: 00000000004be405 R14: 00000000004ce5f0 R15: 00000000ffffffff
 
-Allocated by task 12427:
+Allocated by task 5951:
   save_stack+0x43/0xd0 mm/kasan/kasan.c:448
   set_track mm/kasan/kasan.c:460 [inline]
   kasan_kmalloc+0xc7/0xe0 mm/kasan/kasan.c:553
@@ -96,7 +97,7 @@ Allocated by task 12427:
   do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Freed by task 30378:
+Freed by task 9519:
   save_stack+0x43/0xd0 mm/kasan/kasan.c:448
   set_track mm/kasan/kasan.c:460 [inline]
   __kasan_slab_free+0x102/0x150 mm/kasan/kasan.c:521
@@ -112,24 +113,25 @@ Freed by task 30378:
   do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-The buggy address belongs to the object at ffff8880923f6bc0
+The buggy address belongs to the object at ffff88808c97fe00
   which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 28 bytes inside of
-  256-byte region [ffff8880923f6bc0, ffff8880923f6cc0)
+The buggy address is located 200 bytes inside of
+  256-byte region [ffff88808c97fe00, ffff88808c97ff00)
 The buggy address belongs to the page:
-page:ffffea000248fd80 count:1 mapcount:0 mapping:ffff88812c3f07c0 index:0x0
+page:ffffea0002325fc0 count:1 mapcount:0 mapping:ffff88812c3f07c0  
+index:0xffff88808c97f2c0
 flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea00023d4748 ffffea000267af08 ffff88812c3f07c0
-raw: 0000000000000000 ffff8880923f6080 000000010000000c 0000000000000000
+raw: 01fffc0000000200 ffffea00021df608 ffffea00017f8748 ffff88812c3f07c0
+raw: ffff88808c97f2c0 ffff88808c97f040 0000000100000007 0000000000000000
 page dumped because: kasan: bad access detected
 
 Memory state around the buggy address:
-  ffff8880923f6a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880923f6b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ffff8880923f6b80: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-                                                     ^
-  ffff8880923f6c00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880923f6c80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+  ffff88808c97fd80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+  ffff88808c97fe00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ffff88808c97fe80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                               ^
+  ffff88808c97ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88808c97ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
 ==================================================================
 
 
