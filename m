@@ -1,26 +1,26 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 28/30] net/x25: do not hold the cpu too long in x25_new_lci()
-Date: Thu, 21 Feb 2019 15:36:10 +0100
-Message-ID: <20190221125252.188194265@linuxfoundation.org>
-References: <20190221125250.543158526@linuxfoundation.org>
+Subject: [PATCH 4.20 30/32] net/x25: do not hold the cpu too long in x25_new_lci()
+Date: Thu, 21 Feb 2019 15:36:18 +0100
+Message-ID: <20190221125252.684931500@linuxfoundation.org>
+References: <20190221125250.855065214@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1550760107;
-        bh=OkUHjYJpF8bhoKcJ4/uQCcRQfGXYUVAvzGjt2mwmvow=;
+        s=default; t=1550760211;
+        bh=S27RdSRZOwjOuonRHeF0cP1xvj5npsGiXLFpExqSyoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tItv+lL5ZmjUwG6MRt+5D0s9wlHVjxX6g3j9HPr4ja7iuI+qq+7lF0yn+Jg1vzGHq
-         vLo44TllO1dm1YLUn95N/QO9+pmxakXvBV7p/3/HkStUiGK3NMhGyvjJ7EXg3N0G0L
-         ZW+gL1m7rfHaKfMyQ52qhdM5SOb2q4bwnPN8n8WM=
-In-Reply-To: <20190221125250.543158526@linuxfoundation.org>
-Sender: stable-owner@vger.kernel.org
+        b=lmmFfkNMCSAxrtqeeEikEtdIrC3hn2qbUTP7YKYsjtlsnJfU4IvXdXbcb3sNWNG8q
+         AZbhjp7XWJc8Sa3JKndCA3EzP8b5F3EibkDDOGb6WZhVjPPCowAJD55cslXm699DQQ
+         RNBBKkJg2FO40eLrL23Fzsu7bcLpq0N0jb9hDNP4=
+In-Reply-To: <20190221125250.855065214@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>, syzbot <syzkaller@googlegroups.com>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+4.20-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
