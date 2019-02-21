@@ -1,26 +1,26 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3.18 11/13] net/x25: do not hold the cpu too long in x25_new_lci()
-Date: Thu, 21 Feb 2019 15:35:42 +0100
-Message-ID: <20190221125241.436619838@linuxfoundation.org>
-References: <20190221125240.091472334@linuxfoundation.org>
+Subject: [PATCH 4.4 17/20] net/x25: do not hold the cpu too long in x25_new_lci()
+Date: Thu, 21 Feb 2019 15:35:47 +0100
+Message-ID: <20190221141947.265004978@linuxfoundation.org>
+References: <20190221141946.772985220@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1550759804;
-        bh=1GCdY/eKx0e2etAR974W/CA7e6SlgCySPeMNtY5tATg=;
+        s=default; t=1550759865;
+        bh=WU1c9TZhxyHtpGBtn2VyOsdjrBUw1lM9Nn1vBlVMfho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeVz/pAldAQyVYxVr7gTNkdTLn8D9kv+pDQaDjbgym74Jfd+FO9lRhcORY7mXyyOj
-         0SaVBRB7xHswhlMyNuJxDyeuG+OA/0lM5x4YyWB0wll/4yE29TYxM3/IQMx0Q+WFvM
-         CyYvqvNxY8oAxC8miJyDrwvZqUmSAOD6aqVKrIUI=
-In-Reply-To: <20190221125240.091472334@linuxfoundation.org>
+        b=fRp8XGve5cVT+0WnW9DAGp/X7FEvBK6a/MuxRdpk9uokavqoyvmCAHl4yu0f2k2aY
+         b9XX2NB14G1KpRdx0Oq42fbpvUZ13X4rmG1MtY0/9IjBt8dMTfvq9PUPvMA8Gq/Ax1
+         XG9dAmwnsL+4yGpdxgz0KQCbTDMlG/iFCaitD0as=
+In-Reply-To: <20190221141946.772985220@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>, syzbot <syzkaller@googlegroups.com>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-3.18-stable review patch.  If anyone has any objections, please let me know.
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
