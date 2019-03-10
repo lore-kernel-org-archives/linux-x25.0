@@ -1,181 +1,151 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.20 30/32] net/x25: do not hold the cpu too long in x25_new_lci()
-Date: Thu, 21 Feb 2019 15:36:18 +0100
-Message-ID: <20190221125252.684931500@linuxfoundation.org>
-References: <20190221125250.855065214@linuxfoundation.org>
+From: syzbot <syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com>
+Subject: Re: KASAN: use-after-free Read in x25_device_event
+Date: Sun, 10 Mar 2019 07:56:05 -0700
+Message-ID: <000000000000c3ba940583bea717@google.com>
+References: <000000000000cdc755057e2da575@google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1550760211;
-        bh=S27RdSRZOwjOuonRHeF0cP1xvj5npsGiXLFpExqSyoY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmmFfkNMCSAxrtqeeEikEtdIrC3hn2qbUTP7YKYsjtlsnJfU4IvXdXbcb3sNWNG8q
-         AZbhjp7XWJc8Sa3JKndCA3EzP8b5F3EibkDDOGb6WZhVjPPCowAJD55cslXm699DQQ
-         RNBBKkJg2FO40eLrL23Fzsu7bcLpq0N0jb9hDNP4=
-In-Reply-To: <20190221125250.855065214@linuxfoundation.org>
+In-Reply-To: <000000000000cdc755057e2da575@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>, syzbot <syzkaller@googlegroups.com>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
+Content-Transfer-Encoding: 7bit
+To: -O-request@vger.kernel.org, andrew.hendry@gmail.com, davem@davemloft.net, dvlasenk@redhat.com, edumazet@google.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-4.20-stable review patch.  If anyone has any objections, please let me know.
+syzbot has found a reproducer for the following crash on:
 
-------------------
+HEAD commit:    d9862cfb Merge tag 'mips_5.1' of git://git.kernel.org/pub/..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=1531cf23200000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=73d88a42238825ad
+dashboard link: https://syzkaller.appspot.com/bug?extid=04babcefcd396fabec37
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+userspace arch: amd64
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=100ffdad200000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16c2599d200000
 
-From: Eric Dumazet <edumazet@google.com>
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com
 
-commit cf657d22ee1f0e887326a92169f2e28dc932fd10 upstream.
+device ifb0 entered promiscuous mode
+device ifb0 left promiscuous mode
+device ifb0 entered promiscuous mode
+device ifb0 left promiscuous mode
+==================================================================
+BUG: KASAN: use-after-free in x25_kill_by_device net/x25/af_x25.c:217  
+[inline]
+BUG: KASAN: use-after-free in x25_device_event+0x296/0x2b0  
+net/x25/af_x25.c:252
+Read of size 8 at addr ffff8880a030edd0 by task syz-executor003/7854
 
-Due to quadratic behavior of x25_new_lci(), syzbot was able
-to trigger an rcu stall.
-
-Fix this by not blocking BH for the whole duration of
-the function, and inserting a reschedule point when possible.
-
-If we care enough, using a bitmap could get rid of the quadratic
-behavior.
-
-syzbot report :
-
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    0-...!: (10500 ticks this GP) idle=4fa/1/0x4000000000000002 softirq=283376/283376 fqs=0
-rcu:     (t=10501 jiffies g=383105 q=136)
-rcu: rcu_preempt kthread starved for 10502 jiffies! g383105 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=0
-rcu: RCU grace-period kthread stack dump:
-rcu_preempt     I28928    10      2 0x80000000
+CPU: 0 PID: 7854 Comm: syz-executor003 Not tainted 5.0.0+ #97
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
 Call Trace:
- context_switch kernel/sched/core.c:2844 [inline]
- __schedule+0x817/0x1cc0 kernel/sched/core.c:3485
- schedule+0x92/0x180 kernel/sched/core.c:3529
- schedule_timeout+0x4db/0xfd0 kernel/time/timer.c:1803
- rcu_gp_fqs_loop kernel/rcu/tree.c:1948 [inline]
- rcu_gp_kthread+0x956/0x17a0 kernel/rcu/tree.c:2105
- kthread+0x357/0x430 kernel/kthread.c:246
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
-NMI backtrace for cpu 0
-CPU: 0 PID: 8759 Comm: syz-executor2 Not tainted 5.0.0-rc4+ #51
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- nmi_cpu_backtrace.cold+0x63/0xa4 lib/nmi_backtrace.c:101
- nmi_trigger_cpumask_backtrace+0x1be/0x236 lib/nmi_backtrace.c:62
- arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
- trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
- rcu_dump_cpu_stacks+0x183/0x1cf kernel/rcu/tree.c:1211
- print_cpu_stall kernel/rcu/tree.c:1348 [inline]
- check_cpu_stall kernel/rcu/tree.c:1422 [inline]
- rcu_pending kernel/rcu/tree.c:3018 [inline]
- rcu_check_callbacks.cold+0x500/0xa4a kernel/rcu/tree.c:2521
- update_process_times+0x32/0x80 kernel/time/timer.c:1635
- tick_sched_handle+0xa2/0x190 kernel/time/tick-sched.c:161
- tick_sched_timer+0x47/0x130 kernel/time/tick-sched.c:1271
- __run_hrtimer kernel/time/hrtimer.c:1389 [inline]
- __hrtimer_run_queues+0x33e/0xde0 kernel/time/hrtimer.c:1451
- hrtimer_interrupt+0x314/0x770 kernel/time/hrtimer.c:1509
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1035 [inline]
- smp_apic_timer_interrupt+0x120/0x570 arch/x86/kernel/apic/apic.c:1060
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:807
- </IRQ>
-RIP: 0010:__read_once_size include/linux/compiler.h:193 [inline]
-RIP: 0010:queued_write_lock_slowpath+0x13e/0x290 kernel/locking/qrwlock.c:86
-Code: 00 00 fc ff df 4c 8d 2c 01 41 83 c7 03 41 0f b6 45 00 41 38 c7 7c 08 84 c0 0f 85 0c 01 00 00 8b 03 3d 00 01 00 00 74 1a f3 90 <41> 0f b6 55 00 41 38 d7 7c eb 84 d2 74 e7 48 89 df e8 6c 0f 4f 00
-RSP: 0018:ffff88805f117bd8 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
-RAX: 0000000000000300 RBX: ffffffff89413ba0 RCX: 1ffffffff1282774
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff89413ba0
-RBP: ffff88805f117c70 R08: 1ffffffff1282774 R09: fffffbfff1282775
-R10: fffffbfff1282774 R11: ffffffff89413ba3 R12: 00000000000000ff
-R13: fffffbfff1282774 R14: 1ffff1100be22f7d R15: 0000000000000003
- queued_write_lock include/asm-generic/qrwlock.h:104 [inline]
- do_raw_write_lock+0x1d6/0x290 kernel/locking/spinlock_debug.c:203
- __raw_write_lock_bh include/linux/rwlock_api_smp.h:204 [inline]
- _raw_write_lock_bh+0x3b/0x50 kernel/locking/spinlock.c:312
- x25_insert_socket+0x21/0xe0 net/x25/af_x25.c:267
- x25_bind+0x273/0x340 net/x25/af_x25.c:705
- __sys_bind+0x23f/0x290 net/socket.c:1505
- __do_sys_bind net/socket.c:1516 [inline]
- __se_sys_bind net/socket.c:1514 [inline]
- __x64_sys_bind+0x73/0xb0 net/socket.c:1514
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x457e39
-Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fafccd0dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000031
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457e39
-RDX: 0000000000000012 RSI: 0000000020000240 RDI: 0000000000000004
-RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fafccd0e6d4
-R13: 00000000004bdf8b R14: 00000000004ce4b8 R15: 00000000ffffffff
-Sending NMI from CPU 0 to CPUs 1:
-NMI backtrace for cpu 1
-CPU: 1 PID: 8752 Comm: syz-executor4 Not tainted 5.0.0-rc4+ #51
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__x25_find_socket+0x78/0x120 net/x25/af_x25.c:328
-Code: 89 f8 48 c1 e8 03 80 3c 18 00 0f 85 a6 00 00 00 4d 8b 64 24 68 4d 85 e4 74 7f e8 03 97 3d fb 49 83 ec 68 74 74 e8 f8 96 3d fb <49> 8d bc 24 88 04 00 00 48 89 f8 48 c1 e8 03 0f b6 04 18 84 c0 74
-RSP: 0018:ffff8880639efc58 EFLAGS: 00000246
-RAX: 0000000000040000 RBX: dffffc0000000000 RCX: ffffc9000e677000
-RDX: 0000000000040000 RSI: ffffffff863244b8 RDI: ffff88806a764628
-RBP: ffff8880639efc80 R08: ffff8880a80d05c0 R09: fffffbfff1282775
-R10: fffffbfff1282774 R11: ffffffff89413ba3 R12: ffff88806a7645c0
-R13: 0000000000000001 R14: ffff88809f29ac00 R15: 0000000000000000
-FS:  00007fe8d0c58700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b32823000 CR3: 00000000672eb000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- x25_new_lci net/x25/af_x25.c:357 [inline]
- x25_connect+0x374/0xdf0 net/x25/af_x25.c:786
- __sys_connect+0x266/0x330 net/socket.c:1686
- __do_sys_connect net/socket.c:1697 [inline]
- __se_sys_connect net/socket.c:1694 [inline]
- __x64_sys_connect+0x73/0xb0 net/socket.c:1694
- do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x457e39
-Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fe8d0c57c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457e39
-RDX: 0000000000000012 RSI: 0000000020000200 RDI: 0000000000000004
-RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fe8d0c586d4
-R13: 00000000004be378 R14: 00000000004ceb00 R15: 00000000ffffffff
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+  print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
+  kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
+  __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
+  x25_kill_by_device net/x25/af_x25.c:217 [inline]
+  x25_device_event+0x296/0x2b0 net/x25/af_x25.c:252
+  notifier_call_chain+0xc7/0x240 kernel/notifier.c:93
+  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
+  raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:401
+  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1739
+  call_netdevice_notifiers_extack net/core/dev.c:1751 [inline]
+  call_netdevice_notifiers net/core/dev.c:1765 [inline]
+  __dev_notify_flags+0x1e9/0x2c0 net/core/dev.c:7607
+  dev_change_flags+0x10d/0x170 net/core/dev.c:7643
+  dev_ifsioc+0x2b0/0x940 net/core/dev_ioctl.c:237
+  dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:488
+  sock_do_ioctl+0x1bd/0x300 net/socket.c:995
+  sock_ioctl+0x32b/0x610 net/socket.c:1096
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xd6e/0x1390 fs/ioctl.c:696
+  ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4467c9
+Code: e8 0c e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 5b 07 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fdbea222d98 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00000000006dbc58 RCX: 00000000004467c9
+RDX: 0000000020000340 RSI: 0000000000008914 RDI: 0000000000000003
+RBP: 00000000006dbc50 R08: 00007fdbea223700 R09: 0000000000000000
+R10: 00007fdbea223700 R11: 0000000000000246 R12: 00000000006dbc5c
+R13: 6000030030626669 R14: 0000000000000000 R15: 0000000030626669
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Andrew Hendry <andrew.hendry@gmail.com>
-Cc: linux-x25@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Allocated by task 7843:
+  save_stack+0x45/0xd0 mm/kasan/common.c:73
+  set_track mm/kasan/common.c:85 [inline]
+  __kasan_kmalloc mm/kasan/common.c:495 [inline]
+  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:468
+  kasan_kmalloc+0x9/0x10 mm/kasan/common.c:509
+  kmem_cache_alloc_trace+0x151/0x760 mm/slab.c:3615
+  kmalloc include/linux/slab.h:545 [inline]
+  x25_link_device_up+0x46/0x3f0 net/x25/x25_link.c:249
+  x25_device_event+0x116/0x2b0 net/x25/af_x25.c:242
+  notifier_call_chain+0xc7/0x240 kernel/notifier.c:93
+  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
+  raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:401
+  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1739
+  call_netdevice_notifiers_extack net/core/dev.c:1751 [inline]
+  call_netdevice_notifiers net/core/dev.c:1765 [inline]
+  __dev_notify_flags+0x121/0x2c0 net/core/dev.c:7605
+  dev_change_flags+0x10d/0x170 net/core/dev.c:7643
+  dev_ifsioc+0x2b0/0x940 net/core/dev_ioctl.c:237
+  dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:488
+  sock_do_ioctl+0x1bd/0x300 net/socket.c:995
+  sock_ioctl+0x32b/0x610 net/socket.c:1096
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xd6e/0x1390 fs/ioctl.c:696
+  ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
----
- net/x25/af_x25.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Freed by task 7865:
+  save_stack+0x45/0xd0 mm/kasan/common.c:73
+  set_track mm/kasan/common.c:85 [inline]
+  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:457
+  kasan_slab_free+0xe/0x10 mm/kasan/common.c:465
+  __cache_free mm/slab.c:3494 [inline]
+  kfree+0xcf/0x230 mm/slab.c:3811
+  x25_neigh_put include/net/x25.h:253 [inline]
+  x25_connect+0x8d8/0xde0 net/x25/af_x25.c:824
+  __sys_connect+0x266/0x330 net/socket.c:1685
+  __do_sys_connect net/socket.c:1696 [inline]
+  __se_sys_connect net/socket.c:1693 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1693
+  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -352,17 +352,15 @@ static unsigned int x25_new_lci(struct x
- 	unsigned int lci = 1;
- 	struct sock *sk;
- 
--	read_lock_bh(&x25_list_lock);
--
--	while ((sk = __x25_find_socket(lci, nb)) != NULL) {
-+	while ((sk = x25_find_socket(lci, nb)) != NULL) {
- 		sock_put(sk);
- 		if (++lci == 4096) {
- 			lci = 0;
- 			break;
- 		}
-+		cond_resched();
- 	}
- 
--	read_unlock_bh(&x25_list_lock);
- 	return lci;
- }
- 
+The buggy address belongs to the object at ffff8880a030edc0
+  which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 16 bytes inside of
+  256-byte region [ffff8880a030edc0, ffff8880a030eec0)
+The buggy address belongs to the page:
+page:ffffea000280c380 count:1 mapcount:0 mapping:ffff88812c3f07c0 index:0x0
+flags: 0x1fffc0000000200(slab)
+raw: 01fffc0000000200 ffffea0002806788 ffffea00027f0188 ffff88812c3f07c0
+raw: 0000000000000000 ffff8880a030e000 000000010000000c 0000000000000000
+page dumped because: kasan: bad access detected
 
+Memory state around the buggy address:
+  ffff8880a030ec80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8880a030ed00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ffff8880a030ed80: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+                                                  ^
+  ffff8880a030ee00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8880a030ee80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+==================================================================
 
