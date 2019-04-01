@@ -1,151 +1,87 @@
-From: syzbot <syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com>
-Subject: Re: KASAN: use-after-free Read in x25_device_event
-Date: Sun, 10 Mar 2019 07:56:05 -0700
-Message-ID: <000000000000c3ba940583bea717@google.com>
-References: <000000000000cdc755057e2da575@google.com>
+From: syzbot <syzbot+31b6a0f5d6d5c3b75948@syzkaller.appspotmail.com>
+Subject: general protection fault in refcount_sub_and_test_checked
+Date: Mon, 01 Apr 2019 10:36:05 -0700
+Message-ID: <0000000000008424a205857b74ef@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000cdc755057e2da575@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
 Content-Transfer-Encoding: 7bit
-To: -O-request@vger.kernel.org, andrew.hendry@gmail.com, davem@davemloft.net, dvlasenk@redhat.com, edumazet@google.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: andrew.hendry@gmail.com, davem@davemloft.net, edumazet@google.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-syzbot has found a reproducer for the following crash on:
+Hello,
 
-HEAD commit:    d9862cfb Merge tag 'mips_5.1' of git://git.kernel.org/pub/..
+syzbot found the following crash on:
+
+HEAD commit:    35f861e3 net: bridge: use netif_is_bridge_port()
 git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=1531cf23200000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=73d88a42238825ad
-dashboard link: https://syzkaller.appspot.com/bug?extid=04babcefcd396fabec37
+console output: https://syzkaller.appspot.com/x/log.txt?x=10a188ab200000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=8e9bc94c16d346a6
+dashboard link: https://syzkaller.appspot.com/bug?extid=31b6a0f5d6d5c3b75948
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-userspace arch: amd64
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=100ffdad200000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16c2599d200000
+
+Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+04babcefcd396fabec37@syzkaller.appspotmail.com
+Reported-by: syzbot+31b6a0f5d6d5c3b75948@syzkaller.appspotmail.com
 
-device ifb0 entered promiscuous mode
-device ifb0 left promiscuous mode
-device ifb0 entered promiscuous mode
-device ifb0 left promiscuous mode
-==================================================================
-BUG: KASAN: use-after-free in x25_kill_by_device net/x25/af_x25.c:217  
-[inline]
-BUG: KASAN: use-after-free in x25_device_event+0x296/0x2b0  
-net/x25/af_x25.c:252
-Read of size 8 at addr ffff8880a030edd0 by task syz-executor003/7854
-
-CPU: 0 PID: 7854 Comm: syz-executor003 Not tainted 5.0.0+ #97
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 12245 Comm: syz-executor.4 Not tainted 5.1.0-rc2+ #115
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
+RIP: 0010:__read_once_size include/linux/compiler.h:193 [inline]
+RIP: 0010:arch_atomic_read arch/x86/include/asm/atomic.h:31 [inline]
+RIP: 0010:atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+RIP: 0010:refcount_sub_and_test_checked+0x8e/0x200 lib/refcount.c:182
+Code: f3 f3 65 48 8b 04 25 28 00 00 00 48 89 45 d0 31 c0 e8 36 8a 40 fe be  
+04 00 00 00 48 89 df e8 29 65 78 fe 48 89 d8 48 c1 e8 03 <42> 0f b6 14 20  
+48 89 d8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
+RSP: 0018:ffff88808d0bfbc8 EFLAGS: 00010202
+RAX: 0000000000000019 RBX: 00000000000000c8 RCX: ffffffff832fe757
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: 00000000000000c8
+RBP: ffff88808d0bfc60 R08: 1ffffffff12853c4 R09: fffffbfff12853c5
+R10: fffffbfff12853c4 R11: ffffffff89429e23 R12: dffffc0000000000
+R13: 0000000000000000 R14: ffff88808d0bfc38 R15: 1ffff11011a17f7b
+FS:  00007f4fa8af9700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000680c78 CR3: 0000000090024000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
-  print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
-  kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
-  __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:135
-  x25_kill_by_device net/x25/af_x25.c:217 [inline]
-  x25_device_event+0x296/0x2b0 net/x25/af_x25.c:252
-  notifier_call_chain+0xc7/0x240 kernel/notifier.c:93
-  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
-  raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:401
-  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1739
-  call_netdevice_notifiers_extack net/core/dev.c:1751 [inline]
-  call_netdevice_notifiers net/core/dev.c:1765 [inline]
-  __dev_notify_flags+0x1e9/0x2c0 net/core/dev.c:7607
-  dev_change_flags+0x10d/0x170 net/core/dev.c:7643
-  dev_ifsioc+0x2b0/0x940 net/core/dev_ioctl.c:237
-  dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:488
-  sock_do_ioctl+0x1bd/0x300 net/socket.c:995
-  sock_ioctl+0x32b/0x610 net/socket.c:1096
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd6e/0x1390 fs/ioctl.c:696
-  ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+  refcount_dec_and_test_checked+0x1b/0x20 lib/refcount.c:220
+  x25_neigh_put include/net/x25.h:252 [inline]
+  x25_connect+0x8d8/0xea0 net/x25/af_x25.c:825
+  __sys_connect+0x266/0x330 net/socket.c:1808
+  __do_sys_connect net/socket.c:1819 [inline]
+  __se_sys_connect net/socket.c:1816 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1816
   do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4467c9
-Code: e8 0c e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
+RIP: 0033:0x458209
+Code: ad b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 5b 07 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fdbea222d98 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00000000006dbc58 RCX: 00000000004467c9
-RDX: 0000000020000340 RSI: 0000000000008914 RDI: 0000000000000003
-RBP: 00000000006dbc50 R08: 00007fdbea223700 R09: 0000000000000000
-R10: 00007fdbea223700 R11: 0000000000000246 R12: 00000000006dbc5c
-R13: 6000030030626669 R14: 0000000000000000 R15: 0000000030626669
+ff 0f 83 7b b8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f4fa8af8c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000458209
+RDX: 0000000000000012 RSI: 00000000200000c0 RDI: 0000000000000005
+RBP: 000000000073c220 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f4fa8af96d4
+R13: 00000000004be6b3 R14: 00000000004cf2f0 R15: 00000000ffffffff
+Modules linked in:
+---[ end trace 98127f094cb116c1 ]---
+RIP: 0010:__read_once_size include/linux/compiler.h:193 [inline]
+RIP: 0010:arch_atomic_read arch/x86/include/asm/atomic.h:31 [inline]
+RIP: 0010:atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+RIP: 0010:refcount_sub_and_test_checked+0x8e/0x200 lib/refcount.c:182
 
-Allocated by task 7843:
-  save_stack+0x45/0xd0 mm/kasan/common.c:73
-  set_track mm/kasan/common.c:85 [inline]
-  __kasan_kmalloc mm/kasan/common.c:495 [inline]
-  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:468
-  kasan_kmalloc+0x9/0x10 mm/kasan/common.c:509
-  kmem_cache_alloc_trace+0x151/0x760 mm/slab.c:3615
-  kmalloc include/linux/slab.h:545 [inline]
-  x25_link_device_up+0x46/0x3f0 net/x25/x25_link.c:249
-  x25_device_event+0x116/0x2b0 net/x25/af_x25.c:242
-  notifier_call_chain+0xc7/0x240 kernel/notifier.c:93
-  __raw_notifier_call_chain kernel/notifier.c:394 [inline]
-  raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:401
-  call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1739
-  call_netdevice_notifiers_extack net/core/dev.c:1751 [inline]
-  call_netdevice_notifiers net/core/dev.c:1765 [inline]
-  __dev_notify_flags+0x121/0x2c0 net/core/dev.c:7605
-  dev_change_flags+0x10d/0x170 net/core/dev.c:7643
-  dev_ifsioc+0x2b0/0x940 net/core/dev_ioctl.c:237
-  dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:488
-  sock_do_ioctl+0x1bd/0x300 net/socket.c:995
-  sock_ioctl+0x32b/0x610 net/socket.c:1096
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd6e/0x1390 fs/ioctl.c:696
-  ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
-  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Freed by task 7865:
-  save_stack+0x45/0xd0 mm/kasan/common.c:73
-  set_track mm/kasan/common.c:85 [inline]
-  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:457
-  kasan_slab_free+0xe/0x10 mm/kasan/common.c:465
-  __cache_free mm/slab.c:3494 [inline]
-  kfree+0xcf/0x230 mm/slab.c:3811
-  x25_neigh_put include/net/x25.h:253 [inline]
-  x25_connect+0x8d8/0xde0 net/x25/af_x25.c:824
-  __sys_connect+0x266/0x330 net/socket.c:1685
-  __do_sys_connect net/socket.c:1696 [inline]
-  __se_sys_connect net/socket.c:1693 [inline]
-  __x64_sys_connect+0x73/0xb0 net/socket.c:1693
-  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-The buggy address belongs to the object at ffff8880a030edc0
-  which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 16 bytes inside of
-  256-byte region [ffff8880a030edc0, ffff8880a030eec0)
-The buggy address belongs to the page:
-page:ffffea000280c380 count:1 mapcount:0 mapping:ffff88812c3f07c0 index:0x0
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea0002806788 ffffea00027f0188 ffff88812c3f07c0
-raw: 0000000000000000 ffff8880a030e000 000000010000000c 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8880a030ec80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880a030ed00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ffff8880a030ed80: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-                                                  ^
-  ffff8880a030ee00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880a030ee80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-==================================================================
-
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
