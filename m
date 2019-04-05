@@ -1,69 +1,35 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH 4/4] isdn/i4l: Call notifiers before and after changing device type
-Date: Wed,  3 Apr 2019 07:01:18 +0200
-Message-ID: <20190403050118.12785-4-ms@dev.tdt.de>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 2/4] wan/hdlc_x25: fix skb handling
+Date: Thu, 04 Apr 2019 17:32:40 -0700 (PDT)
+Message-ID: <20190404.173240.1338878948110207179.davem@davemloft.net>
 References: <20190403050118.12785-1-ms@dev.tdt.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190403050118.12785-1-ms@dev.tdt.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-x25.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+        <20190403050118.12785-2-ms@dev.tdt.de>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, davem@davemloft.net, khc@pm.waw.pl, isdn@linux-pingi.de
-Cc: edumazet@google.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20190403050118.12785-2-ms@dev.tdt.de>
+Sender: netdev-owner@vger.kernel.org
+List-ID: <linux-x25.vger.kernel.org>
+Content-Type: Text/Plain; charset="us-ascii"
+To: ms@dev.tdt.de
+Cc: andrew.hendry@gmail.com, khc@pm.waw.pl, isdn@linux-pingi.de, edumazet@google.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
- drivers/isdn/i4l/isdn_net.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+From: Martin Schiller <ms@dev.tdt.de>
+Date: Wed,  3 Apr 2019 07:01:16 +0200
 
-diff --git a/drivers/isdn/i4l/isdn_net.c b/drivers/isdn/i4l/isdn_net.c
-index c138f66f2659..3016cbcc719a 100644
---- a/drivers/isdn/i4l/isdn_net.c
-+++ b/drivers/isdn/i4l/isdn_net.c
-@@ -2692,8 +2692,12 @@ isdn_net_setcfg(isdn_net_ioctl_cfg *cfg)
- 			       p->dev->name);
- 			return -EINVAL;
- #else
-+			rtnl_lock();
-+			call_netdevice_notifiers(NETDEV_PRE_TYPE_CHANGE, p->dev);
- 			p->dev->type = ARPHRD_PPP;	/* change ARP type */
-+			call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, p->dev);
- 			p->dev->addr_len = 0;
-+			rtnl_unlock();
- #endif
- 			break;
- 		case ISDN_NET_ENCAP_X25IFACE:
-@@ -2702,16 +2706,27 @@ isdn_net_setcfg(isdn_net_ioctl_cfg *cfg)
- 			       p->dev->name);
- 			return -EINVAL;
- #else
-+			rtnl_lock();
-+			call_netdevice_notifiers(NETDEV_PRE_TYPE_CHANGE, p->dev);
- 			p->dev->type = ARPHRD_X25;	/* change ARP type */
-+			call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, p->dev);
- 			p->dev->addr_len = 0;
-+			rtnl_unlock();
- #endif
- 			break;
- 		case ISDN_NET_ENCAP_CISCOHDLCK:
- 			break;
- 		default:
- 			if (cfg->p_encap >= 0 &&
--			    cfg->p_encap <= ISDN_NET_ENCAP_MAX_ENCAP)
-+			    cfg->p_encap <= ISDN_NET_ENCAP_MAX_ENCAP) {
-+				rtnl_lock();
-+				call_netdevice_notifiers(NETDEV_PRE_TYPE_CHANGE, p->dev);
-+				p->dev->type = ARPHRD_ETHER;	/* change ARP type */
-+				call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, p->dev);
-+				p->dev->addr_len = ETH_ALEN;
-+				rtnl_unlock();
- 				break;
-+			}
- 			printk(KERN_WARNING
- 			       "%s: encapsulation protocol %d not supported\n",
- 			       p->dev->name, cfg->p_encap);
--- 
-2.11.0
+>  	/* X.25 to LAPB */
+>  	switch (skb->data[0]) {
+>  	case X25_IFACE_DATA:	/* Data to be transmitted */
+> -		skb_pull(skb, 1);
+> -		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
+> -			dev_kfree_skb(skb);
+> -		return NETDEV_TX_OK;
+> +		skbn = skb_copy(skb, GFP_ATOMIC);
+> +		skb_pull(skbn, 1);
+> +		skb_reset_network_header(skbn);
+> +		if ((result = lapb_data_request(dev, skbn)) != LAPB_OK)
+> +			dev_kfree_skb(skbn);
 
+This leaks 'skb'.
+
+No way I'm applying this stuff.
