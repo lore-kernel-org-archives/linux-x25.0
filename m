@@ -1,53 +1,133 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH v3 1/3] net: rework SIOCGSTAMP ioctl handling
-Date: Wed, 17 Apr 2019 17:56:43 -0400
-Message-ID: <CAF=yD-KkUveFFj_j721kML0rMJF=uDcVQv+RQO4N6xjorHCtZg@mail.gmail.com>
-References: <20190417205404.1877560-1-arnd@arndb.de>
+From: syzbot <syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com>
+Subject: Re: KASAN: use-after-free Read in refcount_sub_and_test_checked (2)
+Date: Thu, 18 Apr 2019 20:45:05 -0700
+Message-ID: <000000000000be25710586d9f15a@google.com>
+References: <0000000000004a6d7c057e77e97e@google.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NBpTCXhk2LilYeHlTZ3sbhr04hptB1DMCc+g6ITMMFk=;
-        b=WvOAB7yp0DjrGk7XtpK+Eg3nRcid8g/E3xiHzSOhiM3mRCvK5eRRFosPpRH57vE5ji
-         xedtLDefaNvxYJRu+PV5moJVt7WLEpOHF9E9vxaf7g1toqmcXeEtYX3r7/G2Yr6hCsTJ
-         mWAamB+V/TGRgGbianHw5tY7hUCokegEEKhqoHV3mRrnpMkvSsAfvt+V3KBu1ifwi9vg
-         OJdHGZ+S2bHs5DcmPAR3keOObdHwo3aQkZDkPkvGVhxBYMjB0rwyWsQ2JL1+6bzQlln4
-         o8k1dfesvVNghv4Oi8jEr85OfwnGQuT2UuTECuG0TIgKnYY37c+Ml8XQ8Jty0AKBfvoS
-         oxPA==
-In-Reply-To: <20190417205404.1877560-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <0000000000004a6d7c057e77e97e@google.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Network Development <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, y2038 Mailman List <y2038@lists.linaro.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Neil Horman <nhorman@tuxdriver.com>, Marc Kleine-Budde <mkl@pengutronix.de>, Eric Dumazet <edumazet@google.com>, Willem de Bruijn <willemb@google.com>, LKML <linux-kernel@vger.kernel.org>, linux-hams@vger.kernel.org, Bluez mailing list <linux-bluetooth@vger.kernel.org>, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org, linux-x25@vger.kernel.org
+To: -O-request@vger.kernel.org, acme@kernel.org, alexander.shishkin@linux.intel.com, andrew.hendry@gmail.com, ast@kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, davem@davemloft.net, dvlasenk@redhat.com, gregkh@linuxfoundation.org, jolsa@redhat.com, kafai@fb.com, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, mingo@redhat.com, ms@dev.tdt.de, namhyung@kernel.org, netdev@vger.kernel.org, peterz@infradead.org, songliubraving@fb.com, syzkaller-bugs@googlegroups.com, yhs@fb.com
 
-On Wed, Apr 17, 2019 at 4:54 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> The SIOCGSTAMP/SIOCGSTAMPNS ioctl commands are implemented by many
-> socket protocol handlers, and all of those end up calling the same
-> sock_get_timestamp()/sock_get_timestampns() helper functions, which
-> results in a lot of duplicate code.
->
-> With the introduction of 64-bit time_t on 32-bit architectures, this
-> gets worse, as we then need four different ioctl commands in each
-> socket protocol implementation.
->
-> To simplify that, let's add a new .gettstamp() operation in
-> struct proto_ops, and move ioctl implementation into the common
-> sock_ioctl()/compat_sock_ioctl_trans() functions that these all go
-> through.
->
-> We can reuse the sock_get_timestamp() implementation, but generalize
-> it so it can deal with both native and compat mode, as well as
-> timeval and timespec structures.
->
-> Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
-> Acked-by: Neil Horman <nhorman@tuxdriver.com>
-> Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> Link: https://lore.kernel.org/lkml/CAK8P3a038aDQQotzua_QtKGhq8O9n+rdiz2=WDCp82ys8eUT+A@mail.gmail.com/
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+syzbot has found a reproducer for the following crash on:
 
-Acked-by: Willem de Bruijn <willemb@google.com>
+HEAD commit:    6d906f99 Merge tag 'arm64-fixes' of git://git.kernel.org/p..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=129b4003200000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=856fc6d0fbbeede9
+dashboard link: https://syzkaller.appspot.com/bug?extid=b0775615fa4c4479b691
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15df396b200000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: use-after-free in atomic_read  
+include/asm-generic/atomic-instrumented.h:26 [inline]
+BUG: KASAN: use-after-free in refcount_sub_and_test_checked+0x87/0x200  
+lib/refcount.c:182
+Read of size 4 at addr ffff8880a8d5e060 by task syz-executor.0/31157
+
+CPU: 0 PID: 31157 Comm: syz-executor.0 Not tainted 5.1.0-rc5+ #74
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+  print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
+  kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
+  check_memory_region_inline mm/kasan/generic.c:185 [inline]
+  check_memory_region+0x123/0x190 mm/kasan/generic.c:191
+  kasan_check_read+0x11/0x20 mm/kasan/common.c:102
+  atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
+  refcount_sub_and_test_checked+0x87/0x200 lib/refcount.c:182
+  refcount_dec_and_test_checked+0x1b/0x20 lib/refcount.c:220
+  put_task_struct include/linux/sched/task.h:97 [inline]
+  _free_event+0x3d7/0x13b0 kernel/events/core.c:4460
+  free_event+0x5f/0xd0 kernel/events/core.c:4481
+  perf_event_release_kernel+0x5b2/0xbe0 kernel/events/core.c:4642
+  perf_release+0x37/0x50 kernel/events/core.c:4656
+  __fput+0x2e5/0x8d0 fs/file_table.c:278
+  ____fput+0x16/0x20 fs/file_table.c:309
+  task_work_run+0x14a/0x1c0 kernel/task_work.c:113
+  tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+  exit_to_usermode_loop+0x273/0x2c0 arch/x86/entry/common.c:166
+  prepare_exit_to_usermode arch/x86/entry/common.c:197 [inline]
+  syscall_return_slowpath arch/x86/entry/common.c:268 [inline]
+  do_syscall_64+0x52d/0x610 arch/x86/entry/common.c:293
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4129e1
+Code: 75 14 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 e4 1a 00 00 c3 48  
+83 ec 08 e8 0a fc ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48  
+89 c2 e8 53 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
+RSP: 002b:00007ffc793703e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00000000004129e1
+RDX: 0000000000000000 RSI: 0000000000000081 RDI: 0000000000000003
+RBP: 0000000000741220 R08: 0000000000741218 R09: 000000000002c9b0
+R10: 00007ffc793704a0 R11: 0000000000000293 R12: 0000000000000000
+R13: 0000000000000001 R14: 0000000000000003 R15: 000000000073bfac
+
+Allocated by task 31160:
+  save_stack+0x45/0xd0 mm/kasan/common.c:75
+  set_track mm/kasan/common.c:87 [inline]
+  __kasan_kmalloc mm/kasan/common.c:497 [inline]
+  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:470
+  kasan_slab_alloc+0xf/0x20 mm/kasan/common.c:505
+  slab_post_alloc_hook mm/slab.h:437 [inline]
+  slab_alloc_node mm/slab.c:3337 [inline]
+  kmem_cache_alloc_node+0x131/0x710 mm/slab.c:3647
+  alloc_task_struct_node kernel/fork.c:157 [inline]
+  dup_task_struct kernel/fork.c:844 [inline]
+  copy_process.part.0+0x1d08/0x7980 kernel/fork.c:1752
+  copy_process kernel/fork.c:1709 [inline]
+  _do_fork+0x257/0xfd0 kernel/fork.c:2226
+  __do_sys_clone kernel/fork.c:2333 [inline]
+  __se_sys_clone kernel/fork.c:2327 [inline]
+  __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
+  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 31160:
+  save_stack+0x45/0xd0 mm/kasan/common.c:75
+  set_track mm/kasan/common.c:87 [inline]
+  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:459
+  kasan_slab_free+0xe/0x10 mm/kasan/common.c:467
+  __cache_free mm/slab.c:3500 [inline]
+  kmem_cache_free+0x86/0x260 mm/slab.c:3766
+  free_task_struct kernel/fork.c:162 [inline]
+  free_task+0xdd/0x120 kernel/fork.c:457
+  copy_process.part.0+0x1a3a/0x7980 kernel/fork.c:2158
+  copy_process kernel/fork.c:1709 [inline]
+  _do_fork+0x257/0xfd0 kernel/fork.c:2226
+  __do_sys_clone kernel/fork.c:2333 [inline]
+  __se_sys_clone kernel/fork.c:2327 [inline]
+  __x64_sys_clone+0xbf/0x150 kernel/fork.c:2327
+  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8880a8d5e040
+  which belongs to the cache task_struct(44:syz0) of size 6080
+The buggy address is located 32 bytes inside of
+  6080-byte region [ffff8880a8d5e040, ffff8880a8d5f800)
+The buggy address belongs to the page:
+page:ffffea0002a35780 count:1 mapcount:0 mapping:ffff88808b2adcc0 index:0x0  
+compound_mapcount: 0
+flags: 0x1fffc0000010200(slab|head)
+raw: 01fffc0000010200 ffffea0002301808 ffffea0002171f08 ffff88808b2adcc0
+raw: 0000000000000000 ffff8880a8d5e040 0000000100000001 ffff888085710580
+page dumped because: kasan: bad access detected
+page->mem_cgroup:ffff888085710580
+
+Memory state around the buggy address:
+  ffff8880a8d5df00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff8880a8d5df80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> ffff8880a8d5e000: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+                                                        ^
+  ffff8880a8d5e080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8880a8d5e100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
