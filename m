@@ -1,36 +1,80 @@
-From: syzbot <syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com>
-Subject: Re: KASAN: use-after-free Read in refcount_sub_and_test_checked (2)
-Date: Fri, 19 Apr 2019 01:21:00 -0700
-Message-ID: <0000000000008265310586ddcc2a@google.com>
-References: <0000000000004a6d7c057e77e97e@google.com>
+From: syzbot <syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com>
+Subject: memory leak in lapb_register
+Date: Tue, 21 May 2019 06:43:06 -0700
+Message-ID: <0000000000005c5d1d0589660769@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0000000000004a6d7c057e77e97e@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
 Content-Transfer-Encoding: 7bit
-To: -O-request@vger.kernel.org, acme@kernel.org, aisheng.dong@nxp.com, alexander.shishkin@linux.intel.com, andrew.hendry@gmail.com, ast@kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, davem@davemloft.net, dvlasenk@redhat.com, fabio.estevam@nxp.com, gregkh@linuxfoundation.org, jolsa@redhat.com, kafai@fb.com, kernel@pengutronix.de, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, mingo@redhat.com, ms@dev.tdt.de, mturquette@baylibre.com, namhyung@kernel.org, netdev@vger.kernel.org, peterz@infradead.org, sboyd@kernel.org, shawnguo@kernel.org, songliubraving@fb.com, syzkaller-bugs@googlegroups.com, yhs@fb.com
+To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-syzbot has bisected this bug to:
+Hello,
 
-commit cd67d3272768aa3f44c0f7cc71b82a112dce01fa
-Author: Aisheng Dong <aisheng.dong@nxp.com>
-Date:   Thu Jan 24 13:22:49 2019 +0000
+syzbot found the following crash on:
 
-     clk: imx: scu: add fallback compatible string support
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=11f0432d200000
-start commit:   6d906f99 Merge tag 'arm64-fixes' of git://git.kernel.org/p..
+HEAD commit:    f49aa1de Merge tag 'for-5.2-rc1-tag' of git://git.kernel.o..
 git tree:       upstream
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=13f0432d200000
-console output: https://syzkaller.appspot.com/x/log.txt?x=15f0432d200000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=856fc6d0fbbeede9
-dashboard link: https://syzkaller.appspot.com/bug?extid=b0775615fa4c4479b691
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15df396b200000
+console output: https://syzkaller.appspot.com/x/log.txt?x=1042cd9ca00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=61dd9e15a761691d
+dashboard link: https://syzkaller.appspot.com/bug?extid=afb980676c836b4a0afa
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11ea4654a00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=100f6f44a00000
 
-Reported-by: syzbot+b0775615fa4c4479b691@syzkaller.appspotmail.com
-Fixes: cd67d3272768 ("clk: imx: scu: add fallback compatible string  
-support")
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+g: Permanently added '10.128.0.195' (ECDSA) to the list of known hosts.
+executing program
+executing program
+BUG: memory leak
+unreferenced object 0xffff88810dadc400 (size 256):
+   comm "softirq", pid 0, jiffies 4294947366 (age 12.720s)
+   hex dump (first 32 bytes):
+     00 01 00 00 00 00 ad de 00 02 00 00 00 00 ad de  ................
+     00 20 85 17 81 88 ff ff 00 00 00 00 00 00 00 00  . ..............
+   backtrace:
+     [<00000000fe4f5aaf>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:55 [inline]
+     [<00000000fe4f5aaf>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<00000000fe4f5aaf>] slab_alloc mm/slab.c:3326 [inline]
+     [<00000000fe4f5aaf>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<0000000050cea448>] kmalloc include/linux/slab.h:547 [inline]
+     [<0000000050cea448>] kzalloc include/linux/slab.h:742 [inline]
+     [<0000000050cea448>] lapb_create_cb net/lapb/lapb_iface.c:121 [inline]
+     [<0000000050cea448>] lapb_register+0x90/0x1c0 net/lapb/lapb_iface.c:158
+     [<00000000c0d81e26>] x25_asy_open drivers/net/wan/x25_asy.c:482 [inline]
+     [<00000000c0d81e26>] x25_asy_open_tty+0x26b/0x2f6  
+drivers/net/wan/x25_asy.c:572
+     [<00000000bdec8ae5>] tty_ldisc_open.isra.0+0x40/0x70  
+drivers/tty/tty_ldisc.c:469
+     [<000000004f64cfca>] tty_set_ldisc+0x149/0x240  
+drivers/tty/tty_ldisc.c:596
+     [<00000000d8b98e91>] tiocsetd drivers/tty/tty_io.c:2332 [inline]
+     [<00000000d8b98e91>] tty_ioctl+0x366/0xa30 drivers/tty/tty_io.c:2592
+     [<00000000343f2123>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000343f2123>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000343f2123>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<00000000b777b7e5>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<0000000026d5db65>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<0000000026d5db65>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<0000000026d5db65>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<0000000006a4653e>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<00000000e706c40e>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+executing program
+executing program
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
