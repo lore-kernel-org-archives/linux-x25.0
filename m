@@ -1,72 +1,71 @@
-From: syzbot <syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com>
-Subject: memory leak in lapb_register
-Date: Tue, 21 May 2019 06:43:06 -0700
-Message-ID: <0000000000005c5d1d0589660769@google.com>
+From: syzbot <syzbot+777a2aab6ffd397407b5@syzkaller.appspotmail.com>
+Subject: KASAN: null-ptr-deref Read in x25_connect
+Date: Tue, 11 Jun 2019 00:17:05 -0700
+Message-ID: <0000000000007ce6f5058b0715ea@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
 Content-Transfer-Encoding: 7bit
-To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: allison@lohutok.net, andrew.hendry@gmail.com, arnd@arndb.de, davem@davemloft.net, edumazet@google.com, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, nhorman@tuxdriver.com, syzkaller-bugs@googlegroups.com, tglx@linutronix.de
 
 Hello,
 
 syzbot found the following crash on:
 
-HEAD commit:    f49aa1de Merge tag 'for-5.2-rc1-tag' of git://git.kernel.o..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1042cd9ca00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=61dd9e15a761691d
-dashboard link: https://syzkaller.appspot.com/bug?extid=afb980676c836b4a0afa
+HEAD commit:    f4cfcfbd net: dsa: sja1105: Fix link speed not working at ..
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=16815cd2a00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4f721a391cd46ea
+dashboard link: https://syzkaller.appspot.com/bug?extid=777a2aab6ffd397407b5
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11ea4654a00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=100f6f44a00000
+
+Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
+Reported-by: syzbot+777a2aab6ffd397407b5@syzkaller.appspotmail.com
 
-g: Permanently added '10.128.0.195' (ECDSA) to the list of known hosts.
-executing program
-executing program
-BUG: memory leak
-unreferenced object 0xffff88810dadc400 (size 256):
-   comm "softirq", pid 0, jiffies 4294947366 (age 12.720s)
-   hex dump (first 32 bytes):
-     00 01 00 00 00 00 ad de 00 02 00 00 00 00 ad de  ................
-     00 20 85 17 81 88 ff ff 00 00 00 00 00 00 00 00  . ..............
-   backtrace:
-     [<00000000fe4f5aaf>] kmemleak_alloc_recursive  
-include/linux/kmemleak.h:55 [inline]
-     [<00000000fe4f5aaf>] slab_post_alloc_hook mm/slab.h:439 [inline]
-     [<00000000fe4f5aaf>] slab_alloc mm/slab.c:3326 [inline]
-     [<00000000fe4f5aaf>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-     [<0000000050cea448>] kmalloc include/linux/slab.h:547 [inline]
-     [<0000000050cea448>] kzalloc include/linux/slab.h:742 [inline]
-     [<0000000050cea448>] lapb_create_cb net/lapb/lapb_iface.c:121 [inline]
-     [<0000000050cea448>] lapb_register+0x90/0x1c0 net/lapb/lapb_iface.c:158
-     [<00000000c0d81e26>] x25_asy_open drivers/net/wan/x25_asy.c:482 [inline]
-     [<00000000c0d81e26>] x25_asy_open_tty+0x26b/0x2f6  
-drivers/net/wan/x25_asy.c:572
-     [<00000000bdec8ae5>] tty_ldisc_open.isra.0+0x40/0x70  
-drivers/tty/tty_ldisc.c:469
-     [<000000004f64cfca>] tty_set_ldisc+0x149/0x240  
-drivers/tty/tty_ldisc.c:596
-     [<00000000d8b98e91>] tiocsetd drivers/tty/tty_io.c:2332 [inline]
-     [<00000000d8b98e91>] tty_ioctl+0x366/0xa30 drivers/tty/tty_io.c:2592
-     [<00000000343f2123>] vfs_ioctl fs/ioctl.c:46 [inline]
-     [<00000000343f2123>] file_ioctl fs/ioctl.c:509 [inline]
-     [<00000000343f2123>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
-     [<00000000b777b7e5>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
-     [<0000000026d5db65>] __do_sys_ioctl fs/ioctl.c:720 [inline]
-     [<0000000026d5db65>] __se_sys_ioctl fs/ioctl.c:718 [inline]
-     [<0000000026d5db65>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
-     [<0000000006a4653e>] do_syscall_64+0x76/0x1a0  
-arch/x86/entry/common.c:301
-     [<00000000e706c40e>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+==================================================================
+BUG: KASAN: null-ptr-deref in atomic_read  
+include/asm-generic/atomic-instrumented.h:26 [inline]
+BUG: KASAN: null-ptr-deref in refcount_sub_and_test_checked+0x87/0x200  
+lib/refcount.c:182
+Read of size 4 at addr 00000000000000c8 by task syz-executor.2/16959
 
-executing program
-executing program
+CPU: 0 PID: 16959 Comm: syz-executor.2 Not tainted 5.2.0-rc2+ #40
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+  __kasan_report.cold+0x5/0x40 mm/kasan/report.c:321
+  kasan_report+0x12/0x20 mm/kasan/common.c:614
+  check_memory_region_inline mm/kasan/generic.c:185 [inline]
+  check_memory_region+0x123/0x190 mm/kasan/generic.c:191
+  kasan_check_read+0x11/0x20 mm/kasan/common.c:94
+  atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
+  refcount_sub_and_test_checked+0x87/0x200 lib/refcount.c:182
+  refcount_dec_and_test_checked+0x1b/0x20 lib/refcount.c:220
+  x25_neigh_put include/net/x25.h:252 [inline]
+  x25_connect+0x8d8/0xea0 net/x25/af_x25.c:820
+  __sys_connect+0x264/0x330 net/socket.c:1840
+  __do_sys_connect net/socket.c:1851 [inline]
+  __se_sys_connect net/socket.c:1848 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1848
+  do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459279
+Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f09776b4c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459279
+RDX: 0000000000000012 RSI: 0000000020000280 RDI: 0000000000000004
+RBP: 000000000075bfc0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f09776b56d4
+R13: 00000000004bf854 R14: 00000000004d0e08 R15: 00000000ffffffff
+==================================================================
 
 
 ---
@@ -76,5 +75,3 @@ syzbot engineers can be reached at syzkaller@googlegroups.com.
 
 syzbot will keep track of this bug report. See:
 https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
