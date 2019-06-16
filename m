@@ -1,139 +1,64 @@
-From: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: KASAN: null-ptr-deref Read in x25_connect
-Date: Tue, 11 Jun 2019 15:28:27 +0200
-Message-ID: <CACT4Y+Zhqor0pYfqTOPoom+438aC5ut4pXcOfePmNT63N=pjBw@mail.gmail.com>
-References: <0000000000007ce6f5058b0715ea@google.com> <CAK8P3a1akOXWgAWXM0g_FYSdWUynBDRR2dAwZt8Xg5RiXhMZag@mail.gmail.com>
+From: Jeremy Sowden <jeremy@azazel.net>
+Subject: [PATCH net-next] lapb: moved export of lapb_register.
+Date: Sun, 16 Jun 2019 11:41:59 +0100
+Message-ID: <20190616104159.20268-1-jeremy@azazel.net>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <netdev-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=StBa2k+etv+yvC2hGS7t8gT8g83jR2U1gV0NJrb3dU4=;
-        b=aCngYCT5L3a5Yjl7hu4dwEPNfuMl/AcJvX/pc8Y+U5k9EXPW0zcPincay+tcutm2Qr
-         mKst9z4KTyuAu9YcO9UWjOy6HAihkn84cM5sTgw1oDRS/XNO6c2+l06sO03muuvT0tN7
-         whNEY14ieDHWAf78arnKntl6QUoA/wvSufv9IJ54NYsL5dry6ccfdDyd5ngn8HCq6X2m
-         9qksq/+geoM69U6LUgSy7QFox8gKdb7uWEml6lH5m1gRuV3dK3w6FPhkFubTm1Fwr0Uq
-         MPomI1vNhY2yuyQhrUPGHT7AeD/IRkb/aK0Vz4aS/2ciIG3z0d6cy8oG2mOULQ8jVASO
-         XQ1Q==
-In-Reply-To: <CAK8P3a1akOXWgAWXM0g_FYSdWUynBDRR2dAwZt8Xg5RiXhMZag@mail.gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=azazel.net;
+         s=20190108; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
+        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=bdCeIrTIdSE9xmVYhRdd1SVbjVAPDQT/qMUOLAS4y2Q=; b=fr7VfNJEX2vWe3SCD4smjcKsF3
+        Lqkn91Vttb+8cysg5efqqAg7Hp/7t3mzEWxXMhZKbZc4uyqMlj2Vw7Sk7teEcIcyXS62M/s8Mw+Ep
+        lEnR4e3hb6Tmy2ZBar/vkxfcAP3eHkrsJ8lTgaNc706S8/Y8R6sjeALZoyiyGq515dC/Zxm40qR0L
+        YfIMrSivKrOSGHcMUBdpuyI7ERz/kWOEggoSPXB0pkZFpN/38plyJwUKtuv4uKwH1O8IF0ln4E4VV
+        Wezql30sAC6SDWHoSXcfxLMSsOLe+N+v/tGaxipqcXGHa1DNwknCcaibHvzu11enCzFvN2LWKVUA3
+        r7eXt2 
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: syzbot <syzbot+777a2aab6ffd397407b5@syzkaller.appspotmail.com>, allison@lohutok.net, Andrew Hendry <andrew.hendry@gmail.com>, David Miller <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-x25@vger.kernel.org, ms@dev.tdt.de, Networking <netdev@vger.kernel.org>, Neil Horman <nhorman@tuxdriver.com>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Thomas Gleixner <tglx@linutronix.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 2:39 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Tue, Jun 11, 2019 at 9:18 AM syzbot
-> <syzbot+777a2aab6ffd397407b5@syzkaller.appspotmail.com> wrote:
-> >
-> > Hello,
-> >
-> > syzbot found the following crash on:
-> >
-> > HEAD commit:    f4cfcfbd net: dsa: sja1105: Fix link speed not working at ..
-> > git tree:       net
-> > console output: https://syzkaller.appspot.com/x/log.txt?x=16815cd2a00000
-> > kernel config:  https://syzkaller.appspot.com/x/.config?x=4f721a391cd46ea
-> > dashboard link: https://syzkaller.appspot.com/bug?extid=777a2aab6ffd397407b5
-> > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> >
-> > Unfortunately, I don't have any reproducer for this crash yet.
-> >
-> > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> > Reported-by: syzbot+777a2aab6ffd397407b5@syzkaller.appspotmail.com
->
-> Not sure why I was on Cc on this (I know nothing about x25),
+The EXPORT_SYMBOL for lapb_register was next to a different function.
+Moved it to the right place.
 
-syzbot uses get_maintainer.pl to find relevant people. This was
-attributed to net/x25/af_x25.c file, which looks correct. And then
-get_maintainer.pl points to you for this file:
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+---
+ net/lapb/lapb_iface.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-$ scripts/get_maintainer.pl -f net/x25/af_x25.c
-Andrew Hendry <andrew.hendry@gmail.com> (odd fixer:X.25 NETWORK LAYER)
-"David S. Miller" <davem@davemloft.net> (maintainer:NETWORKING
-[GENERAL],commit_signer:7/9=78%)
-Eric Dumazet <edumazet@google.com>
-(commit_signer:4/9=44%,authored:4/9=44%,added_lines:16/30=53%,removed_lines:10/50=20%)
-Martin Schiller <ms@dev.tdt.de>
-(commit_signer:2/9=22%,authored:2/9=22%,added_lines:11/30=37%,removed_lines:7/50=14%)
-Marc Kleine-Budde <mkl@pengutronix.de> (commit_signer:1/9=11%)
-Willem de Bruijn <willemb@google.com> (commit_signer:1/9=11%)
-Arnd Bergmann <arnd@arndb.de> (authored:1/9=11%,removed_lines:26/50=52%)
-Thomas Gleixner <tglx@linutronix.de> (authored:1/9=11%,removed_lines:6/50=12%)
-linux-x25@vger.kernel.org (open list:X.25 NETWORK LAYER)
-netdev@vger.kernel.org (open list:NETWORKING [GENERAL])
-linux-kernel@vger.kernel.org (open list)
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index 03f0cd872dce..600d754a1700 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -68,7 +68,6 @@ static void __lapb_remove_cb(struct lapb_cb *lapb)
+ 		lapb_put(lapb);
+ 	}
+ }
+-EXPORT_SYMBOL(lapb_register);
+ 
+ /*
+  *	Add a socket to the bound sockets list.
+@@ -115,7 +114,6 @@ static struct lapb_cb *lapb_create_cb(void)
+ {
+ 	struct lapb_cb *lapb = kzalloc(sizeof(*lapb), GFP_ATOMIC);
+ 
+-
+ 	if (!lapb)
+ 		goto out;
+ 
+@@ -167,6 +165,7 @@ int lapb_register(struct net_device *dev,
+ 	write_unlock_bh(&lapb_list_lock);
+ 	return rc;
+ }
++EXPORT_SYMBOL(lapb_register);
+ 
+ int lapb_unregister(struct net_device *dev)
+ {
+-- 
+2.20.1
 
-
-
-
-> but I had
-> a brief look and found that this is in the error path of x25_connect,
-> after "goto out_put_neigh", with x25->neighbour==NULL.
->
-> This would indicate that either 'x25' is being freed between the
-> "if (!x25->neighbour)" check in that function and the
-> x25_neigh_put(x25->neighbour), or that there are two concurrent
-> calls to x25_connect, with both failing, so one sets
-> x25->neighbour=NULL before the other one checks it.
->
->     Arnd
->
-> > ==================================================================
-> > BUG: KASAN: null-ptr-deref in atomic_read
-> > include/asm-generic/atomic-instrumented.h:26 [inline]
-> > BUG: KASAN: null-ptr-deref in refcount_sub_and_test_checked+0x87/0x200
-> > lib/refcount.c:182
-> > Read of size 4 at addr 00000000000000c8 by task syz-executor.2/16959
-> >
-> > CPU: 0 PID: 16959 Comm: syz-executor.2 Not tainted 5.2.0-rc2+ #40
-> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> > Google 01/01/2011
-> > Call Trace:
-> >   __dump_stack lib/dump_stack.c:77 [inline]
-> >   dump_stack+0x172/0x1f0 lib/dump_stack.c:113
-> >   __kasan_report.cold+0x5/0x40 mm/kasan/report.c:321
-> >   kasan_report+0x12/0x20 mm/kasan/common.c:614
-> >   check_memory_region_inline mm/kasan/generic.c:185 [inline]
-> >   check_memory_region+0x123/0x190 mm/kasan/generic.c:191
-> >   kasan_check_read+0x11/0x20 mm/kasan/common.c:94
-> >   atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
-> >   refcount_sub_and_test_checked+0x87/0x200 lib/refcount.c:182
-> >   refcount_dec_and_test_checked+0x1b/0x20 lib/refcount.c:220
-> >   x25_neigh_put include/net/x25.h:252 [inline]
-> >   x25_connect+0x8d8/0xea0 net/x25/af_x25.c:820
-> >   __sys_connect+0x264/0x330 net/socket.c:1840
-> >   __do_sys_connect net/socket.c:1851 [inline]
-> >   __se_sys_connect net/socket.c:1848 [inline]
-> >   __x64_sys_connect+0x73/0xb0 net/socket.c:1848
-> >   do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
-> >   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> > RIP: 0033:0x459279
-> > Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
-> > 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
-> > ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-> > RSP: 002b:00007f09776b4c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-> > RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459279
-> > RDX: 0000000000000012 RSI: 0000000020000280 RDI: 0000000000000004
-> > RBP: 000000000075bfc0 R08: 0000000000000000 R09: 0000000000000000
-> > R10: 0000000000000000 R11: 0000000000000246 R12: 00007f09776b56d4
-> > R13: 00000000004bf854 R14: 00000000004d0e08 R15: 00000000ffffffff
-> > ==================================================================
-> >
-> >
-> > ---
-> > This bug is generated by a bot. It may contain errors.
-> > See https://goo.gl/tpsmEJ for more information about syzbot.
-> > syzbot engineers can be reached at syzkaller@googlegroups.com.
-> >
-> > syzbot will keep track of this bug report. See:
-> > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
->
-> --
-> You received this message because you are subscribed to the Google Groups "syzkaller-bugs" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller-bugs+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/syzkaller-bugs/CAK8P3a1akOXWgAWXM0g_FYSdWUynBDRR2dAwZt8Xg5RiXhMZag%40mail.gmail.com.
-> For more options, visit https://groups.google.com/d/optout.
