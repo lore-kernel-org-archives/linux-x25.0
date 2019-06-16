@@ -1,64 +1,63 @@
 From: Jeremy Sowden <jeremy@azazel.net>
-Subject: [PATCH net-next] lapb: moved export of lapb_register.
-Date: Sun, 16 Jun 2019 11:41:59 +0100
-Message-ID: <20190616104159.20268-1-jeremy@azazel.net>
+Subject: [PATCH net] lapb: fixed leak of control-blocks.
+Date: Sun, 16 Jun 2019 16:54:37 +0100
+Message-ID: <20190616155437.25299-1-jeremy@azazel.net>
+References: <0000000000005c5d1d0589660769@google.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=azazel.net;
-         s=20190108; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
-        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+         s=20190108; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=bdCeIrTIdSE9xmVYhRdd1SVbjVAPDQT/qMUOLAS4y2Q=; b=fr7VfNJEX2vWe3SCD4smjcKsF3
-        Lqkn91Vttb+8cysg5efqqAg7Hp/7t3mzEWxXMhZKbZc4uyqMlj2Vw7Sk7teEcIcyXS62M/s8Mw+Ep
-        lEnR4e3hb6Tmy2ZBar/vkxfcAP3eHkrsJ8lTgaNc706S8/Y8R6sjeALZoyiyGq515dC/Zxm40qR0L
-        YfIMrSivKrOSGHcMUBdpuyI7ERz/kWOEggoSPXB0pkZFpN/38plyJwUKtuv4uKwH1O8IF0ln4E4VV
-        Wezql30sAC6SDWHoSXcfxLMSsOLe+N+v/tGaxipqcXGHa1DNwknCcaibHvzu11enCzFvN2LWKVUA3
-        r7eXt2 
+        bh=pLxt/PRVz7lVoKY2xWyunVRxavSMeR57R0akDQOSRKs=; b=EI3hw2rIl5T9ADaWw6Ej/iPXBA
+        d6T9O0YF2QFKDYgKOZxx8+J3y/LjF1HAI1Ay0etWGLt8zVDNHJZEARr9uJxYfSsBUWzoNaFdx6IyW
+        FzS7dROGuIY2ODgoZoVwPyUIeRey0yNNYARHkGVUphXpIOxeG45JC3V9WoOO++F4jd4E7F8+JhWWq
+        xLi7+TTFWBIUjq6hqvC5mWSYy5q7T7541DdeuHVv3gg4nfaLVcV+wk9AGZUP85nRCqVvXV0DQ9Zwv
+        jQoiwjr/+ITtuc6Ubfn/YeRv8Eu+L7UAc46OTIQxubcoiEBjcix6rdFDcVbMYSUCzsDQJs+EnCjb1
+        bo99wA 
+In-Reply-To: <0000000000005c5d1d0589660769@google.com>
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
 
-The EXPORT_SYMBOL for lapb_register was next to a different function.
-Moved it to the right place.
+lapb_register calls lapb_create_cb, which initializes the control-
+block's ref-count to one, and __lapb_insert_cb, which increments it when
+adding the new block to the list of blocks.
 
+lapb_unregister calls __lapb_remove_cb, which decrements the ref-count
+when removing control-block from the list of blocks, and calls lapb_put
+itself to decrement the ref-count before returning.
+
+However, lapb_unregister also calls __lapb_devtostruct to look up the
+right control-block for the given net_device, and __lapb_devtostruct
+also bumps the ref-count, which means that when lapb_unregister returns
+the ref-count is still 1 and the control-block is leaked.
+
+Call lapb_put after __lapb_devtostruct to fix leak.
+
+Reported-by: syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
 Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
 ---
- net/lapb/lapb_iface.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/lapb/lapb_iface.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
-index 03f0cd872dce..600d754a1700 100644
+index 600d754a1700..3c03f6512c5f 100644
 --- a/net/lapb/lapb_iface.c
 +++ b/net/lapb/lapb_iface.c
-@@ -68,7 +68,6 @@ static void __lapb_remove_cb(struct lapb_cb *lapb)
- 		lapb_put(lapb);
- 	}
- }
--EXPORT_SYMBOL(lapb_register);
- 
- /*
-  *	Add a socket to the bound sockets list.
-@@ -115,7 +114,6 @@ static struct lapb_cb *lapb_create_cb(void)
- {
- 	struct lapb_cb *lapb = kzalloc(sizeof(*lapb), GFP_ATOMIC);
- 
--
+@@ -176,6 +176,7 @@ int lapb_unregister(struct net_device *dev)
+ 	lapb = __lapb_devtostruct(dev);
  	if (!lapb)
  		goto out;
++	lapb_put(lapb);
  
-@@ -167,6 +165,7 @@ int lapb_register(struct net_device *dev,
- 	write_unlock_bh(&lapb_list_lock);
- 	return rc;
- }
-+EXPORT_SYMBOL(lapb_register);
- 
- int lapb_unregister(struct net_device *dev)
- {
+ 	lapb_stop_t1timer(lapb);
+ 	lapb_stop_t2timer(lapb);
 -- 
 2.20.1
 
