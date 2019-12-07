@@ -1,121 +1,108 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH] net/x25: add new state X25_STATE_5
-Date: Fri,  6 Dec 2019 14:34:18 +0100
-Message-ID: <20191206133418.14075-1-ms@dev.tdt.de>
+From: syzbot <syzbot+eec0c87f31a7c3b66f7b@syzkaller.appspotmail.com>
+Subject: BUG: unable to handle kernel NULL pointer dereference in x25_connect
+Date: Fri, 06 Dec 2019 23:15:08 -0800
+Message-ID: <0000000000001f9f5f059917ec2e@google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net
-Cc: edumazet@google.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"; delsp="yes"
+Content-Transfer-Encoding: 7bit
+To: allison@lohutok.net, andrew.hendry@gmail.com, arnd@arndb.de, davem@davemloft.net, edumazet@google.com, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, nhorman@tuxdriver.com, syzkaller-bugs@googlegroups.com, tglx@linutronix.de, willemb@google.com
 
-This is needed, because if the flag X25_ACCPT_APPRV_FLAG is not set on a
-socket (manual call confirmation) and the channel is cleared by remote
-before the manual call confirmation was sent, this situation needs to
-be handled.
+Hello,
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+syzbot found the following crash on:
+
+HEAD commit:    a350d2e7 net: thunderx: start phy before starting autonego..
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=10217c82e00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=da7be58727ceb6f7
+dashboard link: https://syzkaller.appspot.com/bug?extid=eec0c87f31a7c3b66f7b
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+
+Unfortunately, I don't have any reproducer for this crash yet.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+eec0c87f31a7c3b66f7b@syzkaller.appspotmail.com
+
+BUG: kernel NULL pointer dereference, address: 00000000000000c8
+#PF: supervisor write access in kernel mode
+#PF: error_code(0x0002) - not-present page
+PGD 97b39067 P4D 97b39067 PUD a2fba067 PMD 0
+Oops: 0002 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 28617 Comm: syz-executor.4 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+RIP: 0010:arch_atomic_fetch_sub arch/x86/include/asm/atomic.h:189 [inline]
+RIP: 0010:atomic_fetch_sub include/asm-generic/atomic-instrumented.h:200  
+[inline]
+RIP: 0010:refcount_sub_and_test include/linux/refcount.h:253 [inline]
+RIP: 0010:refcount_dec_and_test include/linux/refcount.h:281 [inline]
+RIP: 0010:x25_neigh_put include/net/x25.h:252 [inline]
+RIP: 0010:x25_connect+0x974/0x1020 net/x25/af_x25.c:820
+Code: 3c 02 00 0f 85 e4 05 00 00 4d 8b b4 24 98 04 00 00 be 04 00 00 00 bb  
+ff ff ff ff 4d 8d be c8 00 00 00 4c 89 ff e8 6c e4 ca fa <f0> 41 0f c1 9e  
+c8 00 00 00 bf 01 00 00 00 89 de e8 97 a0 8d fa 83
+RSP: 0018:ffffc90001927c78 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000ffffffff RCX: ffffffff86e75b54
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: 00000000000000c8
+RBP: ffffc90001927d90 R08: 1ffffffff1476954 R09: fffffbfff1476955
+R10: fffffbfff1476954 R11: ffffffff8a3b4aa3 R12: ffff888063f60000
+R13: 00000000fffffe00 R14: 0000000000000000 R15: 00000000000000c8
+FS:  00007f117ef4c700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000c8 CR3: 0000000064f3b000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  __sys_connect_file+0x25d/0x2e0 net/socket.c:1848
+  __sys_connect+0x51/0x90 net/socket.c:1861
+  __do_sys_connect net/socket.c:1872 [inline]
+  __se_sys_connect net/socket.c:1869 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1869
+  do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x45a679
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f117ef4bc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 000000000045a679
+RDX: 0000000000000012 RSI: 0000000020000080 RDI: 0000000000000004
+RBP: 000000000075c118 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f117ef4c6d4
+R13: 00000000004c0f1c R14: 00000000004d4c48 R15: 00000000ffffffff
+Modules linked in:
+CR2: 00000000000000c8
+---[ end trace 20e51d278d7d0fc8 ]---
+RIP: 0010:arch_atomic_fetch_sub arch/x86/include/asm/atomic.h:189 [inline]
+RIP: 0010:atomic_fetch_sub include/asm-generic/atomic-instrumented.h:200  
+[inline]
+RIP: 0010:refcount_sub_and_test include/linux/refcount.h:253 [inline]
+RIP: 0010:refcount_dec_and_test include/linux/refcount.h:281 [inline]
+RIP: 0010:x25_neigh_put include/net/x25.h:252 [inline]
+RIP: 0010:x25_connect+0x974/0x1020 net/x25/af_x25.c:820
+Code: 3c 02 00 0f 85 e4 05 00 00 4d 8b b4 24 98 04 00 00 be 04 00 00 00 bb  
+ff ff ff ff 4d 8d be c8 00 00 00 4c 89 ff e8 6c e4 ca fa <f0> 41 0f c1 9e  
+c8 00 00 00 bf 01 00 00 00 89 de e8 97 a0 8d fa 83
+RSP: 0018:ffffc90001927c78 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000ffffffff RCX: ffffffff86e75b54
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: 00000000000000c8
+RBP: ffffc90001927d90 R08: 1ffffffff1476954 R09: fffffbfff1476955
+R10: fffffbfff1476954 R11: ffffffff8a3b4aa3 R12: ffff888063f60000
+R13: 00000000fffffe00 R14: 0000000000000000 R15: 00000000000000c8
+FS:  00007f117ef4c700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000c8 CR3: 0000000064f3b000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+
 ---
- include/net/x25.h |  3 ++-
- net/x25/af_x25.c  |  8 ++++++++
- net/x25/x25_in.c  | 35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 45 insertions(+), 1 deletion(-)
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/include/net/x25.h b/include/net/x25.h
-index ed1acc3044ac..d7d6c2b4ffa7 100644
---- a/include/net/x25.h
-+++ b/include/net/x25.h
-@@ -62,7 +62,8 @@ enum {
- 	X25_STATE_1,		/* Awaiting Call Accepted */
- 	X25_STATE_2,		/* Awaiting Clear Confirmation */
- 	X25_STATE_3,		/* Data Transfer */
--	X25_STATE_4		/* Awaiting Reset Confirmation */
-+	X25_STATE_4,		/* Awaiting Reset Confirmation */
-+	X25_STATE_5		/* Call Accepted / Call Connected pending */
- };
- 
- enum {
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index c34f7d077604..2efe44a34644 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -659,6 +659,12 @@ static int x25_release(struct socket *sock)
- 			sock_set_flag(sk, SOCK_DEAD);
- 			sock_set_flag(sk, SOCK_DESTROY);
- 			break;
-+
-+		case X25_STATE_5:
-+			x25_write_internal(sk, X25_CLEAR_REQUEST);
-+			x25_disconnect(sk, 0, 0, 0);
-+			__x25_destroy_socket(sk);
-+			goto out;
- 	}
- 
- 	sock_orphan(sk);
-@@ -1054,6 +1060,8 @@ int x25_rx_call_request(struct sk_buff *skb, struct x25_neigh *nb,
- 	if (test_bit(X25_ACCPT_APPRV_FLAG, &makex25->flags)) {
- 		x25_write_internal(make, X25_CALL_ACCEPTED);
- 		makex25->state = X25_STATE_3;
-+	} else {
-+		makex25->state = X25_STATE_5;
- 	}
- 
- 	/*
-diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
-index f97c43344e95..3f0f42bdd086 100644
---- a/net/x25/x25_in.c
-+++ b/net/x25/x25_in.c
-@@ -382,6 +382,38 @@ static int x25_state4_machine(struct sock *sk, struct sk_buff *skb, int frametyp
- 	return 0;
- }
- 
-+/*
-+ * State machine for state 5, Call Accepted / Call Connected pending (X25_ACCPT_APPRV_FLAG).
-+ * The handling of the timer(s) is in file x25_timer.c
-+ * Handling of state 0 and connection release is in af_x25.c.
-+ */
-+static int x25_state5_machine(struct sock *sk, struct sk_buff *skb, int frametype)
-+{
-+	struct x25_sock *x25 = x25_sk(sk);
-+
-+	switch (frametype) {
-+
-+		case X25_CLEAR_REQUEST:
-+			if (!pskb_may_pull(skb, X25_STD_MIN_LEN + 2))
-+				goto out_clear;
-+
-+			x25_write_internal(sk, X25_CLEAR_CONFIRMATION);
-+			x25_disconnect(sk, 0, skb->data[3], skb->data[4]);
-+			break;
-+
-+		default:
-+			break;
-+	}
-+
-+	return 0;
-+
-+out_clear:
-+	x25_write_internal(sk, X25_CLEAR_REQUEST);
-+	x25->state = X25_STATE_2;
-+	x25_start_t23timer(sk);
-+	return 0;
-+}
-+
- /* Higher level upcall for a LAPB frame */
- int x25_process_rx_frame(struct sock *sk, struct sk_buff *skb)
- {
-@@ -406,6 +438,9 @@ int x25_process_rx_frame(struct sock *sk, struct sk_buff *skb)
- 	case X25_STATE_4:
- 		queued = x25_state4_machine(sk, skb, frametype);
- 		break;
-+	case X25_STATE_5:
-+		queued = x25_state5_machine(sk, skb, frametype);
-+		break;
- 	}
- 
- 	x25_kick(sk);
--- 
-2.20.1
-
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
