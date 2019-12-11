@@ -1,177 +1,41 @@
-From: Martin Schiller <ms@dev.tdt.de>
+From: khalasa@piap.pl (Krzysztof =?utf-8?Q?Ha=C5=82asa?=)
 Subject: Re: [PATCH 4/4] [RFC] staging/net: move AF_X25 into drivers/staging
-Date: Wed, 11 Dec 2019 06:58:23 +0100
-Message-ID: <0b117c3e34891c771ddb54815cff76d9@dev.tdt.de>
+Date: Wed, 11 Dec 2019 08:10:34 +0100
+Message-ID: <m3d0cvjq1h.fsf@t19.piap.pl>
 References: <20191209151256.2497534-1-arnd@arndb.de>
- <20191209151256.2497534-4-arnd@arndb.de>
- <20191209.102950.2248756181772063368.davem@davemloft.net>
- <CAK8P3a25UGV1KS1ufZsyQJk1+9Rp9is0x6eOU7pr5Xf6Z3N2gA@mail.gmail.com>
- <407acd92c92c3ba04578da89b1a0f191@dev.tdt.de>
- <CAK8P3a0X7fYFTHTQbNB56tcnAxwM9HvrLWwDkH49bGKbqSByMw@mail.gmail.com>
+        <20191209151256.2497534-4-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CAK8P3a0X7fYFTHTQbNB56tcnAxwM9HvrLWwDkH49bGKbqSByMw@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 ni.piap.pl 8B26144395F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=piap.pl; s=mail;
+        t=1576048235; bh=NzjEtJBbGMnp7Oker2Ku1W7VereultBIRwFu42VbqH0=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=ddfu2lN5c/GDpBgFP7CSUj0b136P+lVeJ7gwAXrjiOc/imCh/fKKl06s4jiNWd3W6
+         ghZTZ3rWpbxy0U0jx8x6F4oyrkOb+j4jZNenBXXxV0t87/bTxylOTmAAjyPY2pKW0j
+         p+4ER4qIEmPNUzF+DwzgjA2TKIAZAhR6S+H4y0LA=
+In-Reply-To: <20191209151256.2497534-4-arnd@arndb.de> (Arnd Bergmann's message
+        of "Mon, 9 Dec 2019 16:12:56 +0100")
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Type: text/plain; charset="macroman"
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Miller <davem@davemloft.net>, khc@pm.waw.pl, gregkh <gregkh@linuxfoundation.org>, driverdevel <devel@driverdev.osuosl.org>, Networking <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org, Kevin Curtis <kevin.curtis@farsite.com>, "R.J.Dunlop" <bob.dunlop@farsite.com>, Qiang Zhao <qiang.zhao@nxp.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, devel@driverdev.osuosl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org, Kevin Curtis <kevin.curtis@farsite.com>, "R.J.Dunlop" <bob.dunlop@farsite.com>, Zhao Qiang <qiang.zhao@nxp.com>, syzbot+429c200ffc8772bfe070@syzkaller.appspotmail.com, syzbot+eec0c87f31a7c3b66f7b@syzkaller.appspotmail.com
 
-On 2019-12-10 14:51, Arnd Bergmann wrote:
-> On Tue, Dec 10, 2019 at 9:59 AM Martin Schiller <ms@dev.tdt.de> wrote:
->> On 2019-12-09 20:26, Arnd Bergmann wrote:
->> > On Mon, Dec 9, 2019 at 7:29 PM David Miller <davem@davemloft.net>
->> > wrote:
->> >>
->> >> From: Arnd Bergmann <arnd@arndb.de>
->> >> Date: Mon,  9 Dec 2019 16:12:56 +0100
->> >>
->> >> > syzbot keeps finding issues in the X.25 implementation that nobody is
->> >> > interested in fixing.  Given that all the x25 patches of the past years
->> >> > that are not global cleanups tend to fix user-triggered oopses, is it
->> >> > time to just retire the subsystem?
->> >>
->> >> I have a bug fix that I'm currently applying to 'net' right now
->> >> actually:
->> >>
->> >>         https://patchwork.ozlabs.org/patch/1205973/
->> >>
->> >> So your proposal might be a bit premature.
->> >
->> > Ok, makes sense. Looking back in the history, I also see other bugfixes
->> > from the same author.
->> >
->> > Adding Martin Schiller to Cc: for a few questions:
->> >
->> > - What hardware are you using for X.25?
->> 
->> I would say that X.25 is (at least in Germany) not dead yet. For
->> example, it is still used in the railway network of the Deutsche Bahn 
->> AG
->> in many different areas. [1]
->> 
->> We deliver products for this and use the Linux X.25 stack with some
->> bugfixes and extensions that I would like to get upstream.
-> 
-> Right, when I looked for possible users, I found several examples
-> where X.25 is still relevant, my impression was just that none of those
-> were using the mainline Linux network stack.
-> 
-> Thank you for clarifying that.
-> 
->> As hardware/interfaces we use X.21bis/G.703 adapters, which are
->> connected via
->> HDLC_X25 and LAPB. Also for this there are extensions and bugfixes,
->> which I  would like to include in the kernel.
-> 
->> > - Would you be available to be listed in the MAINTAINERS file
->> >   as a contact for net/x25?
->> 
->> Yes, you can add me to the MAINTAINERS file.
->> I have only limited time, but I will try to follow all requests
->> concerning this subsystem.
-> 
-> Great! I don't expect there to be a lot of work, but it definitely 
-> helps
-> to have someone who can look at the occasional build failure or
-> code cleanup patch.
-> 
-> If this works for everyone, I'd submit the following patch:
-> 
-> commit b63caa9a8d86a5bfc64052bf9aab9b22181120fd (HEAD)
-> Author: Arnd Bergmann <arnd@arndb.de>
-> Date:   Tue Dec 10 14:28:39 2019 +0100
-> 
->     MAINTAINERS: add new X.25 maintainer
-> 
->     Martin Schiller is using the Linux X.25 stack on top of HDLC and
->     X.21 networks. He agreed to be listed as a maintainer to take
->     care of odd fixes.
-> 
->     Add him as the primary contact for net/x25 and net/lapb, as well
->     as a reviewer for drivers/net/wan, which contains the HDLC code.
-> 
->     Cc: Martin Schiller <ms@dev.tdt.de>
->     Cc: Andrew Hendry <andrew.hendry@gmail.com>
->     Cc: Krzysztof Halasa <khc@pm.waw.pl>
->     Link:
-> https://lore.kernel.org/netdev/407acd92c92c3ba04578da89b1a0f191@dev.tdt.de/
->     Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> 
+Arnd,
 
-ACK!
+Arnd Bergmann <arnd@arndb.de> writes:
 
-Acked-by: Martin Schiller <ms@dev.tdt.de>
+> - Most other supported HDLC hardware that we supoprt is for the ISA or
+>   PCI buses.
 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 8e58410a799a..00b624b96103 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -6889,6 +6889,7 @@ F:        
-> Documentation/i2c/muxes/i2c-mux-gpio.rst
-> 
->  GENERIC HDLC (WAN) DRIVERS
->  M:     Krzysztof Halasa <khc@pm.waw.pl>
-> +R:     Martin Schiller <ms@dev.tdt.de>
->  W:     http://www.kernel.org/pub/linux/utils/net/hdlc/
->  S:     Maintained
->  F:     drivers/net/wan/c101.c
-> @@ -9255,13 +9256,6 @@ S:       Maintained
->  F:     arch/mips/lantiq
->  F:     drivers/soc/lantiq
-> 
-> -LAPB module
-> -L:     linux-x25@vger.kernel.org
-> -S:     Orphan
-> -F:     Documentation/networking/lapb-module.txt
-> -F:     include/*/lapb.h
-> -F:     net/lapb/
-> -
->  LASI 53c700 driver for PARISC
->  M:     "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
->  L:     linux-scsi@vger.kernel.org
-> @@ -17911,11 +17905,16 @@ S:    Maintained
->  N:     axp[128]
-> 
->  X.25 NETWORK LAYER
-> +M:     Martin Schiller <ms@dev.tdt.de>
->  M:     Andrew Hendry <andrew.hendry@gmail.com>
->  L:     linux-x25@vger.kernel.org
->  S:     Odd Fixes
->  F:     Documentation/networking/x25*
-> +F:     Documentation/networking/lapb-module.txt
-> +F:     include/linux/lapb.h
->  F:     include/net/x25*
-> +F:     include/uapi/linux/x25.h
-> +F:     net/lapb/
->  F:     net/x25/
-> 
->  X86 ARCHITECTURE (32-BIT AND 64-BIT)
-> 
-> -----
->> > - Does your bug fix address the latest issue found by syzbot[1],
->> >   or do you have an idea to fix it if not?
->> 
->> I don't have a direct solution for the concrete problem mentioned 
->> above,
->> but at
->> first sight I would say that the commit 95d6ebd53c79 ("net/x25: fix
->> use-after-free in x25_device_event()") holds the wrong lock
->> (&x25_list_lock).
->> Shouldn't this be the lock &x25_neigh_list_lock as in x25_get_neigh(),
->> where x25_neigh_hold() is called?
-> 
-> After looking at it again, my best guess is something else:
-> x25_wait_for_connection_establishment() calls 
-> release_sock()/lock_sock()
-> while waiting. At this point, a concurrent x25_connect() can
-> overwrite the x25->neighbour variable, which needs to be checked
-> again before calling x25_neigh_put().
-> 
+I would be surprised if there is anybody left with ISA sync serial
+stuff, but the PCI hardware still has some users - these machines don't
+need to be upgraded yearly. Most people have migrated away, though.
+--=20
 
-That's a good point. I wonder why any further call to x25_connect() on
-the same socket isn't simply returning (EALREADY) as long as
-sock->state == SS_CONNECTING?
+Krzysztof Halasa
 
-Martin
+=C5=81UKASIEWICZ Research Network
+Industrial Research Institute for Automation and Measurements PIAP
+Al. Jerozolimskie 202, 02-486 Warsaw, Poland
