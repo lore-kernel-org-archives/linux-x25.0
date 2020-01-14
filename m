@@ -1,62 +1,189 @@
-From: Jakub Kicinski <kubakici@wp.pl>
-Subject: Re: [PATCH 1/2] wan/hdlc_x25: make lapb params configurable
-Date: Tue, 14 Jan 2020 05:45:43 -0800
-Message-ID: <20200114054543.576dbf8b@cakuba.hsd1.ca.comcast.net>
-References: <20200113124551.2570-1-ms@dev.tdt.de>
-        <20200113055316.4e811276@cakuba>
-        <83f60f76a0cf602c73361ccdb34cc640@dev.tdt.de>
-        <20200114045149.4e97f0ac@cakuba>
-        <3b439730f93e29c9e823126b74c2fbd3@dev.tdt.de>
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: [PATCH v2 1/2] wan/hdlc_x25: make lapb params configurable
+Date: Tue, 14 Jan 2020 15:02:22 +0100
+Message-ID: <20200114140223.22446-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wp.pl; s=1024a;
-          t=1579009550; bh=1OCCshn/NahZBP1gvKTaGqss5mpmUoD2DAPD0KfhKvo=;
-          h=From:To:Cc:Subject;
-          b=B/JnFwJP0YTQ5MWEM8Xjp9XJbCCGcxPqRvYh6grlUxxIwM/8vzqBbR2XVnHyR3gRg
-           Y7GFZFp2v/91NdDqQ+NgP+hZkA+uiATwvzF3lnKuecSMTZpZ1BiNen91iCBN1Dv10A
-           awohaKHajJnNbkae8aglEM90VbUWmAxTdmPY7Yak=
-In-Reply-To: <3b439730f93e29c9e823126b74c2fbd3@dev.tdt.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: khc@pm.waw.pl, davem@davemloft.net, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kubakici@wp.pl, khc@pm.waw.pl, davem@davemloft.net
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-On Tue, 14 Jan 2020 14:33:51 +0100, Martin Schiller wrote:
-> On 2020-01-14 13:51, Jakub Kicinski wrote:
-> > On Tue, 14 Jan 2020 06:37:03 +0100, Martin Schiller wrote:  
-> >> >> diff --git a/include/uapi/linux/hdlc/ioctl.h
-> >> >> b/include/uapi/linux/hdlc/ioctl.h
-> >> >> index 0fe4238e8246..3656ce8b8af0 100644
-> >> >> --- a/include/uapi/linux/hdlc/ioctl.h
-> >> >> +++ b/include/uapi/linux/hdlc/ioctl.h
-> >> >> @@ -3,7 +3,7 @@
-> >> >>  #define __HDLC_IOCTL_H__
-> >> >>
-> >> >>
-> >> >> -#define GENERIC_HDLC_VERSION 4	/* For synchronization with sethdlc
-> >> >> utility */
-> >> >> +#define GENERIC_HDLC_VERSION 5	/* For synchronization with sethdlc
-> >> >> utility */  
-> >> >
-> >> > What's the backward compatibility story in this code?  
-> >> 
-> >> Well, I thought I have to increment the version to keep the kernel 
-> >> code
-> >> and the sethdlc utility in sync (like the comment says).  
-> > 
-> > Perhaps I chose the wrong place for asking this question, IOCTL code
-> > was my real worry. I don't think this version number is validated so
-> > I think bumping it shouldn't break anything?  
-> 
-> sethdlc validates the GENERIC_HDLC_VERSION at compile time.
->
-> https://mirrors.edge.kernel.org/pub/linux/utils/net/hdlc/
+This enables you to configure mode (DTE/DCE), Modulo, Window, T1, T2, N2 via
+sethdlc (which needs to be patched as well).
 
-Aw, okay, best not to bump it then.
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+ drivers/net/wan/hdlc_x25.c      | 78 ++++++++++++++++++++++++++++++++-
+ include/uapi/linux/hdlc/ioctl.h |  9 ++++
+ include/uapi/linux/if.h         |  1 +
+ 3 files changed, 86 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index 5643675ff724..0479a2bf42f7 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -21,8 +21,17 @@
+ #include <linux/skbuff.h>
+ #include <net/x25device.h>
  
-> Another question:
-> Where do I have to send my patch for sethdlc to?
++struct x25_state {
++	x25_hdlc_proto settings;
++};
++
+ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr);
+ 
++static struct x25_state* state(hdlc_device *hdlc)
++{
++	return (struct x25_state *)hdlc->state;
++}
++
+ /* These functions are callbacks called by LAPB layer */
+ 
+ static void x25_connect_disconnect(struct net_device *dev, int reason, int code)
+@@ -132,6 +141,8 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+ static int x25_open(struct net_device *dev)
+ {
+ 	int result;
++	hdlc_device *hdlc = dev_to_hdlc(dev);
++	struct lapb_parms_struct params;
+ 	static const struct lapb_register_struct cb = {
+ 		.connect_confirmation = x25_connected,
+ 		.connect_indication = x25_connected,
+@@ -144,6 +155,26 @@ static int x25_open(struct net_device *dev)
+ 	result = lapb_register(dev, &cb);
+ 	if (result != LAPB_OK)
+ 		return result;
++
++	result = lapb_getparms(dev, &params);
++	if (result != LAPB_OK)
++		return result;
++
++	if (state(hdlc)->settings.dce)
++		params.mode = params.mode | LAPB_DCE;
++
++	if (state(hdlc)->settings.modulo == 128)
++		params.mode = params.mode | LAPB_EXTENDED;
++
++	params.window = state(hdlc)->settings.window;
++	params.t1 = state(hdlc)->settings.t1;
++	params.t2 = state(hdlc)->settings.t2;
++	params.n2 = state(hdlc)->settings.n2;
++
++	result = lapb_setparms(dev, &params);
++	if (result != LAPB_OK)
++		return result;
++
+ 	return 0;
+ }
+ 
+@@ -186,6 +217,9 @@ static struct hdlc_proto proto = {
+ 
+ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+ {
++	x25_hdlc_proto __user *x25_s = ifr->ifr_settings.ifs_ifsu.x25;
++	const size_t size = sizeof(x25_hdlc_proto);
++	x25_hdlc_proto new_settings;
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
+ 	int result;
+ 
+@@ -194,7 +228,13 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+ 		if (dev_to_hdlc(dev)->proto != &proto)
+ 			return -EINVAL;
+ 		ifr->ifr_settings.type = IF_PROTO_X25;
+-		return 0; /* return protocol only, no settable parameters */
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
++		if (copy_to_user(x25_s, &state(hdlc)->settings, size))
++			return -EFAULT;
++		return 0;
+ 
+ 	case IF_PROTO_X25:
+ 		if (!capable(CAP_NET_ADMIN))
+@@ -203,12 +243,46 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+ 		if (dev->flags & IFF_UP)
+ 			return -EBUSY;
+ 
++		/* backward compatibility */
++		if (ifr->ifr_settings.size = 0) {
++			new_settings.dce = 0;
++			new_settings.modulo = 8;
++			new_settings.window = 7;
++			new_settings.t1 = 3;
++			new_settings.t2 = 1;
++			new_settings.n2 = 10;
++		}
++		else {
++			if (copy_from_user(&new_settings, x25_s, size))
++				return -EFAULT;
++
++			if ((new_settings.dce != 0 &&
++			new_settings.dce != 1) ||
++			(new_settings.modulo != 8 &&
++			new_settings.modulo != 128) ||
++			new_settings.window < 1 ||
++			(new_settings.modulo == 8 &&
++			new_settings.window > 7) ||
++			(new_settings.modulo == 128 &&
++			new_settings.window > 127) ||
++			new_settings.t1 < 1 ||
++			new_settings.t1 > 255 ||
++			new_settings.t2 < 1 ||
++			new_settings.t2 > 255 ||
++			new_settings.n2 < 1 ||
++			new_settings.n2 > 255)
++				return -EINVAL;
++		}
++
+ 		result=hdlc->attach(dev, ENCODING_NRZ,PARITY_CRC16_PR1_CCITT);
+ 		if (result)
+ 			return result;
+ 
+-		if ((result = attach_hdlc_protocol(dev, &proto, 0)))
++		if ((result = attach_hdlc_protocol(dev, &proto,
++						   sizeof(struct x25_state))))
+ 			return result;
++
++		memcpy(&state(hdlc)->settings, &new_settings, size);
+ 		dev->type = ARPHRD_X25;
+ 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
+ 		netif_dormant_off(dev);
+diff --git a/include/uapi/linux/hdlc/ioctl.h b/include/uapi/linux/hdlc/ioctl.h
+index 0fe4238e8246..b06341acab5e 100644
+--- a/include/uapi/linux/hdlc/ioctl.h
++++ b/include/uapi/linux/hdlc/ioctl.h
+@@ -79,6 +79,15 @@ typedef struct {
+     unsigned int timeout;
+ } cisco_proto;
+ 
++typedef struct {
++	unsigned short dce; /* 1 for DCE (network side) operation */
++	unsigned int modulo; /* modulo (8 = basic / 128 = extended) */
++	unsigned int window; /* frame window size */
++	unsigned int t1; /* timeout t1 */
++	unsigned int t2; /* timeout t2 */
++	unsigned int n2; /* frame retry counter */
++} x25_hdlc_proto;
++
+ /* PPP doesn't need any info now - supply length = 0 to ioctl */
+ 
+ #endif /* __ASSEMBLY__ */
+diff --git a/include/uapi/linux/if.h b/include/uapi/linux/if.h
+index 4bf33344aab1..be714cd8c826 100644
+--- a/include/uapi/linux/if.h
++++ b/include/uapi/linux/if.h
+@@ -213,6 +213,7 @@ struct if_settings {
+ 		fr_proto		__user *fr;
+ 		fr_proto_pvc		__user *fr_pvc;
+ 		fr_proto_pvc_info	__user *fr_pvc_info;
++		x25_hdlc_proto		__user *x25;
+ 
+ 		/* interface settings */
+ 		sync_serial_settings	__user *sync;
+-- 
+2.20.1
 
-No idea :)
