@@ -1,76 +1,74 @@
 From: Martin Schiller <ms@dev.tdt.de>
-Subject: Re: [PATCH v2 1/2] wan/hdlc_x25: make lapb params configurable
-Date: Thu, 16 Jan 2020 07:03:53 +0100
-Message-ID: <c31e38ac7cde9c753e3351209ee7687d@dev.tdt.de>
-References: <20200114140223.22446-1-ms@dev.tdt.de>
- <20200115.134339.199447041886048873.davem@davemloft.net>
+Subject: [PATCH v3 2/2] wan/hdlc_x25: fix skb handling
+Date: Mon, 20 Jan 2020 07:14:16 +0100
+Message-ID: <20200120061416.27714-2-ms@dev.tdt.de>
+References: <20200120061416.27714-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200115.134339.199447041886048873.davem@davemloft.net>
+In-Reply-To: <20200120061416.27714-1-ms@dev.tdt.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: David Miller <davem@davemloft.net>
-Cc: kubakici@wp.pl, khc@pm.waw.pl, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: kubakici@wp.pl, khc@pm.waw.pl, davem@davemloft.net
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-On 2020-01-15 22:43, David Miller wrote:
-> From: Martin Schiller <ms@dev.tdt.de>
-> Date: Tue, 14 Jan 2020 15:02:22 +0100
-> 
->> This enables you to configure mode (DTE/DCE), Modulo, Window, T1, T2, 
->> N2 via
->> sethdlc (which needs to be patched as well).
->> 
->> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-> 
-> I don't know how wise it is to add new ioctls to this old driver.
+ o call skb_reset_network_header() before hdlc->xmit()
+ o change skb proto to HDLC (0x0019) before hdlc->xmit()
+ o call dev_queue_xmit_nit() before hdlc->xmit()
 
-As an user of this framework I can tell you that you need to be able to
-tune this parameters if it's used in an professional environment.
+This changes make it possible to trace (tcpdump) outgoing layer2
+(ETH_P_HDLC) packets
 
-> 
-> Also, none of these ioctls even have COMPAT handling so they will
-> never work from a 32-bit binary running on a 64-bit kernel for
-> example.
+Additionally call skb_reset_network_header() after each skb_push() /
+skb_pull().
 
-How often does this constellation occur in reality? I really have no
-idea. Our software is either 32-bit or 64-bit, not a mix.
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+ drivers/net/wan/hdlc_x25.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-> 
-> Also:
-> 
->> +static struct x25_state* state(hdlc_device *hdlc)
-> 
-> It is always "type *func" never "type* func"
-
-Ok. I will change that. I've copied that from hdlc_fr.c to keep the
-same coding style. But you are right:
-"Don't look back, always look forward." :)
-> 
->>  static int x25_open(struct net_device *dev)
->>  {
->>  	int result;
->> +	hdlc_device *hdlc = dev_to_hdlc(dev);
->> +	struct lapb_parms_struct params;
->>  	static const struct lapb_register_struct cb = {
-> 
-> Please make this reverse christmas tree ordered.
-
-OK, will do.
-
-> 
->> @@ -186,6 +217,9 @@ static struct hdlc_proto proto = {
->> 
->>  static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
->>  {
->> +	x25_hdlc_proto __user *x25_s = ifr->ifr_settings.ifs_ifsu.x25;
->> +	const size_t size = sizeof(x25_hdlc_proto);
->> +	x25_hdlc_proto new_settings;
->>  	hdlc_device *hdlc = dev_to_hdlc(dev);
->>  	int result;
-> 
-> Likewise.
-
-ditto.
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index b0252b600ae2..5d047011ab0e 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -71,11 +71,12 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	unsigned char *ptr;
+ 
+-	skb_push(skb, 1);
+-
+ 	if (skb_cow(skb, 1))
+ 		return NET_RX_DROP;
+ 
++	skb_push(skb, 1);
++	skb_reset_network_header(skb);
++
+ 	ptr  = skb->data;
+ 	*ptr = X25_IFACE_DATA;
+ 
+@@ -88,6 +89,13 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
++
++	skb_reset_network_header(skb);
++	skb->protocol = hdlc_type_trans(skb, dev);
++
++	if (dev_nit_active(dev))
++		dev_queue_xmit_nit(skb, dev);
++
+ 	hdlc->xmit(skb, dev); /* Ignore return value :-( */
+ }
+ 
+@@ -102,6 +110,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:	/* Data to be transmitted */
+ 		skb_pull(skb, 1);
++		skb_reset_network_header(skb);
+ 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
+ 			dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
+-- 
+2.20.1
 
