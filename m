@@ -1,74 +1,24 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH v4 2/2] wan/hdlc_x25: fix skb handling
-Date: Tue, 21 Jan 2020 07:00:34 +0100
-Message-ID: <20200121060034.30554-2-ms@dev.tdt.de>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v4 1/2] wan/hdlc_x25: make lapb params configurable
+Date: Tue, 21 Jan 2020 11:41:52 +0100 (CET)
+Message-ID: <20200121.114152.532453946458399573.davem@davemloft.net>
 References: <20200121060034.30554-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200121060034.30554-1-ms@dev.tdt.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: kubakici@wp.pl, khc@pm.waw.pl, davem@davemloft.net
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Content-Type: Text/Plain; charset="us-ascii"
+To: ms@dev.tdt.de
+Cc: kubakici@wp.pl, khc@pm.waw.pl, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
- o call skb_reset_network_header() before hdlc->xmit()
- o change skb proto to HDLC (0x0019) before hdlc->xmit()
- o call dev_queue_xmit_nit() before hdlc->xmit()
+From: Martin Schiller <ms@dev.tdt.de>
+Date: Tue, 21 Jan 2020 07:00:33 +0100
 
-This changes make it possible to trace (tcpdump) outgoing layer2
-(ETH_P_HDLC) packets
+> This enables you to configure mode (DTE/DCE), Modulo, Window, T1, T2, N2 via
+> sethdlc (which needs to be patched as well).
+> 
+> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 
-Additionally call skb_reset_network_header() after each skb_push() /
-skb_pull().
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
- drivers/net/wan/hdlc_x25.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index 688233c2e1ea..63c9aeed9a34 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -71,11 +71,12 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
- 	unsigned char *ptr;
- 
--	skb_push(skb, 1);
--
- 	if (skb_cow(skb, 1))
- 		return NET_RX_DROP;
- 
-+	skb_push(skb, 1);
-+	skb_reset_network_header(skb);
-+
- 	ptr  = skb->data;
- 	*ptr = X25_IFACE_DATA;
- 
-@@ -88,6 +89,13 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
- static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
- {
- 	hdlc_device *hdlc = dev_to_hdlc(dev);
-+
-+	skb_reset_network_header(skb);
-+	skb->protocol = hdlc_type_trans(skb, dev);
-+
-+	if (dev_nit_active(dev))
-+		dev_queue_xmit_nit(skb, dev);
-+
- 	hdlc->xmit(skb, dev); /* Ignore return value :-( */
- }
- 
-@@ -102,6 +110,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 	switch (skb->data[0]) {
- 	case X25_IFACE_DATA:	/* Data to be transmitted */
- 		skb_pull(skb, 1);
-+		skb_reset_network_header(skb);
- 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
- 			dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
--- 
-2.20.1
-
+Applied to net-next.
