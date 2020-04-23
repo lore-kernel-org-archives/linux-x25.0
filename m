@@ -1,49 +1,59 @@
-From: khalasa@piap.pl (Krzysztof =?utf-8?Q?Ha=C5=82asa?=)
-Subject: Re: [PATCH 1/2] wan/hdlc_x25: make lapb params configurable
-Date: Thu, 26 Mar 2020 07:08:34 +0100
-Message-ID: <m3v9mr8x7h.fsf@t19.piap.pl>
-References: <20200113124551.2570-1-ms@dev.tdt.de>
-        <20200113055316.4e811276@cakuba>
-        <83f60f76a0cf602c73361ccdb34cc640@dev.tdt.de>
-        <20200114045149.4e97f0ac@cakuba>
-        <3b439730f93e29c9e823126b74c2fbd3@dev.tdt.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Subject: [PATCH] net/x25: Fix x25_neigh refcnt leak when reveiving frame
+Date: Thu, 23 Apr 2020 13:13:03 +0800
+Message-ID: <1587618786-13481-1-git-send-email-xiyuyang19@fudan.edu.cn>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 ni.piap.pl D5531441EC3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=piap.pl; s=mail;
-        t=1585202916; bh=clbKiLn6qUATsS6QO/fUtOXJXjf33KFTkCDMmyg02uo=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=iMNGF6WY331i4QFJdjveDasWP1Hd62KJpkcDJOlPrBkYPAQrC+vnXjbe133okFxbp
-         H2MxtXbpUrITB5OuZLtd+QNjKlR+T9eiTVHH1zHbMoZeQEpHekNtG8lfmhicQaLYv3
-         OK76HTmXZ7SePtnbguhSuGkUa0KEdFdUIxEno7E8=
-In-Reply-To: <3b439730f93e29c9e823126b74c2fbd3@dev.tdt.de> (Martin Schiller's
-        message of "Tue, 14 Jan 2020 14:33:51 +0100")
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fudan.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+        Message-Id; bh=00QdfgWbICLjOQqr+eyyelgIderli09+aEykugx5RcA=; b=F
+        bnfA7t8ONTH01mN0KCRERzjifAVRWkGUYtSH0ZPEBP6ZxwIoGdY9uwTI50iCFEZq
+        xotLnqPIILyeyEa7dEyavkI4erm2hIxwDj7lH3Frz+TrBpDj+cJoVxjIPRadg0/X
+        R9m7LIVIKeMCIg/QqetSlBrAIVFfKlxpkXmM0EG3Q4=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="macroman"
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: Jakub Kicinski <kubakici@wp.pl>, khc@pm.waw.pl, davem@davemloft.net, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Eric Dumazet <edumazet@google.com>, Allison Randal <allison@lohutok.net>, Xiyu Yang <xiyuyang19@fudan.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: yuanxzhang@fudan.edu.cn, kjlu@umn.edu, Xin Tan <tanxin.ctf@gmail.com>
 
-Hi,
+x25_lapb_receive_frame() invokes x25_get_neigh(), which returns a
+reference of the specified x25_neigh object to "nb" with increased
+refcnt.
 
-I overlooked this mail, sorry.
+When x25_lapb_receive_frame() returns, local variable "nb" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Martin Schiller <ms@dev.tdt.de> writes:
+The reference counting issue happens in one path of
+x25_lapb_receive_frame(). When pskb_may_pull() returns false, the
+function forgets to decrease the refcnt increased by x25_get_neigh(),
+causing a refcnt leak.
 
-> sethdlc validates the GENERIC_HDLC_VERSION at compile time.
->
-> https://mirrors.edge.kernel.org/pub/linux/utils/net/hdlc/
->
-> Another question:
-> Where do I have to send my patch for sethdlc to?
+Fix this issue by calling x25_neigh_put() when pskb_may_pull() returns
+false.
 
-I guess you have to put your own version somewhere. I don't have access
-to hdlc directory at kernel.org anymore, this stuff (sync serial with
-HDLC) is no longer in use around here.
---=20
-Krzysztof Halasa
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+---
+ net/x25/x25_dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-=C5=81UKASIEWICZ Research Network
-Industrial Research Institute for Automation and Measurements PIAP
-Al. Jerozolimskie 202, 02-486 Warsaw, Poland
+diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
+index 00e782335cb0..25bf72ee6cad 100644
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -115,8 +115,10 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
+ 		goto drop;
+ 	}
+ 
+-	if (!pskb_may_pull(skb, 1))
++	if (!pskb_may_pull(skb, 1)) {
++		x25_neigh_put(nb);
+ 		return 0;
++	}
+ 
+ 	switch (skb->data[0]) {
+ 
+-- 
+2.7.4
+
