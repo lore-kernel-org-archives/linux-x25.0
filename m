@@ -1,8 +1,8 @@
-From: Yuehaibing <yuehaibing@huawei.com>
+From: Martin Schiller <ms@dev.tdt.de>
 Subject: Re: [PATCH 1/2] net/x25: Fix x25_neigh refcnt leak when x25_connect()
  fails
-Date: Thu, 23 Apr 2020 14:36:51 +0800
-Message-ID: <8636fc9a-001a-9d48-087b-7f243527cd99@huawei.com>
+Date: Thu, 23 Apr 2020 09:00:42 +0200
+Message-ID: <fccc5247bb916ccbd9a4c2ef8c6e76e4@dev.tdt.de>
 References: <1587618822-13544-1-git-send-email-xiyuyang19@fudan.edu.cn>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -10,11 +10,11 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1587618822-13544-1-git-send-email-xiyuyang19@fudan.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Xiyu Yang <xiyuyang19@fudan.edu.cn>, Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, Eric Dumazet <edumazet@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: yuanxzhang@fudan.edu.cn, kjlu@umn.edu, Xin Tan <tanxin.ctf@gmail.com>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, yuanxzhang@fudan.edu.cn, kjlu@umn.edu, Xin Tan <tanxin.ctf@gmail.com>
 
-On 2020/4/23 13:13, Xiyu Yang wrote:
+On 2020-04-23 07:13, Xiyu Yang wrote:
 > x25_connect() invokes x25_get_neigh(), which returns a reference of the
 > specified x25_neigh object to "x25->neighbour" with increased refcnt.
 > 
@@ -29,6 +29,18 @@ On 2020/4/23 13:13, Xiyu Yang wrote:
 > 
 > Fix this issue by jumping to "out_put_neigh" label when x25_connect()
 > fails.
+
+I don't agree with that.
+Please have a look at commit e21dba7a4df4 ("net/x25: fix nonblocking 
+connect).
+
+But I also think you are right and there seems to be a refcnt leak,
+which should be fixed by a call to x25_neigh_put() in the
+x25_disconnect() function.
+
+- Martin
+
+
 > 
 > Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 > Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
@@ -40,19 +52,14 @@ On 2020/4/23 13:13, Xiyu Yang wrote:
 > index d5b09bbff375..e6571c56209b 100644
 > --- a/net/x25/af_x25.c
 > +++ b/net/x25/af_x25.c
-> @@ -816,7 +816,7 @@ static int x25_connect(struct socket *sock, struct sockaddr *uaddr,
+> @@ -816,7 +816,7 @@ static int x25_connect(struct socket *sock, struct
+> sockaddr *uaddr,
 >  	/* Now the loop */
 >  	rc = -EINPROGRESS;
 >  	if (sk->sk_state != TCP_ESTABLISHED && (flags & O_NONBLOCK))
 > -		goto out;
 > +		goto out_put_neigh;
-
-This seems not right, see
-
-commit e21dba7a4df4 ("net/x25: fix nonblocking connect")
-
->  
+> 
 >  	rc = x25_wait_for_connection_establishment(sk);
 >  	if (rc)
-> 
 
