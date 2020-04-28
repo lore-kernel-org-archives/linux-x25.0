@@ -1,30 +1,30 @@
-From: syzbot <syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com>
-Subject: net test error: KASAN: null-ptr-deref Write in x25_disconnect
+From: syzbot <syzbot+6b89cf96299c875daf8a@syzkaller.appspotmail.com>
+Subject: bpf test error: KASAN: null-ptr-deref Write in x25_disconnect
 Date: Mon, 27 Apr 2020 21:58:13 -0700
-Message-ID: <000000000000cbf17205a452ad4f@google.com>
+Message-ID: <000000000000d06aa005a452ad5c@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, tanxin.ctf@gmail.com, tglx@linutronix.de, xiyuyang19@fudan.edu.cn
+To: allison@lohutok.net, andrew.hendry@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, tanxin.ctf@gmail.com, tglx@linutronix.de, xiyuyang19@fudan.edu.cn
 
 Hello,
 
 syzbot found the following crash on:
 
-HEAD commit:    37255e7a Merge tag 'batadv-net-for-davem-20200427' of git:..
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=12b2e5d8100000
+HEAD commit:    18f02ad1 bpf: Fix sk_psock refcnt leak when receiving mess..
+git tree:       bpf
+console output: https://syzkaller.appspot.com/x/log.txt?x=14fc2208100000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=b7a70e992f2f9b68
-dashboard link: https://syzkaller.appspot.com/bug?extid=6db548b615e5aeefdce2
+dashboard link: https://syzkaller.appspot.com/bug?extid=6b89cf96299c875daf8a
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 
 Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
+Reported-by: syzbot+6b89cf96299c875daf8a@syzkaller.appspotmail.com
 
 can: request_module (can-proto-0) failed.
 can: request_module (can-proto-0) failed.
@@ -35,9 +35,9 @@ BUG: KASAN: null-ptr-deref in refcount_sub_and_test include/linux/refcount.h:266
 BUG: KASAN: null-ptr-deref in refcount_dec_and_test include/linux/refcount.h:294 [inline]
 BUG: KASAN: null-ptr-deref in x25_neigh_put include/net/x25.h:253 [inline]
 BUG: KASAN: null-ptr-deref in x25_disconnect+0x253/0x370 net/x25/x25_subr.c:361
-Write of size 4 at addr 00000000000000d8 by task syz-fuzzer/7147
+Write of size 4 at addr 00000000000000d8 by task syz-fuzzer/7029
 
-CPU: 0 PID: 7147 Comm: syz-fuzzer Not tainted 5.7.0-rc2-syzkaller #0
+CPU: 0 PID: 7029 Comm: syz-fuzzer Not tainted 5.7.0-rc2-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
  __dump_stack lib/dump_stack.c:77 [inline]
@@ -64,12 +64,12 @@ Call Trace:
  entry_SYSCALL_64_after_hwframe+0x49/0xb3
 RIP: 0033:0x4afb40
 Code: 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 49 c7 c2 00 00 00 00 49 c7 c0 00 00 00 00 49 c7 c1 00 00 00 00 48 8b 44 24 08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44 24 30
-RSP: 002b:000000c0001e94f8 EFLAGS: 00000216 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 000000c00002c000 RCX: 00000000004afb40
+RSP: 002b:000000c0001d94f8 EFLAGS: 00000216 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 000000c00002e500 RCX: 00000000004afb40
 RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 000000c0001e9538 R08: 0000000000000000 R09: 0000000000000000
+RBP: 000000c0001d9538 R08: 0000000000000000 R09: 0000000000000000
 R10: 0000000000000000 R11: 0000000000000216 R12: ffffffffffffffff
-R13: 0000000000000164 R14: 0000000000000163 R15: 0000000000000200
+R13: 0000000000000163 R14: 0000000000000162 R15: 0000000000000200
 ==================================================================
 
 
