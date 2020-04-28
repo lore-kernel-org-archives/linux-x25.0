@@ -1,37 +1,82 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] net/x25: Fix x25_neigh refcnt leak when x25
- disconnect
-Date: Mon, 27 Apr 2020 11:20:54 -0700 (PDT)
-Message-ID: <20200427.112054.486660514927430577.davem@davemloft.net>
-References: <1587819994-40137-1-git-send-email-xiyuyang19@fudan.edu.cn>
+From: syzbot <syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com>
+Subject: net test error: KASAN: null-ptr-deref Write in x25_disconnect
+Date: Mon, 27 Apr 2020 21:58:13 -0700
+Message-ID: <000000000000cbf17205a452ad4f@google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1587819994-40137-1-git-send-email-xiyuyang19@fudan.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: xiyuyang19@fudan.edu.cn
-Cc: andrew.hendry@gmail.com, kuba@kernel.org, tanxin.ctf@gmail.com, gregkh@linuxfoundation.org, allison@lohutok.net, tglx@linutronix.de, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, yuanxzhang@fudan.edu.cn, kjlu@umn.edu
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: andrew.hendry@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, tanxin.ctf@gmail.com, tglx@linutronix.de, xiyuyang19@fudan.edu.cn
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Date: Sat, 25 Apr 2020 21:06:25 +0800
+Hello,
 
-> x25_connect() invokes x25_get_neigh(), which returns a reference of the
-> specified x25_neigh object to "x25->neighbour" with increased refcnt.
-> 
-> When x25 connect success and returns, the reference still be hold by
-> "x25->neighbour", so the refcount should be decreased in
-> x25_disconnect() to keep refcount balanced.
-> 
-> The reference counting issue happens in x25_disconnect(), which forgets
-> to decrease the refcnt increased by x25_get_neigh() in x25_connect(),
-> causing a refcnt leak.
-> 
-> Fix this issue by calling x25_neigh_put() before x25_disconnect()
-> returns.
-> 
-> Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-> Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+syzbot found the following crash on:
 
-Applied.
+HEAD commit:    37255e7a Merge tag 'batadv-net-for-davem-20200427' of git:..
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=12b2e5d8100000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=b7a70e992f2f9b68
+dashboard link: https://syzkaller.appspot.com/bug?extid=6db548b615e5aeefdce2
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+
+Unfortunately, I don't have any reproducer for this crash yet.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
+
+can: request_module (can-proto-0) failed.
+can: request_module (can-proto-0) failed.
+can: request_module (can-proto-0) failed.
+==================================================================
+BUG: KASAN: null-ptr-deref in atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
+BUG: KASAN: null-ptr-deref in refcount_sub_and_test include/linux/refcount.h:266 [inline]
+BUG: KASAN: null-ptr-deref in refcount_dec_and_test include/linux/refcount.h:294 [inline]
+BUG: KASAN: null-ptr-deref in x25_neigh_put include/net/x25.h:253 [inline]
+BUG: KASAN: null-ptr-deref in x25_disconnect+0x253/0x370 net/x25/x25_subr.c:361
+Write of size 4 at addr 00000000000000d8 by task syz-fuzzer/7147
+
+CPU: 0 PID: 7147 Comm: syz-fuzzer Not tainted 5.7.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ check_memory_region+0x141/0x190 mm/kasan/generic.c:193
+ atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
+ refcount_sub_and_test include/linux/refcount.h:266 [inline]
+ refcount_dec_and_test include/linux/refcount.h:294 [inline]
+ x25_neigh_put include/net/x25.h:253 [inline]
+ x25_disconnect+0x253/0x370 net/x25/x25_subr.c:361
+ x25_release+0x345/0x420 net/x25/af_x25.c:665
+ __sock_release+0xcd/0x280 net/socket.c:605
+ sock_close+0x18/0x20 net/socket.c:1283
+ __fput+0x33e/0x880 fs/file_table.c:280
+ task_work_run+0xf4/0x1b0 kernel/task_work.c:123
+ tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+ exit_to_usermode_loop+0x2fa/0x360 arch/x86/entry/common.c:165
+ prepare_exit_to_usermode arch/x86/entry/common.c:196 [inline]
+ syscall_return_slowpath arch/x86/entry/common.c:279 [inline]
+ do_syscall_64+0x6b1/0x7d0 arch/x86/entry/common.c:305
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x4afb40
+Code: 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 49 c7 c2 00 00 00 00 49 c7 c0 00 00 00 00 49 c7 c1 00 00 00 00 48 8b 44 24 08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44 24 30
+RSP: 002b:000000c0001e94f8 EFLAGS: 00000216 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 000000c00002c000 RCX: 00000000004afb40
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: 000000c0001e9538 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000216 R12: ffffffffffffffff
+R13: 0000000000000164 R14: 0000000000000163 R15: 0000000000000200
+==================================================================
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
