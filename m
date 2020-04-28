@@ -1,75 +1,30 @@
-From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH] net/x25: Fix null-ptr-deref in x25_disconnect
-Date: Tue, 28 Apr 2020 16:12:08 +0800
-Message-ID: <20200428081208.26308-1-yuehaibing@huawei.com>
-References: <000000000000cbf17205a452ad4f@google.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH] net/x25: Fix null-ptr-deref in x25_disconnect
+Date: Tue, 28 Apr 2020 19:52:44 +0200
+Message-ID: <2638b7a4-4c19-ca4d-3931-7442378b3b30@web.de>
 Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000cbf17205a452ad4f@google.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1588096373;
+        bh=tnjQv2P9gGiR9Mb9PDJN0nYvFGdtYNLKJDSs4Sk2/Wg=;
+        h=X-UI-Sender-Class:Cc:Subject:To:From:Date;
+        b=YWWcul4nCyZy4q/m9sIPWVgxeHXOqy4GKNkUhCkxeEi0o3cg4DhWAabyuyngxrBKW
+         +bxwPzloZkbJwV200G4wkj4Hm8EC1e4LdwRfNs6cSwQwZNlcwYpX9wWouyLlZIHOLC
+         a7OVYOvcIDa/NG8Gx8X0eRwZpZE1j25wgS/cL+o8=
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, allison@lohutok.net, tglx@linutronix.de, gregkh@linuxfoundation.org, tanxin.ctf@gmail.com, xiyuyang19@fudan.edu.cn
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+To: YueHaibing <yuehaibing@huawei.com>, linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Allison Randal <allison@lohutok.net>, Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jakub Kicinski <kuba@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Xin Tan <tanxin.ctf@gmail.com>, Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-We should check null before do x25_neigh_put in x25_disconnect,
-otherwise may cause null-ptr-deref like this:
+> We should check null before do x25_neigh_put in x25_disconnect,
+> otherwise may cause null-ptr-deref like this:
 
- #include <sys/socket.h>
- #include <linux/x25.h>
+Will it be clearer to use the term =E2=80=9Cnull pointer dereference=E2=80=
+=9D
+in the final commit subject?
 
- int main() {
-    int sck_x25;
-    sck_x25 = socket(AF_X25, SOCK_SEQPACKET, 0);
-    close(sck_x25);
-    return 0;
- }
- 
-BUG: kernel NULL pointer dereference, address: 00000000000000d8
-CPU: 0 PID: 4817 Comm: t2 Not tainted 5.7.0-rc3+ #159
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-
-RIP: 0010:x25_disconnect+0x91/0xe0
-Call Trace:
- x25_release+0x18a/0x1b0
- __sock_release+0x3d/0xc0
- sock_close+0x13/0x20
- __fput+0x107/0x270
- ____fput+0x9/0x10
- task_work_run+0x6d/0xb0
- exit_to_usermode_loop+0x102/0x110
- do_syscall_64+0x23c/0x260
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Reported-by: syzbot+6db548b615e5aeefdce2@syzkaller.appspotmail.com
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
----
- net/x25/x25_subr.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/net/x25/x25_subr.c b/net/x25/x25_subr.c
-index 8b1b06cabcbf..0285aaa1e93c 100644
---- a/net/x25/x25_subr.c
-+++ b/net/x25/x25_subr.c
-@@ -357,10 +357,12 @@ void x25_disconnect(struct sock *sk, int reason, unsigned char cause,
- 		sk->sk_state_change(sk);
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
--	read_lock_bh(&x25_list_lock);
--	x25_neigh_put(x25->neighbour);
--	x25->neighbour = NULL;
--	read_unlock_bh(&x25_list_lock);
-+	if (x25->neighbour) {
-+		read_lock_bh(&x25_list_lock);
-+		x25_neigh_put(x25->neighbour);
-+		x25->neighbour = NULL;
-+		read_unlock_bh(&x25_list_lock);
-+	}
- }
- 
- /*
--- 
-2.17.1
-
-
+Regards,
+Markus
