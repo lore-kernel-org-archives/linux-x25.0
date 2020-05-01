@@ -1,182 +1,107 @@
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 00/37]net: manually convert files to ReST format - part 3 (final)
-Date: Fri,  1 May 2020 16:44:22 +0200
-Message-ID: <cover.1588344146.git.mchehab+huawei@kernel.org>
+Subject: [PATCH 05/37] docs: networking: convert x25-iface.txt to ReST
+Date: Fri,  1 May 2020 16:44:27 +0200
+Message-ID: <747ea578cab7a4329ad7eca89581ade529d445c0.1588344146.git.mchehab+huawei@kernel.org>
+References: <cover.1588344146.git.mchehab+huawei@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1588344305;
-        bh=pgEeloihUJtDW9NEkL6jmFDK/ZInSPDNQO7niKknL3E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SVEs1VMhjyuHELBkXcF4/1fWlbsaS7MgiAohJ3ePux485XSRhFIw+LT9CMyjWvZFi
-         ihz7fPrKmb/CyIscv5iZo1ghZ6L6por1RndA5qbcxiN/hqpCEtOv80OoyKzd7LfsEg
-         e5L/qaobT9VXcglAQbs4CKkx5QoFsFVnzoG5mfmc=
-Sender: netdev-owner@vger.kernel.org
+        bh=qnf8XB2sEvNbUjilUQrtdoc9qtKZcKErFRomPjC8WmU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XS/5CnfNpKA3CcZvL9fHS7jl56bXpsuK5ZmPcFI79Cvhyh0XsfkprkBD7DQyOIXJi
+         6TWwHNH3pZ+dMZ6kc+yTYEO0KYySfMN39aUEnqzs38y9oK02PVdb9iyM67Aqousl3t
+         tJPcMS55MA789/A1mlJ9aF/2Y1/uCfMIZVsIf0y8=
+In-Reply-To: <cover.1588344146.git.mchehab+huawei@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Samuel Chessman <chessman@tux.org>, netdev@vger.kernel.org, Andrew Hendry <andrew.hendry@gmail.com>, Zorik Machulsky <zorik@amazon.com>, Sean Tranchetti <stranche@codeaurora.org>, Igor Russkikh <irusskikh@marvell.com>, Jon Mason <jdmason@kudzu.us>, Haiyang Zhang <haiyangz@microsoft.com>, linux-x25@vger.kernel.org, Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, Jakub Kicinski <kuba@kernel.org>, Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>, David Ahern <dsahern@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Ishizaki Kou <kou.ishizaki@toshiba.co.jp>, Joerg Reuter <jreuter@yaina.de>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Andrew Hendry <andrew.hendry@gmail.com>, netdev@vger.kernel.org, linux-x25@vger.kernel.org
 
-That's the third part (and the final one) of my work to convert the networking
-text files into ReST. it is based on linux-next next-20200430 branch.
+Not much to be done here:
 
-The full series (including those ones) are at:
+- add SPDX header;
+- adjust title markup;
+- remove a tail whitespace;
+- add to networking/index.rst.
 
-	https://git.linuxtv.org/mchehab/experimental.git/log/?h=net-docs
-
-The  built output documents, on html format is at:
-
-	https://www.infradead.org/~mchehab/kernel_docs/networking/
-
-
-Mauro Carvalho Chehab (37):
-  docs: networking: convert tuntap.txt to ReST
-  docs: networking: convert udplite.txt to ReST
-  docs: networking: convert vrf.txt to ReST
-  docs: networking: convert vxlan.txt to ReST
-  docs: networking: convert x25-iface.txt to ReST
-  docs: networking: convert x25.txt to ReST
-  docs: networking: convert xfrm_device.txt to ReST
-  docs: networking: convert xfrm_proc.txt to ReST
-  docs: networking: convert xfrm_sync.txt to ReST
-  docs: networking: convert xfrm_sysctl.txt to ReST
-  docs: networking: convert z8530drv.txt to ReST
-  docs: networking: device drivers: convert 3com/3c509.txt to ReST
-  docs: networking: device drivers: convert 3com/vortex.txt to ReST
-  docs: networking: device drivers: convert amazon/ena.txt to ReST
-  docs: networking: device drivers: convert aquantia/atlantic.txt to
-    ReST
-  docs: networking: device drivers: convert chelsio/cxgb.txt to ReST
-  docs: networking: device drivers: convert cirrus/cs89x0.txt to ReST
-  docs: networking: device drivers: convert davicom/dm9000.txt to ReST
-  docs: networking: device drivers: convert dec/de4x5.txt to ReST
-  docs: networking: device drivers: convert dec/dmfe.txt to ReST
-  docs: networking: device drivers: convert dlink/dl2k.txt to ReST
-  docs: networking: device drivers: convert freescale/dpaa.txt to ReST
-  docs: networking: device drivers: convert freescale/gianfar.txt to
-    ReST
-  docs: networking: device drivers: convert intel/ipw2100.txt to ReST
-  docs: networking: device drivers: convert intel/ipw2200.txt to ReST
-  docs: networking: device drivers: convert microsoft/netvsc.txt to ReST
-  docs: networking: device drivers: convert neterion/s2io.txt to ReST
-  docs: networking: device drivers: convert neterion/vxge.txt to ReST
-  docs: networking: device drivers: convert qualcomm/rmnet.txt to ReST
-  docs: networking: device drivers: convert sb1000.txt to ReST
-  docs: networking: device drivers: convert smsc/smc9.txt to ReST
-  docs: networking: device drivers: convert ti/cpsw_switchdev.txt to
-    ReST
-  docs: networking: device drivers: convert ti/cpsw.txt to ReST
-  docs: networking: device drivers: convert ti/tlan.txt to ReST
-  docs: networking: device drivers: convert toshiba/spider_net.txt to
-    ReST
-  net: docs: add page_pool.rst to index.rst
-  docs: networking: arcnet-hardware.rst: don't duplicate chapter names
-
- Documentation/networking/arcnet-hardware.rst  |   8 +-
- .../3com/{3c509.txt => 3c509.rst}             | 158 +++--
- .../3com/{vortex.txt => vortex.rst}           | 223 ++++---
- .../amazon/{ena.txt => ena.rst}               | 142 ++--
- .../aquantia/{atlantic.txt => atlantic.rst}   | 373 ++++++-----
- .../chelsio/{cxgb.txt => cxgb.rst}            | 183 ++++--
- .../cirrus/{cs89x0.txt => cs89x0.rst}         | 557 ++++++++--------
- .../davicom/{dm9000.txt => dm9000.rst}        |  24 +-
- .../dec/{de4x5.txt => de4x5.rst}              | 105 +--
- .../device_drivers/dec/{dmfe.txt => dmfe.rst} |  35 +-
- .../dlink/{dl2k.txt => dl2k.rst}              | 228 ++++---
- .../freescale/{dpaa.txt => dpaa.rst}          | 139 ++--
- .../freescale/{gianfar.txt => gianfar.rst}    |  21 +-
- .../networking/device_drivers/index.rst       |  24 +
- .../intel/{ipw2100.txt => ipw2100.rst}        | 242 ++++---
- .../intel/{ipw2200.txt => ipw2200.rst}        | 410 +++++++-----
- .../microsoft/{netvsc.txt => netvsc.rst}      |  57 +-
- .../device_drivers/neterion/s2io.rst          | 196 ++++++
- .../device_drivers/neterion/s2io.txt          | 141 ----
- .../neterion/{vxge.txt => vxge.rst}           |  60 +-
- .../qualcomm/{rmnet.txt => rmnet.rst}         |  43 +-
- .../networking/device_drivers/sb1000.rst      | 222 +++++++
- .../networking/device_drivers/sb1000.txt      | 207 ------
- .../networking/device_drivers/smsc/smc9.rst   |  49 ++
- .../networking/device_drivers/smsc/smc9.txt   |  42 --
- .../networking/device_drivers/ti/cpsw.rst     | 587 +++++++++++++++++
- .../networking/device_drivers/ti/cpsw.txt     | 541 ----------------
- ...{cpsw_switchdev.txt => cpsw_switchdev.rst} | 239 ++++---
- .../device_drivers/ti/{tlan.txt => tlan.rst}  |  73 ++-
- .../{spider_net.txt => spider_net.rst}        |  58 +-
- Documentation/networking/index.rst            |  12 +
- .../networking/{tuntap.txt => tuntap.rst}     | 200 +++---
- .../networking/{udplite.txt => udplite.rst}   | 175 ++---
- Documentation/networking/vrf.rst              | 451 +++++++++++++
- Documentation/networking/vrf.txt              | 418 ------------
- .../networking/{vxlan.txt => vxlan.rst}       |  33 +-
- .../{x25-iface.txt => x25-iface.rst}          |  10 +-
- Documentation/networking/{x25.txt => x25.rst} |   4 +
- .../{xfrm_device.txt => xfrm_device.rst}      |  33 +-
- .../{xfrm_proc.txt => xfrm_proc.rst}          |  31 +
- .../{xfrm_sync.txt => xfrm_sync.rst}          |  66 +-
- .../{xfrm_sysctl.txt => xfrm_sysctl.rst}      |   7 +
- .../networking/{z8530drv.txt => z8530drv.rst} | 609 +++++++++---------
- MAINTAINERS                                   |  30 +-
- drivers/net/Kconfig                           |   4 +-
- drivers/net/ethernet/3com/3c59x.c             |   4 +-
- drivers/net/ethernet/3com/Kconfig             |   2 +-
- drivers/net/ethernet/chelsio/Kconfig          |   2 +-
- drivers/net/ethernet/cirrus/Kconfig           |   2 +-
- drivers/net/ethernet/dec/tulip/Kconfig        |   4 +-
- drivers/net/ethernet/dlink/dl2k.c             |   2 +-
- drivers/net/ethernet/neterion/Kconfig         |   4 +-
- drivers/net/ethernet/smsc/Kconfig             |   4 +-
- drivers/net/ethernet/ti/Kconfig               |   2 +-
- drivers/net/ethernet/ti/tlan.c                |   2 +-
- drivers/net/hamradio/Kconfig                  |   4 +-
- drivers/net/hamradio/scc.c                    |   2 +-
- drivers/net/wireless/intel/ipw2x00/Kconfig    |   4 +-
- drivers/net/wireless/intel/ipw2x00/ipw2100.c  |   2 +-
- include/uapi/linux/if_x25.h                   |   2 +-
- net/x25/Kconfig                               |   4 +-
- 61 files changed, 4175 insertions(+), 3341 deletions(-)
- rename Documentation/networking/device_drivers/3com/{3c509.txt => 3c509.rst} (68%)
- rename Documentation/networking/device_drivers/3com/{vortex.txt => vortex.rst} (72%)
- rename Documentation/networking/device_drivers/amazon/{ena.txt => ena.rst} (86%)
- rename Documentation/networking/device_drivers/aquantia/{atlantic.txt => atlantic.rst} (63%)
- rename Documentation/networking/device_drivers/chelsio/{cxgb.txt => cxgb.rst} (81%)
- rename Documentation/networking/device_drivers/cirrus/{cs89x0.txt => cs89x0.rst} (61%)
- rename Documentation/networking/device_drivers/davicom/{dm9000.txt => dm9000.rst} (92%)
- rename Documentation/networking/device_drivers/dec/{de4x5.txt => de4x5.rst} (78%)
- rename Documentation/networking/device_drivers/dec/{dmfe.txt => dmfe.rst} (68%)
- rename Documentation/networking/device_drivers/dlink/{dl2k.txt => dl2k.rst} (59%)
- rename Documentation/networking/device_drivers/freescale/{dpaa.txt => dpaa.rst} (79%)
- rename Documentation/networking/device_drivers/freescale/{gianfar.txt => gianfar.rst} (82%)
- rename Documentation/networking/device_drivers/intel/{ipw2100.txt => ipw2100.rst} (70%)
- rename Documentation/networking/device_drivers/intel/{ipw2200.txt => ipw2200.rst} (64%)
- rename Documentation/networking/device_drivers/microsoft/{netvsc.txt => netvsc.rst} (83%)
- create mode 100644 Documentation/networking/device_drivers/neterion/s2io.rst
- delete mode 100644 Documentation/networking/device_drivers/neterion/s2io.txt
- rename Documentation/networking/device_drivers/neterion/{vxge.txt => vxge.rst} (80%)
- rename Documentation/networking/device_drivers/qualcomm/{rmnet.txt => rmnet.rst} (73%)
- create mode 100644 Documentation/networking/device_drivers/sb1000.rst
- delete mode 100644 Documentation/networking/device_drivers/sb1000.txt
- create mode 100644 Documentation/networking/device_drivers/smsc/smc9.rst
- delete mode 100644 Documentation/networking/device_drivers/smsc/smc9.txt
- create mode 100644 Documentation/networking/device_drivers/ti/cpsw.rst
- delete mode 100644 Documentation/networking/device_drivers/ti/cpsw.txt
- rename Documentation/networking/device_drivers/ti/{cpsw_switchdev.txt => cpsw_switchdev.rst} (51%)
- rename Documentation/networking/device_drivers/ti/{tlan.txt => tlan.rst} (73%)
- rename Documentation/networking/device_drivers/toshiba/{spider_net.txt => spider_net.rst} (88%)
- rename Documentation/networking/{tuntap.txt => tuntap.rst} (58%)
- rename Documentation/networking/{udplite.txt => udplite.rst} (65%)
- create mode 100644 Documentation/networking/vrf.rst
- delete mode 100644 Documentation/networking/vrf.txt
- rename Documentation/networking/{vxlan.txt => vxlan.rst} (73%)
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+---
+ Documentation/networking/index.rst                     |  1 +
+ .../networking/{x25-iface.txt => x25-iface.rst}        | 10 ++++++++--
+ include/uapi/linux/if_x25.h                            |  2 +-
+ net/x25/Kconfig                                        |  2 +-
+ 4 files changed, 11 insertions(+), 4 deletions(-)
  rename Documentation/networking/{x25-iface.txt => x25-iface.rst} (96%)
- rename Documentation/networking/{x25.txt => x25.rst} (96%)
- rename Documentation/networking/{xfrm_device.txt => xfrm_device.rst} (92%)
- rename Documentation/networking/{xfrm_proc.txt => xfrm_proc.rst} (95%)
- rename Documentation/networking/{xfrm_sync.txt => xfrm_sync.rst} (82%)
- rename Documentation/networking/{xfrm_sysctl.txt => xfrm_sysctl.rst} (52%)
- rename Documentation/networking/{z8530drv.txt => z8530drv.rst} (57%)
 
+diff --git a/Documentation/networking/index.rst b/Documentation/networking/index.rst
+index a72fdfb391b6..7a4bdbc111b0 100644
+--- a/Documentation/networking/index.rst
++++ b/Documentation/networking/index.rst
+@@ -115,6 +115,7 @@ Contents:
+    udplite
+    vrf
+    vxlan
++   x25-iface
+ 
+ .. only::  subproject and html
+ 
+diff --git a/Documentation/networking/x25-iface.txt b/Documentation/networking/x25-iface.rst
+similarity index 96%
+rename from Documentation/networking/x25-iface.txt
+rename to Documentation/networking/x25-iface.rst
+index 7f213b556e85..df401891dce6 100644
+--- a/Documentation/networking/x25-iface.txt
++++ b/Documentation/networking/x25-iface.rst
+@@ -1,4 +1,10 @@
+-			X.25 Device Driver Interface 1.1
++.. SPDX-License-Identifier: GPL-2.0
++
++============================-
++X.25 Device Driver Interface
++============================-
++
++Version 1.1
+ 
+ 			   Jonathan Naylor 26.12.96
+ 
+@@ -99,7 +105,7 @@ reduced by the following measures or a combination thereof:
+ (1) Drivers for kernel versions 2.4.x and above should always check the
+     return value of netif_rx(). If it returns NET_RX_DROP, the
+     driver's LAPB protocol must not confirm reception of the frame
+-    to the peer. 
++    to the peer.
+     This will reliably suppress packet loss. The LAPB protocol will
+     automatically cause the peer to re-transmit the dropped packet
+     later.
+diff --git a/include/uapi/linux/if_x25.h b/include/uapi/linux/if_x25.h
+index 5d962448345f..3a5938e38370 100644
+--- a/include/uapi/linux/if_x25.h
++++ b/include/uapi/linux/if_x25.h
+@@ -18,7 +18,7 @@
+ 
+ #include <linux/types.h>
+ 
+-/* Documentation/networking/x25-iface.txt */
++/* Documentation/networking/x25-iface.rst */
+ #define X25_IFACE_DATA		0x00
+ #define X25_IFACE_CONNECT	0x01
+ #define X25_IFACE_DISCONNECT	0x02
+diff --git a/net/x25/Kconfig b/net/x25/Kconfig
+index 2ecb2e5e241e..a328f79885d1 100644
+--- a/net/x25/Kconfig
++++ b/net/x25/Kconfig
+@@ -21,7 +21,7 @@ config X25
+ 	  <http://docwiki.cisco.com/wiki/X.25>.
+ 	  Information about X.25 for Linux is contained in the files
+ 	  <file:Documentation/networking/x25.txt> and
+-	  <file:Documentation/networking/x25-iface.txt>.
++	  <file:Documentation/networking/x25-iface.rst>.
+ 
+ 	  One connects to an X.25 network either with a dedicated network card
+ 	  using the X.21 protocol (not yet supported by Linux) or one can do
 -- 
 2.25.4
-
 
