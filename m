@@ -1,31 +1,64 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 00/37]net: manually convert files to ReST format - part
- 3 (final)
-Date: Fri, 01 May 2020 12:33:08 -0700 (PDT)
-Message-ID: <20200501.123308.956105770476039545.davem@davemloft.net>
-References: <cover.1588344146.git.mchehab+huawei@kernel.org>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: [PATCH] drivers/net/wan/lapbether: Fixed the value of hard_header_len
+Date: Fri,  3 Jul 2020 22:12:46 -0700
+Message-ID: <20200704051246.203413-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-parisc-owner@vger.kernel.org>
-In-Reply-To: <cover.1588344146.git.mchehab+huawei@kernel.org>
-Sender: linux-parisc-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ma2Ml363EHulT5h5Rsiz3nA4SNmBIS3npTE4f6WSazQ=;
+        b=IlJwAbWSaj97IjOeI49oGlMOb3AJFimGQy7xG8Gnoy6Txh4qaAalBv7G3jOcH42HAg
+         4OMJVs0orHOy/aIic4ndhGHozWP8uYj7AqKsKLgLWziwABDqyz0cha7HzHrqbCRhMYwy
+         QRXMBTzzH4OEfTfgs1fW37w3++563Cq5dM8MRzXC9NmuzkVid4oa5nw5ZVIHmSP2QVRp
+         orCY4l8wX6seQhCoaiNqairmmlplus89MZwZfj00g9WNVM2+k//Tj8t3EiyavGfFSXbR
+         ouMhrN9BxChldZ+uH/VEy1trk8XuY3eYWtZtuf/dxtCg5nOdzjSZqNXF34BQ+A1Djqn7
+         9Q5w==
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: mchehab+huawei@kernel.org
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, corbet@lwn.net, chessman@tux.org, netdev@vger.kernel.org, andrew.hendry@gmail.com, zorik@amazon.com, stranche@codeaurora.org, irusskikh@marvell.com, jdmason@kudzu.us, haiyangz@microsoft.com, linux-x25@vger.kernel.org, wei.liu@kernel.org, linux-hyperv@vger.kernel.org, kvalo@codeaurora.org, kuba@kernel.org, subashab@codeaurora.org, dsahern@kernel.org, kys@microsoft.com, kou.ishizaki@toshiba.co.jp, jreuter@yaina.de, saeedb@amazon.com, shrijeet@gmail.com, netanel@amazon.com, stas.yakovlev@gmail.com, gtzalik@amazon.com, maxk@qti.qualcomm.com, akiyano@amazon.com, linux-wireless@vger.kernel.org, linux-hams@vger.kernel.org, linux-parisc@vger.kernel.org, klassert@kernel.org, sthemmin@microsoft.com
+Content-Type: text/plain; charset="us-ascii"
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Madhuparna Bhowmik <madhuparnabhowmik04@gmail.com>, Xie He <xie.he.0141@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date: Fri,  1 May 2020 16:44:22 +0200
+When transmitting data from upper layers or from AF_PACKET sockets,
+  this driver will first remove a pseudo header of 1 byte,
+  then the lapb module will prepend the LAPB header of 2 or 3 bytes,
+  then this driver will prepend a length field of 2 bytes,
+  then the underlying Ethernet device will prepend its own header.
 
-> That's the third part (and the final one) of my work to convert the networking
-> text files into ReST. it is based on linux-next next-20200430 branch.
-> 
-> The full series (including those ones) are at:
-> 
-> 	https://git.linuxtv.org/mchehab/experimental.git/log/?h=net-docs
-> 
-> The  built output documents, on html format is at:
-> 
-> 	https://www.infradead.org/~mchehab/kernel_docs/networking/
+So, the header length required should be:
+  -1 + 3 + 2 + "the header length needed by the underlying device".
 
-Series applied, thanks for doing all of this work.
+This patch fixes kernel panic when this driver is used with AF_PACKET
+SOCK_DGRAM sockets.
+
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+ drivers/net/wan/lapbether.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index e30d91a38cfb..3b5ed0928a4c 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -303,7 +303,6 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
+-	dev->hard_header_len = 3;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -324,6 +323,8 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	if (!ndev)
+ 		goto out;
+ 
++	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
+ 
+-- 
+2.25.1
+
