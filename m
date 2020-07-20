@@ -1,51 +1,38 @@
-From: Eric Biggers <ebiggers@kernel.org>
-Subject: Re: [PATCH 03/24] net: add a new sockptr_t type
-Date: Mon, 20 Jul 2020 10:55:43 -0700
-Message-ID: <20200720175543.GF1292162@gmail.com>
-References: <20200720124737.118617-1-hch@lst.de>
- <20200720124737.118617-4-hch@lst.de>
- <20200720163748.GA1292162@gmail.com>
- <20200720174322.GA21785@lst.de>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: Re: [PATCH v2] drivers/net/wan/x25_asy: Fix to make it work
+Date: Mon, 20 Jul 2020 10:58:03 -0700
+Message-ID: <CAJht_EOZZFE0-Os90-CyO9M8xX-B7UYWaTHcLiFOcGvHh3TB7A@mail.gmail.com>
+References: <20200716234433.6490-1-xie.he.0141@gmail.com> <b2836ae012e0c57ba01ba1dee0a9eacd@dev.tdt.de>
 Mime-Version: 1.0
-Return-path: <linux-crypto-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595267745;
-        bh=gKIze89vWBzrFx6zTW6q8+6OGOi2eEHSp9M1U5xgK5Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IVyIlrMN24MPKjy4d8SMWaW7uCiUcpLg3yjCC0C2S6ZfKpknKzmS2DwkqaZUR6kcj
-         eH3tVcf8T0FWz3MgsFZPKw/95GZuUU1R6RXP6YgHYNC1Xrh1jm83A8jQXDelAkEKiB
-         ufMchI7Ce61Y9ZnRUJK/bZ/+BU6OKViPemeOOMWQ=
-Content-Disposition: inline
-In-Reply-To: <20200720174322.GA21785@lst.de>
-Sender: linux-crypto-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Dn+bkLkSM2KuCKSXgr83y2+KLzl+K9NcQTzlSg6shOw=;
+        b=IVPx3/vUOZoleX2si86P7GBZQhDQfBmNSj5bNfeOjTPe/PcJT/frdYfHefwROvyw8y
+         dmsNiVTu7IYvZkKTvIHonXifIDXWA29zGL0oCiEqssPnxmqeXDE2T+Ymm4FkFLl2h4Kq
+         FvY8d8chMcK9tRBQc2CV5xQt46ujwWlyg04GNGGMX1qpVZ74B3LdMgqkRxT/EEPVO1D8
+         PmV9VZ7D3n7j713ejV9r7cHZ/srYMvzFFJ4UeUlE6lbsW81D+uIIeEudiebAIlyOZA+7
+         VdqYJQrmWPuUU3wfCe40/4ERIXixMWHX0Q5he2KrDL5jmhGN0zne09zYUlR8GNUMYwDX
+         2VhQ==
+In-Reply-To: <b2836ae012e0c57ba01ba1dee0a9eacd@dev.tdt.de>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@lst.de>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.o
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Linux X25 <linux-x25@vger.kernel.org>
 
-On Mon, Jul 20, 2020 at 07:43:22PM +0200, Christoph Hellwig wrote:
-> On Mon, Jul 20, 2020 at 09:37:48AM -0700, Eric Biggers wrote:
-> > How does this not introduce a massive security hole when
-> > CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE?
-> > 
-> > AFAICS, userspace can pass in a pointer >= TASK_SIZE,
-> > and this code makes it be treated as a kernel pointer.
-> 
-> Yeah, we'll need to validate that before initializing the pointer.
-> 
-> But thinking this a little further:  doesn't this mean any
-> set_fs(KERNEL_DS) that has other user pointers than the one it is
-> intended for has the same issue?  Pretty much all of these are gone
-> in mainline now, but in older stable kernels there might be some
-> interesting cases, especially in the compat ioctl handlers.
-
-Yes.  I thought that eliminating that class of bug is one of the main
-motivations for your "remove set_fs" work.  See commit 128394eff343
-("sg_write()/bsg_write() is not fit to be called under KERNEL_DS") for a case
-where this type of bug was fixed.
-
-Are you aware of any specific cases that weren't already fixed?  If there are
-any, they need to be urgently fixed.
-
-- Eric
+On Mon, Jul 20, 2020 at 4:23 AM -0700
+Martin Schiller <ms@dev.tdt.de> wrote:
+>
+> LGTM.
+>
+> I have never used the driver, but the adjustments look conclusive. The
+> functionality is now comparable to the one in the drivers lapbether or
+> hdlc_x25.
+>
+> Reviewed-by: Martin Schiller <ms@dev.tdt.de>
+>
+Thank you so much!
