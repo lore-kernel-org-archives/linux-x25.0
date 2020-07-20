@@ -1,136 +1,168 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: Re: [PATCH v2] drivers/net/wan/x25_asy: Fix to make it work
-Date: Mon, 20 Jul 2020 13:23:43 +0200
-Message-ID: <b2836ae012e0c57ba01ba1dee0a9eacd@dev.tdt.de>
-References: <20200716234433.6490-1-xie.he.0141@gmail.com>
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: [PATCH 03/24] net: add a new sockptr_t type
+Date: Mon, 20 Jul 2020 14:47:16 +0200
+Message-ID: <20200720124737.118617-4-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200716234433.6490-1-xie.he.0141@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=v9KgsOSWea1bJKFDijg05Yu/Lxnc3rcc50PR6ELHK4E=; b=MadyBZx0Wf8x+2kw7O1nJxOIOd
+        FbU4MH1JyD5v78V7lQ/HRw45yXpPVs9JO/G+kH4DiN1QWFmw0WGQv/S2d22ogQPe/4gqcuswjDMxD
+        UA+RyowobKCKhwuLpSB8o4bKj8XVpqEmqj4r0KjhkUO/Xe3omvaNi1zO6Mu7Ul5xJ63b84wq7p4uE
+        igF3dMEhdDGLmF1UIoeXtgDt60qeorgzwuf6irI/HPydWG6GGi42y2nO3TPoyuU57ddcRPRbw8sYq
+        A124JUfae++O65R5yqh735FbvAIm2bAY6i4tx8g4ymy/GWe+BCXCPTa9ItoQv2rd6m2uecW1hKmJ+
+        VToa8WXQ==;
+In-Reply-To: <20200720124737.118617-1-hch-jcswGhMUV9g@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Xie He <xie.he.0141@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Jakub Kicinski <kuba-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexei Starovoitov <ast-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Borkmann <daniel-FeC+5ew28dpmcu3hnIyYJQ@public.gmane.org>, Alexey Kuznetsov <kuznet-v/Mj1YrvjDBInbfyfbPRSQ@public.gmane.org>, Hideaki YOSHIFUJI <yoshfuji-VfPWfsRibaP+Ru+s062T9g@public.gmane.org>, Eric Dumazet <edumazet-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: linux-crypto-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bpf-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netfilter-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, coreteam-Cap9r6Oaw4JrovVCs/uTlw@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bridge-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-can-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dccp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-decnet-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-wpan-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mptcp-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, lvs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rds-devel-N0ozoZBvEnrZJqsBc5GL+g@public.gmane.org, linux-afs-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, tipc-discussion-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-x25-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-On 2020-07-17 01:44, Xie He wrote:
-> This driver is not working because of problems of its receiving code.
-> This patch fixes it to make it work.
-> 
-> When the driver receives an LAPB frame, it should first pass the frame
-> to the LAPB module to process. After processing, the LAPB module passes
-> the data (the packet) back to the driver, the driver should then add a
-> one-byte pseudo header and pass the data to upper layers.
-> 
-> The changes to the "x25_asy_bump" function and the
-> "x25_asy_data_indication" function are to correctly implement this
-> procedure.
-> 
-> Also, the "x25_asy_unesc" function ignores any frame that is shorter
-> than 3 bytes. However the shortest frames are 2-byte long. So we need
-> to change it to allow 2-byte frames to pass.
-> 
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Martin Schiller <ms@dev.tdt.de>
-> Signed-off-by: Xie He <xie.he.0141@gmail.com>
-> ---
-> 
-> Change from v1:
-> Added skb_cow before skb_push to ensure skb_push will succeed
-> according the suggestion of Eric Dumazet.
-> 
-> Hi Eric Dumazet and Martin Schiller,
-> Can you review this patch again and see if it is OK for me to include
-> your names in a "Signed-off-by", "Reviewed-by" or "Acked-by" tag?
-> Thank you!
-> 
-> Hi All,
-> I'm happy to answer any questions you might have and make improvements
-> according to your suggestions. Thanks!
-> 
-> ---
->  drivers/net/wan/x25_asy.c | 21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/net/wan/x25_asy.c b/drivers/net/wan/x25_asy.c
-> index 69773d228ec1..84640a0c13f3 100644
-> --- a/drivers/net/wan/x25_asy.c
-> +++ b/drivers/net/wan/x25_asy.c
-> @@ -183,7 +183,7 @@ static inline void x25_asy_unlock(struct x25_asy 
-> *sl)
->  	netif_wake_queue(sl->dev);
->  }
-> 
-> -/* Send one completely decapsulated IP datagram to the IP layer. */
-> +/* Send an LAPB frame to the LAPB module to process. */
-> 
->  static void x25_asy_bump(struct x25_asy *sl)
->  {
-> @@ -195,13 +195,12 @@ static void x25_asy_bump(struct x25_asy *sl)
->  	count = sl->rcount;
->  	dev->stats.rx_bytes += count;
-> 
-> -	skb = dev_alloc_skb(count+1);
-> +	skb = dev_alloc_skb(count);
->  	if (skb == NULL) {
->  		netdev_warn(sl->dev, "memory squeeze, dropping packet\n");
->  		dev->stats.rx_dropped++;
->  		return;
->  	}
-> -	skb_push(skb, 1);	/* LAPB internal control */
->  	skb_put_data(skb, sl->rbuff, count);
->  	skb->protocol = x25_type_trans(skb, sl->dev);
->  	err = lapb_data_received(skb->dev, skb);
-> @@ -209,7 +208,6 @@ static void x25_asy_bump(struct x25_asy *sl)
->  		kfree_skb(skb);
->  		printk(KERN_DEBUG "x25_asy: data received err - %d\n", err);
->  	} else {
-> -		netif_rx(skb);
->  		dev->stats.rx_packets++;
->  	}
->  }
-> @@ -356,12 +354,21 @@ static netdev_tx_t x25_asy_xmit(struct sk_buff 
-> *skb,
->   */
-> 
->  /*
-> - *	Called when I frame data arrives. We did the work above - throw it
-> - *	at the net layer.
-> + *	Called when I frame data arrive. We add a pseudo header for upper
-> + *	layers and pass it to upper layers.
->   */
-> 
->  static int x25_asy_data_indication(struct net_device *dev, struct 
-> sk_buff *skb)
->  {
-> +	if (skb_cow(skb, 1)) {
-> +		kfree_skb(skb);
-> +		return NET_RX_DROP;
-> +	}
-> +	skb_push(skb, 1);
-> +	skb->data[0] = X25_IFACE_DATA;
-> +
-> +	skb->protocol = x25_type_trans(skb, dev);
-> +
->  	return netif_rx(skb);
->  }
-> 
-> @@ -657,7 +664,7 @@ static void x25_asy_unesc(struct x25_asy *sl,
-> unsigned char s)
->  	switch (s) {
->  	case X25_END:
->  		if (!test_and_clear_bit(SLF_ERROR, &sl->flags) &&
-> -		    sl->rcount > 2)
-> +		    sl->rcount >= 2)
->  			x25_asy_bump(sl);
->  		clear_bit(SLF_ESCAPE, &sl->flags);
->  		sl->rcount = 0;
+Add a uptr_t type that can hold a pointer to either a user or kernel
+memory region, and simply helpers to copy to and from it.  For
+architectures like x86 that have non-overlapping user and kernel
+address space it just is a union and uses a TASK_SIZE check to
+select the proper copy routine.  For architectures with overlapping
+address spaces a flag to indicate the address space is used instead.
 
-LGTM.
+Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+---
+ include/linux/sockptr.h | 121 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 121 insertions(+)
+ create mode 100644 include/linux/sockptr.h
 
-I have never used the driver, but the adjustments look conclusive. The
-functionality is now comparable to the one in the drivers lapbether or
-hdlc_x25.
-
-Reviewed-by: Martin Schiller <ms@dev.tdt.de>
+diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
+new file mode 100644
+index 00000000000000..e41dfa52555dec
+--- /dev/null
++++ b/include/linux/sockptr.h
+@@ -0,0 +1,121 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (c) 2020 Christoph Hellwig.
++ *
++ * Support for "universal" pointers that can point to either kernel or userspace
++ * memory.
++ */
++#ifndef _LINUX_SOCKPTR_H
++#define _LINUX_SOCKPTR_H
++
++#include <linux/slab.h>
++#include <linux/uaccess.h>
++
++#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
++typedef union {
++	void		*kernel;
++	void __user	*user;
++} sockptr_t;
++
++static inline bool sockptr_is_kernel(sockptr_t sockptr)
++{
++	return (unsigned long)sockptr.kernel >= TASK_SIZE;
++}
++
++static inline sockptr_t KERNEL_SOCKPTR(void *p)
++{
++	return (sockptr_t) { .kernel = p };
++}
++#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
++typedef struct {
++	union {
++		void		*kernel;
++		void __user	*user;
++	};
++	bool		is_kernel : 1;
++} sockptr_t;
++
++static inline bool sockptr_is_kernel(sockptr_t sockptr)
++{
++	return sockptr.is_kernel;
++}
++
++static inline sockptr_t KERNEL_SOCKPTR(void *p)
++{
++	return (sockptr_t) { .kernel = p, .is_kernel = true };
++}
++#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
++
++static inline sockptr_t USER_SOCKPTR(void __user *p)
++{
++	return (sockptr_t) { .user = p };
++}
++
++static inline bool sockptr_is_null(sockptr_t sockptr)
++{
++	return !sockptr.user && !sockptr.kernel;
++}
++
++static inline int copy_from_sockptr(void *dst, sockptr_t src, size_t size)
++{
++	if (!sockptr_is_kernel(src))
++		return copy_from_user(dst, src.user, size);
++	memcpy(dst, src.kernel, size);
++	return 0;
++}
++
++static inline int copy_to_sockptr(sockptr_t dst, const void *src, size_t size)
++{
++	if (!sockptr_is_kernel(dst))
++		return copy_to_user(dst.user, src, size);
++	memcpy(dst.kernel, src, size);
++	return 0;
++}
++
++static inline void *memdup_sockptr(sockptr_t src, size_t len)
++{
++	void *p = kmalloc_track_caller(len, GFP_USER | __GFP_NOWARN);
++
++	if (!p)
++		return ERR_PTR(-ENOMEM);
++	if (copy_from_sockptr(p, src, len)) {
++		kfree(p);
++		return ERR_PTR(-EFAULT);
++	}
++	return p;
++}
++
++static inline void *memdup_sockptr_nul(sockptr_t src, size_t len)
++{
++	char *p = kmalloc_track_caller(len + 1, GFP_KERNEL);
++
++	if (!p)
++		return ERR_PTR(-ENOMEM);
++	if (copy_from_sockptr(p, src, len)) {
++		kfree(p);
++		return ERR_PTR(-EFAULT);
++	}
++	p[len] = '\0';
++	return p;
++}
++
++static inline void sockptr_advance(sockptr_t sockptr, size_t len)
++{
++	if (sockptr_is_kernel(sockptr))
++		sockptr.kernel += len;
++	else
++		sockptr.user += len;
++}
++
++static inline long strncpy_from_sockptr(char *dst, sockptr_t src, size_t count)
++{
++	if (sockptr_is_kernel(src)) {
++		size_t len = min(strnlen(src.kernel, count - 1) + 1, count);
++
++		memcpy(dst, src.kernel, len);
++		return len;
++	}
++	return strncpy_from_user(dst, src.user, count);
++}
++
++#endif /* _LINUX_SOCKPTR_H */
+-- 
+2.27.0
 
