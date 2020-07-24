@@ -1,30 +1,96 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 04/26] net: add a new sockptr_t type
-Date: Thu, 23 Jul 2020 18:44:32 +0200
-Message-ID: <20200723164432.GA20917@lst.de>
-References: <20200723060908.50081-1-hch@lst.de> <20200723060908.50081-5-hch@lst.de> <CANn89iJ3LKth-iWwh0+P3D3RqtDNv4AyXkkzhXr0oSEvE_JoRQ@mail.gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: [PATCH] drivers/net/wan: lapb: Corrected the usage of skb_cow
+Date: Fri, 24 Jul 2020 09:33:47 -0700
+Message-ID: <20200724163347.57213-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-can-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANn89iJ3LKth-iWwh0+P3D3RqtDNv4AyXkkzhXr0oSEvE_JoRQ@mail.gmail.com>
-Sender: linux-can-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tleO8aHfa26cflMwMSnhPp+xAxg7WwjI5PBYDPHCheU=;
+        b=Qylaa520Hj/O37egAj+G+sflQYcdH7NLiPNI3wt4S2q/G4DmrIlCE+Xq/avII/pdHG
+         H4t3ZhBnKc6OsGE8P8UIpqi9PG4sj0YAewaT7LJShrFb5xyMrcR3SKN1pe5wek5Nc75g
+         CEi/iVj4m4IesZzmVHw/1DJRPnxq7e11IEMNmEMHtA3q6k1nWhcVEGAcsw3aqJCkENIl
+         PKqeoTJ4R8jw2oCT+B8xn/8TMXAjISjYUwDbnOONzZHTGE3+5L0njzWgn3995Zbp9lPx
+         oYt8ozGiPEsAq6apS+O+yCSQ8eBMiHsXLwzlAC/LUqum3cLbJ6/FaLeKgaIlUrWKNpTz
+         JnRA==
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Eric Dumazet <edumazet@google.com>
-Cc: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.ker
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, Martin Schiller <ms@dev.tdt.de>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Cc: Xie He <xie.he.0141@gmail.com>
 
-On Thu, Jul 23, 2020 at 09:40:27AM -0700, Eric Dumazet wrote:
-> I am not sure why you chose sockptr_t   for something that really seems generic.
-> 
-> Or is it really meant to be exclusive to setsockopt() and/or getsockopt() ?
-> 
-> If the first user of this had been futex code, we would have used
-> futexptr_t, I guess.
+This patch fixed 2 issues with the usage of skb_cow in LAPB drivers
+"lapbether" and "hdlc_x25":
 
-It was originally intended to be generic and called uptr_t, based
-on me misunderstanding that Linus wanted a file operation for it,
-which he absolutely didn't and hate with passion.  So the plan is to
-only use it for setsockopt for now, although there are some arguments
-for also using it in sendmsg/recvmsg.  There is no need to use it for
-getsockopt.
+1) After skb_cow fails, kfree_skb should be called to drop a reference
+to the skb. But in both drivers, kfree_skb is not called.
+
+2) skb_cow should be called before skb_push so that is can ensure the
+safety of skb_push. But in "lapbether", it is incorrectly called after
+skb_push.
+
+More details about these 2 issues:
+
+1) The behavior of calling kfree_skb on failure is also the behavior of
+netif_rx, which is called by this function with "return netif_rx(skb);".
+So this function should follow this behavior, too.
+
+2) In "lapbether", skb_cow is called after skb_push. This results in 2
+logical issues:
+   a) skb_push is not protected by skb_cow;
+   b) An extra headroom of 1 byte is ensured after skb_push. This extra
+      headroom has no use in this function. It also has no use in the
+      upper-layer function that this function passes the skb to
+      (x25_lapb_receive_frame in net/x25/x25_dev.c).
+So logically skb_cow should instead be called before skb_push.
+
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+ drivers/net/wan/hdlc_x25.c  | 4 +++-
+ drivers/net/wan/lapbether.c | 8 +++++---
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index c84536b03aa8..f70336bb6f52 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -71,8 +71,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	unsigned char *ptr;
+ 
+-	if (skb_cow(skb, 1))
++	if (skb_cow(skb, 1)) {
++		kfree_skb(skb);
+ 		return NET_RX_DROP;
++	}
+ 
+ 	skb_push(skb, 1);
+ 	skb_reset_network_header(skb);
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 284832314f31..b2868433718f 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -128,10 +128,12 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	unsigned char *ptr;
+ 
+-	skb_push(skb, 1);
+-
+-	if (skb_cow(skb, 1))
++	if (skb_cow(skb, 1)) {
++		kfree_skb(skb);
+ 		return NET_RX_DROP;
++	}
++
++	skb_push(skb, 1);
+ 
+ 	ptr  = skb->data;
+ 	*ptr = X25_IFACE_DATA;
+-- 
+2.25.1
+
