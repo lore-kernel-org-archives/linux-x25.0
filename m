@@ -1,65 +1,73 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH 12/26] netfilter: switch nf_setsockopt to sockptr_t
-Date: Tue, 28 Jul 2020 10:17:28 +0200
-Message-ID: <CAHmME9pUbRmJq1Qcj10eENt15cuQHkiXJNKrUDmmC18n2mLKDA@mail.gmail.com>
-References: <20200723060908.50081-1-hch@lst.de> <20200723060908.50081-13-hch@lst.de>
- <20200727150310.GA1632472@zx2c4.com> <20200727150601.GA3447@lst.de>
- <CAHmME9ric=chLJayn7Erve7WBa+qCKn-+Gjri=zqydoY6623aA@mail.gmail.com>
- <20200727162357.GA8022@lst.de> <908ed73081cc42d58a5b01e0c97dbe47@AcuMS.aculab.com>
+From: Brian Norris <briannorris@chromium.org>
+Subject: Re: [PATCH] drivers/net/wan/lapbether: Use needed_headroom instead
+ of hard_header_len
+Date: Tue, 28 Jul 2020 12:52:46 -0700
+Message-ID: <20200728195246.GA482576@google.com>
+References: <20200726110524.151957-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-crypto-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to:cc
-        :content-type; s=mail; bh=K4YAt33ilBR3hd1+7JojCPxtvSA=; b=nEjdWp
-        cUQVj0KWRd87puFx0fk1HADPVt/5ckkL0vcSiVAoyePGSTncp+KafcroE0itJJAR
-        hvCKOHIgNqwby+4I13HG5z9ibnxBmqHfVx+jKtrPfvHTnJrmPNg1WsagEKVyYT8s
-        0wLLBcv/NIyWIJ2xwHqa/F7Ekuot/H5qUld6hDSAXP06OIRI6q+V7cdk8Ye2E95N
-        oE2iYHJELOZGqN2H10I58K4qjsUNSGzPFklfgHdPIOfnKUBe2eF7SiuhT2DW4gmx
-        Zlh/4Lwi80eH4MYYZz1R0kvQtczs/XnszWGNGZW6geww/y9D6tsJ0FqJg7QkrUqh
-        r9lHeJJo9aIu1+DA==
-In-Reply-To: <908ed73081cc42d58a5b01e0c97dbe47@AcuMS.aculab.com>
-Sender: linux-crypto-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Lw5Yo6LYMJj0wtDoaefLNGkgc5QTYl1SaK6AazO3v2w=;
+        b=gq6HFa7X7QMj2DalmEMErYJdwibaHGKntgGODdJmOjnvl71XNlf89WdFly/p/8zUsD
+         adf6UQmHbEE2XxscjVPyDBuPLHifM78QvAfOfX0iBq+iwH0lfV4yGvEBEVtksCgn6YyM
+         K7ENcyD3xpKYwQsxBe6eWsKzfX5e3ZKuSjRas=
+Content-Disposition: inline
+In-Reply-To: <20200726110524.151957-1-xie.he.0141@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Laight <David.Laight@aculab.com>
-Cc: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <>
+To: Xie He <xie.he.0141@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>
 
-On Tue, Jul 28, 2020 at 10:07 AM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Christoph Hellwig
-> > Sent: 27 July 2020 17:24
-> >
-> > On Mon, Jul 27, 2020 at 06:16:32PM +0200, Jason A. Donenfeld wrote:
-> > > Maybe sockptr_advance should have some safety checks and sometimes
-> > > return -EFAULT? Or you should always use the implementation where
-> > > being a kernel address is an explicit bit of sockptr_t, rather than
-> > > being implicit?
-> >
-> > I already have a patch to use access_ok to check the whole range in
-> > init_user_sockptr.
->
-> That doesn't make (much) difference to the code paths that ignore
-> the user-supplied length.
-> OTOH doing the user/kernel check on the base address (not an
-> incremented one) means that the correct copy function is always
-> selected.
+(Reviewing as requested; I'm not familiar with this driver either, or
+really any WAN driver. It also seems that hard_header_len vs.
+needed_headroom aren't very well documented, and even I can't guarantee
+I understand them completely. So take my thoughts with a grain of salt.)
 
-Right, I had the same reaction in reading this, but actually, his code
-gets rid of the sockptr_advance stuff entirely and never mutates, so
-even though my point about attacking those pointers was missed, the
-code does the better thing now -- checking the base address and never
-mutating the pointer. So I think we're good.
+Hi,
 
->
-> Perhaps the functions should all be passed a 'const sockptr_t'.
-> The typedef could be made 'const' - requiring non-const items
-> explicitly use the union/struct itself.
+On Sun, Jul 26, 2020 at 04:05:24AM -0700, Xie He wrote:
+> In net/packet/af_packet.c, the function packet_snd first reserves a
+> headroom of length (dev->hard_header_len + dev->needed_headroom).
+> Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+> which calls dev->header_ops->create, to create the link layer header.
+> If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+> length (dev->hard_header_len), and assumes the user to provide the
+> appropriate link layer header.
+> 
+> So according to the logic of af_packet.c, dev->hard_header_len should
+> be the length of the header that would be created by
+> dev->header_ops->create.
 
-I was thinking the same, but just by making the pointers inside the
-struct const. However, making the whole struct const via the typedef
-is a much better idea. That'd probably require changing the signature
-of init_user_sockptr a bit, which would be fine, but indeed I think
-this would be a very positive change.
+I believe I'm with you up to here, but:
 
-Jason
+> However, this driver doesn't provide dev->header_ops, so logically
+> dev->hard_header_len should be 0.
+
+I'm not clear on this part.
+
+What's to say you shouldn't be implementing header_ops instead? Note
+that with WiFi drivers, they're exposing themselves as ARPHRD_ETHER, and
+only the Ethernet headers are part of the upper "protocol" headers. So
+my patch deferred to the eth headers.
+
+What is the intention with this X25 protocol? I guess the headers added
+in lapbeth_data_transmit() are supposed to be "invisible", as with this
+note in af_packet.c?
+
+   - if device has no dev->hard_header routine, it adds and removes ll header
+     inside itself. In this case ll header is invisible outside of device,
+     but higher levels still should reserve dev->hard_header_len.
+
+If that's the case, then yes, I believe this patch should be correct.
+
+Brian
+
+> So we should use dev->needed_headroom instead of dev->hard_header_len
+> to request necessary headroom to be allocated.
+> 
+> Signed-off-by: Xie He <xie.he.0141@gmail.com>
