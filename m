@@ -1,43 +1,48 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH] drivers/net/wan/lapbether: Use needed_headroom instead of hard_header_len
-Date: Mon, 27 Jul 2020 23:59:28 -0700
-Message-ID: <CAJht_EOFREE7oc_jiA5=OS22D2y0y-6ydh+bvqBx-zJ0HihL3Q@mail.gmail.com>
-References: <20200726110524.151957-1-xie.he.0141@gmail.com>
- <CAJht_EOAGFkVXsrJefWNMDn_D5HhH+ODkqE03BULyzb_Ma8A5A@mail.gmail.com> <CAM_iQpV8GDu2U_+4LwSy=uHc6_0FvCx_7ZPCOQ15=hccpaOCig@mail.gmail.com>
+From: David Laight <David.Laight-ZS65k/vG3HxXrIkS9f7CXA@public.gmane.org>
+Subject: RE: [PATCH 12/26] netfilter: switch nf_setsockopt to sockptr_t
+Date: Tue, 28 Jul 2020 08:07:11 +0000
+Message-ID: <908ed73081cc42d58a5b01e0c97dbe47@AcuMS.aculab.com>
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-13-hch@lst.de> <20200727150310.GA1632472@zx2c4.com>
+ <20200727150601.GA3447@lst.de>
+ <CAHmME9ric=chLJayn7Erve7WBa+qCKn-+Gjri=zqydoY6623aA@mail.gmail.com>
+ <20200727162357.GA8022@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=j8ZnOfNbyvBr0XEMDZWI56PsvQaHIfE1fSeq4rdZwUg=;
-        b=XvYlkBGbkIpwwP9YCIrSkPZMFfE79qRMVDhq+0C0e2o6IOPNjAlVA47TPCWELitlUl
-         pkfXruU9G/B7GxeriFXOvvVzRS+d/TqJ8BRkmjzCkSmVC5Ht6s+mj7NMWxNcWOrzbPcm
-         8Yk0KnRZ/bahHCUHMeMezl3DWkEug+5V4cQqsm+1O0cq4euBSippCEb58r8HSj0c6mJk
-         xIgthEPkH5l5xUXx+Dn/Gfh6c3rQRxA5N6vp6mMMqZ5Wa05gm3xV0nU31UZrGcqjZ0ur
-         +tW2cRzABPU2I5WHtD4Dr+pHAerLpX7/yAY3lEwTAgIRN0BzYTxO7eG4TnZAvcJxZXNk
-         LRMQ==
-In-Reply-To: <CAM_iQpV8GDu2U_+4LwSy=uHc6_0FvCx_7ZPCOQ15=hccpaOCig@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200727162357.GA8022-jcswGhMUV9g@public.gmane.org>
+Content-Language: en-US
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Brian Norris <briannorris@chromium.org>, Cong Wang <xiyou.wangcong@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>
+To: 'Christoph Hellwig' <hch-jcswGhMUV9g@public.gmane.org>, "Jason A. Donenfeld" <Jason-OnJsPKxuuEcAvxtiuMwx3w@public.gmane.org>
+Cc: "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Jakub Kicinski <kuba-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexei Starovoitov <ast-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Borkmann <daniel-FeC+5ew28dpmcu3hnIyYJQ@public.gmane.org>, Alexey Kuznetsov <kuznet-v/Mj1YrvjDBInbfyfbPRSQ@public.gmane.org>, Hideaki YOSHIFUJI <yoshfuji-VfPWfsRibaP+Ru+s062T9g@public.gmane.org>, Eric Dumazet <edumazet-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Linux Crypto Mailing List <linux-crypto-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Netdev <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "bpf-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <bpf-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "netfilter-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netfilter-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "coreteam-Cap9r6Oaw4JrovVCs/uTlw@public.gmane.org" <coreteam-Cap9r6Oaw4JrovVCs/uTlw@public.gmane.org>, "linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, bridge@list
 
-Hi Brian Norris,
+From: Christoph Hellwig
+> Sent: 27 July 2020 17:24
+> 
+> On Mon, Jul 27, 2020 at 06:16:32PM +0200, Jason A. Donenfeld wrote:
+> > Maybe sockptr_advance should have some safety checks and sometimes
+> > return -EFAULT? Or you should always use the implementation where
+> > being a kernel address is an explicit bit of sockptr_t, rather than
+> > being implicit?
+> 
+> I already have a patch to use access_ok to check the whole range in
+> init_user_sockptr.
 
-I'm wishing to change a driver from using "hard_header_len" to using
-"needed_headroom" to declare its needed headroom. I submitted a patch
-and it is decided it needs to be reviewed. I see you submitted a similar
-patch in the past. So I think you might be able to help review my patch.
-Can you help review my patch? Thanks!
+That doesn't make (much) difference to the code paths that ignore
+the user-supplied length.
+OTOH doing the user/kernel check on the base address (not an
+incremented one) means that the correct copy function is always
+selected.
 
-The patch is at:
-http://patchwork.ozlabs.org/project/netdev/patch/20200726110524.151957-1-xie.he.0141@gmail.com/
+Perhaps the functions should all be passed a 'const sockptr_t'.
+The typedef could be made 'const' - requiring non-const items
+explicitly use the union/struct itself.
 
-As you have noted in the commit message of your patch, hard_header_len
-has special meaning in AF_PACKET so we need to use needed_headroom
-instead when we just need to reserve some header space. I believe the
-value of hard_header_len should be the same as the length of the header
-created by dev_hard_header.
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
