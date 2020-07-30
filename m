@@ -1,68 +1,84 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH] drivers/net/wan/lapbether: Use needed_headroom instead of hard_header_len
-Date: Tue, 28 Jul 2020 18:41:45 -0700
-Message-ID: <CAJht_EOcRx=J5PiZwsSh+0Yb0=QJFahqxVbeMgFbSxh+cNZLew@mail.gmail.com>
-References: <20200726110524.151957-1-xie.he.0141@gmail.com> <20200728195246.GA482576@google.com>
+Subject: [PATCH v2] drivers/net/wan/lapbether: Use needed_headroom instead of hard_header_len
+Date: Thu, 30 Jul 2020 00:37:02 -0700
+Message-ID: <20200730073702.16887-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ShpMJE4OIEv6PxHTCcLYNHQznGjFTXHy5yRHP4HI7Go=;
-        b=BClZOK3dAzubCSEkbwRfwnCusyjEcYWZ7pk8/KbxyBcExOrFWxmlvM19CYMKFTYj/w
-         C7sIyeILZs1yEzEVoYrjY2zvprbMcO9Vvjow5oWczQC1JIEi2oZ/bKDVqfReXYasxfjW
-         JaQtvkzKr/3qVnoSxEgL6Ebd8YtCEAbOlqC2D9JxOgpxYIhB2nhH+8zNg87hRGDFWrWe
-         q6GKmziLH6Oe4Hiit/fwwXxYnl0JSCMo8uFehR1mQU9RMgbUVTQ0Z8iup0dPlChQ/Pb3
-         qwGBs/ms5wfED9RjRmE0ZBybq53yewSsNNkLVDGESsXuhPSRQVKY7lI3KDKt79WuYK3v
-         TdQQ==
-In-Reply-To: <20200728195246.GA482576@google.com>
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=K+Oo0bHEpODF7XLQBQ6GDyIq38DUDAb0nnpXubPm0uI=;
+        b=gcQTdkUwMvU1FPhnUFLPP+UPLAy2jxmTogTN2emcrLTfrpzcy5xxre8T4B4/PeTPEJ
+         /Mz40YKCWv+F52Z6VI00Fcf+4FmiJBl4341OILo+enlqoGli0586/XSBRTjL6//WiKwP
+         vKPo3NFq1H1Or6BHlxSLKDq/odvYSy39q+pTv6ZY/3p1D/RnFpPm0exZGMgVTUO3AWmm
+         IpYo5g1xmDgnp4nPd+y0n7W/3HY7rCx8MW5Ac65Xl3gUOsq/mD2nLfPhJfxahNzeBgFS
+         lZ5uTeDWusdNq07HOOiqipYsL1aL/A6NsaThNpZkivIqJfZp/sCT7q1zWe0NQ6CTry2K
+         8kjA==
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Brian Norris <briannorris@chromium.org>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Cong Wang <xiyou.wangcong@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Cc: Xie He <xie.he.0141@gmail.com>
 
-Thank you for your detailed review, Brian!
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
 
-I guess we have the same understanding on the "hard_header_len vs
-needed_headroom" part. I agree it is not well documented and is also
-confusing to driver developers. I didn't understand it either until I
-looked at af_packet.c.
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
 
-On Tue, Jul 28, 2020 at 12:52 PM -0700
-Brian Norris <briannorris@chromium.org> wrote:
->
-> What's to say you shouldn't be implementing header_ops instead? Note
-> that with WiFi drivers, they're exposing themselves as ARPHRD_ETHER, and
-> only the Ethernet headers are part of the upper "protocol" headers. So
-> my patch deferred to the eth headers.
->
-> What is the intention with this X25 protocol? I guess the headers added
-> in lapbeth_data_transmit() are supposed to be "invisible", as with this
-> note in af_packet.c?
->
->    - if device has no dev->hard_header routine, it adds and removes ll header
->      inside itself. In this case ll header is invisible outside of device,
->      but higher levels still should reserve dev->hard_header_len.
->
-> If that's the case, then yes, I believe this patch should be correct.
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
 
-This driver is not intended to be used with IPv4 or IPv6 protocols,
-but is intended to be used with a special "X.25" protocol. That's the
-reason the device type is ARPHRD_X25. I used "grep" in the X.25
-network layer code (net/x25) and I found there's nowhere
-"dev_hard_header" is called. I also used "grep" in all the X.25
-drivers in the kernel (lapbether.c, x25_asy.c, hdlc_x25.c under
-drivers/net/wan) and I found no driver implemented "header_ops". So I
-think the X.25 networking code doesn't expect any header visible
-outside of the device driver, and X.25 drivers should make their
-headers invisible outside of them.
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
 
-So I think hard_header_len should be 0 for all X.25 drivers, so that
-they can be used correctly with af_packet.c.
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
 
-I don't know if this sounds plausible to you. If it does, could you
-please let me have your name in a "Reviewed_by" tag. It would be of
-great help to have your support. Thanks!
+Patch v2 has no difference from v1.
+I re-submitted it because I want to find new reviewers,
+and I want to free new reviewers from the burden of reading the
+lengthy discussion and explanations in the v1 email threads.
+
+Summary of v1 discussion:
+Cong Wang referred me to Brian Norris, who did a similar change before.
+Brian Norris agreed with me on "hard_header_len vs needed_headroom",
+but was unfamiliar with X.25 drivers.
+
+---
+ drivers/net/wan/lapbether.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index b2868433718f..34cf6db89912 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -305,6 +305,7 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -331,7 +332,8 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
+ 
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
+-- 
+2.25.1
+
