@@ -1,103 +1,89 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 Subject: Re: [PATCH v2] drivers/net/wan/lapbether: Use needed_headroom instead
  of hard_header_len
-Date: Fri, 31 Jul 2020 10:12:26 -0400
-Message-ID: <CA+FuTSf_nuiah6rFy-KC1Taw+Wc4z0G7LzkAm-+Ms4FzYmTPEw@mail.gmail.com>
+Date: Fri, 31 Jul 2020 13:40:38 -0700
+Message-ID: <CAJht_ENYxy4pseOO9gY=0R0bvPPvs4GKrGJOUMx6=LPwBa2+Bg@mail.gmail.com>
 References: <20200730073702.16887-1-xie.he.0141@gmail.com> <CAJht_ENjHRExBEHx--xmqnOy1MXY_6F5XZ_exinSfa6xU_XDJg@mail.gmail.com>
+ <CA+FuTSf_nuiah6rFy-KC1Taw+Wc4z0G7LzkAm-+Ms4FzYmTPEw@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=M2GP4/P8BNSu+od4wsMwtfP/yDFgc8ZIVwv55ct9zSQ=;
-        b=IEmGQ/HdZENzGYgPx1CJ2uC963/arPCJHc5WnW7wDJCYiNwQ7cFHQDoHiFCHjQyznp
-         4OYuiAfGIrcd+PUleNOx+jKcNmXa9nbxxktypwKG8p4Jf3UbT9NdQp8LN4NfMiwAE61P
-         nCbX03sBdClB4Of/hOeF0DZ1BCTvsUVTB4sNYXGPl6Uk6fypqJDJXUIvt79WKkeu/o70
-         y4SKrNexWp18qy0TJPTWUZJcTVd+cNp71J4Yw0hWF4g7WvvKB/2GJPK5aTCiceEfaLYc
-         wfurlLqlnN9CKzXM5qtaYoBNSYoq5g5x9RNmExxG/W05iRAPREToBw7v2QmELjmcBsVi
-         j6QA==
-In-Reply-To: <CAJht_ENjHRExBEHx--xmqnOy1MXY_6F5XZ_exinSfa6xU_XDJg@mail.gmail.com>
+        bh=uD+/m62r6hde+eEk8FbuyWYY9SyQ1g17seylKKn4ScI=;
+        b=iBgR0RQZdQSu15Ft8/oJQoP9cEOetjtrQ2DYEy8vrt9bg0N6ImHfJ5G4tzTnBSDwwV
+         OqbD94zJDNtSkGg8VurDmpRZZflbt1A2soYYurx8/lEFyPjBoc19t6NAM1InEDvaCfDD
+         i3lwVE9CtYG6PWVB9xufUB6hNFhaS5ynuHiAoQx0fqcmH/05Rx4zC5FaJrZ+SRAyTOj8
+         DbP/KmFrtbH6DcbpN6XrBos5uG2gfwn+EMxweqKBhMbAafz9RCUPJTWZmtOvI75LuZQt
+         IKGaO6XFxSLFTq7ti3cUC9nF+2YAvW90OxiYe5434JT0gd0Y1et0acwcpOJY4UpvNaLw
+         heqQ==
+In-Reply-To: <CA+FuTSf_nuiah6rFy-KC1Taw+Wc4z0G7LzkAm-+Ms4FzYmTPEw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Xie He <xie.he.0141@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, briannorris@chromium.org
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Brian Norris <briannorris@chromium.org>
 
-On Thu, Jul 30, 2020 at 9:36 PM Xie He <xie.he.0141@gmail.com> wrote:
->
-> I'm really sorry to have re-sent the patch when the patch is still in
-> review. I don't intend to be disrespectful to anyone. And I apologize
-> for any disrespectfulness this might appear. Sorry.
->
-> I'm also sorry for not having sent the patch with the proper subject
-> prefixed with "net" or "net-next". If anyone requests I can re-send
-> this patch with the proper subject "PATCH net".
->
-> This patch actually fixes a kernel panic when this driver is used with
-> a AF_PACKET/RAW socket. This driver runs on top of Ethernet
-> interfaces. So I created a pair of virtual Ethernet (veth) interfaces,
-> loaded this driver to create a pair of X.25 interfaces on top of them,
-> and wrote C programs to use AF_PACKET sockets to send/receive data
-> through them.
->
-> At first I used AF_PACKET/DGRAM sockets. I prepared packet data
-> according to the requirements of X.25 drivers. I first sent an
-> one-byte packet ("\x01") to instruct the driver to connect, then I
-> sent data prefixed with an one-byte pseudo header ("\x00") to instruct
-> the driver to send the data, and then I sent another one-byte packet
-> ("\x02") to instruct the driver to disconnect.
->
-> This works fine with AF_PACKET/DGRAM sockets. However, when I change
-> it to AF_PACKET/RAW sockets, kernel panic occurs. The stack trace is
-> as follows. We can see the kernel panicked because of insufficient
-> header space when pushing the Ethernet header.
->
-> [  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
-> put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
-> dev:veth0
-> ...
-> [  168.399255] Call Trace:
-> [  168.399259]  skb_push.cold+0x14/0x24
-> [  168.399262]  eth_header+0x2b/0xc0
-> [  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
-> [  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
-> [  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
-> [  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
-> [  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
-> [  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
-> [  168.399286]  dev_hard_start_xmit+0x91/0x1f0
-> [  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
-> [  168.399291]  __dev_queue_xmit+0x721/0x8e0
-> [  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
-> [  168.399297]  dev_queue_xmit+0x10/0x20
-> [  168.399298]  packet_sendmsg+0xbf0/0x19b0
-> ......
->
-> After applying this patch, the kernel panic no longer appears, and
-> AF_PACKET/RAW sockets would then behave the same as AF_PACKET/DGRAM
-> sockets.
+Thank you for your thorough review comment!
 
-Thanks for fixing a kernel panic. The existing line was added recently
-in commit 9dc829a135fb ("drivers/net/wan/lapbether: Fixed the value of
-hard_header_len"). I assume a kernel with that commit reverted also
-panics? It does looks like it would.
+On Fri, Jul 31, 2020 at 7:13 AM Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> wrote:
+>
+> Thanks for fixing a kernel panic. The existing line was added recently
+> in commit 9dc829a135fb ("drivers/net/wan/lapbether: Fixed the value of
+> hard_header_len"). I assume a kernel with that commit reverted also
+> panics? It does looks like it would.
 
-If this driver submits a modified packet to an underlying eth device,
-it is akin to tunnel drivers. The hard_header_len vs needed_headroom
-discussion also came up there recently [1]. That discussion points to
-commit c95b819ad75b ("gre: Use needed_headroom"). So the general
-approach in this patch is fine. Do note the point about mtu
-calculations -- but this device just hardcodes a 1000 byte dev->mtu
-irrespective of underlying ethernet device mtu, so I guess it has
-bigger issues on that point.
+Yes, that commit also fixed kernel panic. But that patch only fixed
+kernel panic when using AF_PACKET/DGRAM sockets. It didn't fix kernel
+panic when using AF_PACKET/RAW sockets. This patch attempts to fix
+kernel panic when using AF_PACKET/RAW sockets, too.
 
-But, packet sockets with SOCK_RAW have to pass a fully formed packet
-with all the headers the ndo_start_xmit expects, i.e., it should be
-safe for the device to just pull that many bytes. X25 requires the
-peculiar one byte pseudo header you mention: lapbeth_xmit
-unconditionally reads skb->data[0] and then calls skb_pull(skb, 1).
-This could be considered the device hard header len.
+> If this driver submits a modified packet to an underlying eth device,
+> it is akin to tunnel drivers. The hard_header_len vs needed_headroom
+> discussion also came up there recently [1]. That discussion points to
+> commit c95b819ad75b ("gre: Use needed_headroom"). So the general
+> approach in this patch is fine. Do note the point about mtu
+> calculations -- but this device just hardcodes a 1000 byte dev->mtu
+> irrespective of underlying ethernet device mtu, so I guess it has
+> bigger issues on that point.
 
-[1] https://lore.kernel.org/netdev/86c71cc0-462c-2365-00ea-7f9e79c204b7@6wind.com/
+Yes, I didn't consider the issue of mtu calculation. Maybe we need to
+calculate the mtu of this device based on the underlying Ethernet
+device, too.
+
+We may also need to handle the situation where the mtu of the
+underlying Ethernet device changes.
+
+I'm not sure if the mtu of the device can be changed by the user
+without explicit support from the driver. If it can, we may also need
+to set max_mtu and min_mtu properly to prevent the user from setting
+it to invalid values.
+
+> But, packet sockets with SOCK_RAW have to pass a fully formed packet
+> with all the headers the ndo_start_xmit expects, i.e., it should be
+> safe for the device to just pull that many bytes. X25 requires the
+> peculiar one byte pseudo header you mention: lapbeth_xmit
+> unconditionally reads skb->data[0] and then calls skb_pull(skb, 1).
+> This could be considered the device hard header len.
+
+Yes, I agree that we can use hard_header_len (and min_header_len) to
+prevent packets shorter than 1 byte from passing.
+
+But because af_packet.c reserves a header space of needed_headroom for
+RAW sockets, but hard_header_len + needed_headroom for DGRAM sockets,
+it appears to me that af_packet.c expects hard_header_len to be the
+header length created by dev_hard_header. We can, however, set
+hard_header_len to 1 and let dev_hard_header generate a 0-sized
+header, but this makes af_packet.c to reserve an extra unused 1-byte
+header space for DGRAM sockets, and DGRAM sockets will not be
+protected by the 1-byte minimum length check like RAW sockets.
+
+The best solution might be to implement header_ops for X.25 drivers
+and let dev_hard_header create this 1-byte header, so that
+hard_header_len can equal to the header length created by
+dev_hard_header. This might be the best way to fit the logic of
+af_packet.c. But this requires changing the interface of X.25 drivers
+so it might be a big change.
