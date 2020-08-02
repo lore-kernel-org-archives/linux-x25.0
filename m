@@ -1,53 +1,120 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH v2] drivers/net/wan/lapbether: Use needed_headroom instead
- of hard_header_len
-Date: Sat, 1 Aug 2020 17:58:30 -0700
-Message-ID: <CAJht_EOdrnuYn0COTW-6kEivbq+1FqzNnWgs8E_xsdyD_pwomA@mail.gmail.com>
-References: <20200730073702.16887-1-xie.he.0141@gmail.com> <CAJht_ENjHRExBEHx--xmqnOy1MXY_6F5XZ_exinSfa6xU_XDJg@mail.gmail.com>
- <CA+FuTSf_nuiah6rFy-KC1Taw+Wc4z0G7LzkAm-+Ms4FzYmTPEw@mail.gmail.com>
- <CAJht_ENYxy4pseOO9gY=0R0bvPPvs4GKrGJOUMx6=LPwBa2+Bg@mail.gmail.com>
- <CA+FuTSeusqdfkqZihFhTE9vhcL5or6DEh8UffaKM2Px82z6BZQ@mail.gmail.com>
- <CAJht_EO4b=jC8KarwZyF1M3T57MrFCDvo-+Agnm9qD4pSCmODQ@mail.gmail.com> <CA+FuTSdJ1c0R2qmKtm9vWpKnMv=-B0yAaronGkqg=jYZBfqceA@mail.gmail.com>
+Subject: [net v3] drivers/net/wan/lapbether: Use needed_headroom instead of hard_header_len
+Date: Sun,  2 Aug 2020 12:50:46 -0700
+Message-ID: <20200802195046.402539-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Wtd1dTqkIQZNG0/L93HORXN7DmmIz2UILlkYQcDT6aM=;
-        b=cDFC28TNCnBL9i2dwpdgSVKxiqUVFYdv7Is61GyKTALJ4OkNnKxhn7wQw0NdfUPgNT
-         h659nPgUZhPC5HqFoFN+Hw250ELXr6du7JHOpzb4B5Oz+bC/xDfRUTqcV+9twoL4SDf0
-         4mpXQpLJDoGZt1MG6A1bsyi8jIRbqmeUoau0G3Hq8XM9JHLtMsYGNOCaDsWyoCZk/ePd
-         ukBM4BcNquw1FBowrXsJIJX+0Y2O7kpuq/1WdnKLyN/R/c4poi8YCRt4Cy+h4C9QNT8C
-         /J9GROMbyEeZjsySqm4LoZe2owKJ0gLpoVRYOmwN2ittIlmtobeKMWi5AYTSNFb3owkd
-         sEQQ==
-In-Reply-To: <CA+FuTSdJ1c0R2qmKtm9vWpKnMv=-B0yAaronGkqg=jYZBfqceA@mail.gmail.com>
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=B9BYrY99T620aK2jc5HkCpNbc33t/1UkwxGWa0hFtbs=;
+        b=ODggDmsS4CbzPlYSm6/dZcfz6K+93ERd+GcOsML7aNME26dExFXZziMERjT2KwMU+d
+         99jbl6tYo88EkBQV5YqzWL6QJKSjK7hMGenklAnk30W1yLci29kGEMhqfybzTL8cr6Vc
+         ZoRAm7PCva0v0Q26qsIQBjYjoNhCI/ekKOoutnScumQnMwVKwz1hGJkO+M/PMvOoFg3h
+         HLxwSShsOwQAYd55FOG93JUv3MRckVtXMlDw3e5rLCvCPKwlhe6CwlmOl2Bo0l6dDjBE
+         QGH8eO2+FExYSRjf3mOhizKN2kRnRCzHhp8hRgyPSBH0Hxeoan4PsnnzIER9f3kCSS7X
+         IiPg==
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Brian Norris <briannorris@chromium.org>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Cc: Xie He <xie.he.0141@gmail.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Brian Norris <briannorris@chromium.org>
 
-On Sat, Aug 1, 2020 at 6:31 AM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
->
-> The kernel interface cannot be changed. If packet sockets used to pass
-> the first byte up to userspace, they have to continue to do so.
->
-> So I think you can limit the header_ops to only dev_hard_header.
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
 
-Actually if we want to keep the kernel interface unchanged, we
-shouldn't implement header_ops for dev_hard_header either, because
-this changes the way the user space program sends DGRAM packets, too.
-Before the change the userspace program needs to add the 1-byte header
-before sending, and after the change the userspace program will let
-the kernel add the header via dev_hard_header.
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
 
-> Fixes should be small and targeted. Any larger refactoring is
-> best addressed in a separate net-next patch.
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
 
-I guess the best way for this fix patch would be just add a 0-byte
-packet check before the driver reads skb->data[0].
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
 
-Thanks! I'll add the check and re-send the patch.
+This change fixes kernel panic when this driver is used with AF_PACKET
+SOCK_RAW sockets. Call stack when panic:
+
+[  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
+put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
+dev:veth0
+...
+[  168.399255] Call Trace:
+[  168.399259]  skb_push.cold+0x14/0x24
+[  168.399262]  eth_header+0x2b/0xc0
+[  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
+[  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
+[  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
+[  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
+[  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
+[  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
+[  168.399286]  dev_hard_start_xmit+0x91/0x1f0
+[  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
+[  168.399291]  __dev_queue_xmit+0x721/0x8e0
+[  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
+[  168.399297]  dev_queue_xmit+0x10/0x20
+[  168.399298]  packet_sendmsg+0xbf0/0x19b0
+......
+
+Additional change:
+When sending, check skb->len to ensure the 1-byte pseudo header is
+present before reading it.
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+
+Change from v2:
+Added skb->len check when sending.
+
+Change from v1:
+None
+
+---
+ drivers/net/wan/lapbether.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index b2868433718f..8a3f7ba36f7e 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -157,6 +157,9 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 	if (!netif_running(dev))
+ 		goto drop;
+ 
++	if (skb->len < 1)
++		goto drop;
++
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:
+ 		break;
+@@ -305,6 +308,7 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -331,7 +335,8 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
+ 
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
+-- 
+2.25.1
+
