@@ -1,57 +1,124 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [net v3] drivers/net/wan/lapbether: Use needed_headroom instead
- of hard_header_len
-Date: Wed, 5 Aug 2020 11:33:10 +0200
-Message-ID: <CA+FuTSf2r1eFoFHov-cGDG=5iLAUGt+Jv7Aok7EFrVo8UqkJog@mail.gmail.com>
-References: <20200802195046.402539-1-xie.he.0141@gmail.com>
- <d02996f90f64d55d5c5e349560bfde46@dev.tdt.de> <CAJht_ENuzbyYesYtP0703xgRwRBTY9SySe3oXLEtkyL_H_yTSQ@mail.gmail.com>
- <9975370f14b8ddeafc8dec7bc6c0878a@dev.tdt.de> <CAJht_EMf5i1qykEP6sZjLBcPAN9u9oQoZ34dfJ68Z5XL6rKuDQ@mail.gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: [PATCH] drivers/net/wan/lapbether: Added needed_headroom and a skb->len check
+Date: Wed,  5 Aug 2020 18:50:40 -0700
+Message-ID: <20200806015040.98379-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Zv3njctJm6+JcXZYqCty4/Sd4dBn0kL3k7iTzjdDtfw=;
-        b=oenfg43n0bbPqzDbC7M2gy1BFz6L4j5HVCwHLtU/Pd/u1lL9Q8XQe9N2tV7UufJLBo
-         MATyUl4G6KT941Gq5GWK1IRQAUrFB+lObmZPz6DsWSFZIk98PEkOpyS44op89AjF0Yhc
-         /nCPtftT2HFYYw1+IL9n60Qm0Rse1uvZQdFsSt1qycaGxhSvOLb2GrZKd3IQdGpnbER7
-         55M2mlDFMUTcf3/1WW8TpGa8ffoPYhK6NHu8G+w75fYXZQNHZYmxpY7ENGI8aJd1IqbQ
-         COcN6TjLK7eeGurWWCYgSthmkkpR2GYKwx/B6sEXmj3k30YgV+xNiFNNEZmqWstxYnmp
-         HSoQ==
-In-Reply-To: <CAJht_EMf5i1qykEP6sZjLBcPAN9u9oQoZ34dfJ68Z5XL6rKuDQ@mail.gmail.com>
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=t7qgvGoGJ/RGVSfdKbMsEFKwg8apV6p2sE/5Kdluv/M=;
+        b=oxNnsnxt/6vP6yiDtEclyzwcrnpNndJDHOtveoyjVZGe/SccV1U5ZjFpVCsTGkG4aM
+         Un8s5QqLNRmTsxhnqa5wp6s5y4Es6/0ByrIq9lsLmh1Ky6/23Crw3mBt8xU2XHRHhp2z
+         guosVzJ6/F4imnpqLp09VfJfQsiMAUcIR33InKI7EP6PB3s4CrvqHCrgH5m1T60v/nFt
+         0SrBhErh4PYM6l5bY0FTKyNzCrmO5KyOrTR7fpFF1zWclpMLFQUceQhmkmNHgqKAFAQ3
+         ZGSqvk+YXINV+f+54DN6JwViAd2HAZKXZcKYFdSLghH+HSNgkhylPeKXOFpH1NfRRSHp
+         N4NA==
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Xie He <xie.he.0141@gmail.com>
-Cc: Martin Schiller <ms@dev.tdt.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Brian Norris <briannorris@chromium.org>, netdev-owner@vger.kernel.org
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Cc: Xie He <xie.he.0141@gmail.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Martin Schiller <ms@dev.tdt.de>, Brian Norris <briannorris@chromium.org>
 
-On Wed, Aug 5, 2020 at 10:57 AM Xie He <xie.he.0141@gmail.com> wrote:
->
-> On Tue, Aug 4, 2020 at 10:23 PM Martin Schiller <ms@dev.tdt.de> wrote:
-> >
-> > > Adding skb_cow before these skb_push calls would indeed help
-> > > preventing kernel panics, but that might not be the essential issue
-> > > here, and it might also prevent us from discovering the real issue. (I
-> > > guess this is also the reason skb_cow is not included in skb_push
-> > > itself.)
-> >
-> > Well, you are right that the panic is "useful" to discover the real
-> > problem. But on the other hand, if it is possible to prevent a panic, I
-> > think we should do so. Maybe with adding a warning, when skb_cow() needs
-> > to reallocate memory.
-> >
-> > But this is getting a little bit off topic. For this patch I can say:
-> >
-> > LGTM.
-> >
-> > Reviewed-by: Martin Schiller <ms@dev.tdt.de>
->
-> Thank you so much!
->
-> Yes, it might be better to use skb_cow with a warning so that we can
-> prevent kernel panic while still being able to discover the problem.
+1. Added a skb->len check
 
-Let's not add defenses to work around possibly buggy code. In the long
-run that reduces code quality. Instead, fix bugs at the source.
+This driver expects upper layers to include a pseudo header of 1 byte
+when passing down a skb for transmission. This driver will read this
+1-byte header. This patch added a skb->len check before reading the
+header to make sure the header exists.
+
+2. Changed to use needed_headroom instead of hard_header_len to request
+necessary headroom to be allocated
+
+In net/packet/af_packet.c, the function packet_snd first reserves a
+headroom of length (dev->hard_header_len + dev->needed_headroom).
+Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
+which calls dev->header_ops->create, to create the link layer header.
+If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
+length (dev->hard_header_len), and assumes the user to provide the
+appropriate link layer header.
+
+So according to the logic of af_packet.c, dev->hard_header_len should
+be the length of the header that would be created by
+dev->header_ops->create.
+
+However, this driver doesn't provide dev->header_ops, so logically
+dev->hard_header_len should be 0.
+
+So we should use dev->needed_headroom instead of dev->hard_header_len
+to request necessary headroom to be allocated.
+
+This change fixes kernel panic when this driver is used with AF_PACKET
+SOCK_RAW sockets.
+
+Call stack when panic:
+
+[  168.399197] skbuff: skb_under_panic: text:ffffffff819d95fb len:20
+put:14 head:ffff8882704c0a00 data:ffff8882704c09fd tail:0x11 end:0xc0
+dev:veth0
+...
+[  168.399255] Call Trace:
+[  168.399259]  skb_push.cold+0x14/0x24
+[  168.399262]  eth_header+0x2b/0xc0
+[  168.399267]  lapbeth_data_transmit+0x9a/0xb0 [lapbether]
+[  168.399275]  lapb_data_transmit+0x22/0x2c [lapb]
+[  168.399277]  lapb_transmit_buffer+0x71/0xb0 [lapb]
+[  168.399279]  lapb_kick+0xe3/0x1c0 [lapb]
+[  168.399281]  lapb_data_request+0x76/0xc0 [lapb]
+[  168.399283]  lapbeth_xmit+0x56/0x90 [lapbether]
+[  168.399286]  dev_hard_start_xmit+0x91/0x1f0
+[  168.399289]  ? irq_init_percpu_irqstack+0xc0/0x100
+[  168.399291]  __dev_queue_xmit+0x721/0x8e0
+[  168.399295]  ? packet_parse_headers.isra.0+0xd2/0x110
+[  168.399297]  dev_queue_xmit+0x10/0x20
+[  168.399298]  packet_sendmsg+0xbf0/0x19b0
+......
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+ drivers/net/wan/lapbether.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index b2868433718f..1ea15f2123ed 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -157,6 +157,12 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 	if (!netif_running(dev))
+ 		goto drop;
+ 
++	/* There should be a pseudo header of 1 byte added by upper layers.
++	 * Check to make sure it is there before reading it.
++	 */
++	if (skb->len < 1)
++		goto drop;
++
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:
+ 		break;
+@@ -305,6 +311,7 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->netdev_ops	     = &lapbeth_netdev_ops;
+ 	dev->needs_free_netdev = true;
+ 	dev->type            = ARPHRD_X25;
++	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
+ }
+@@ -331,7 +338,8 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	 * then this driver prepends a length field of 2 bytes,
+ 	 * then the underlying Ethernet device prepends its own header.
+ 	 */
+-	ndev->hard_header_len = -1 + 3 + 2 + dev->hard_header_len;
++	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
++					   + dev->needed_headroom;
+ 
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
+-- 
+2.25.1
+
