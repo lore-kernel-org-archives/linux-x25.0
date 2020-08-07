@@ -1,55 +1,27 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] drivers/net/wan/lapbether: Added needed_headroom and a
- skb->len check
-Date: Thu, 06 Aug 2020 17:02:05 -0700 (PDT)
-Message-ID: <20200806.170205.1316893051509388641.davem@davemloft.net>
-References: <20200806015040.98379-1-xie.he.0141@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 25/26] net: pass a sockptr_t into ->setsockopt
+Date: Fri, 7 Aug 2020 09:21:20 +0200
+Message-ID: <20200807072120.GB2086@lst.de>
+References: <20200723060908.50081-1-hch@lst.de> <20200723060908.50081-26-hch@lst.de> <6357942b-0b6e-1901-7dce-e308c9fac347@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200806015040.98379-1-xie.he.0141@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hams-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6357942b-0b6e-1901-7dce-e308c9fac347@gmail.com>
+Sender: linux-hams-owner@vger.kernel.org
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: xie.he.0141@gmail.com
-Cc: kuba@kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, willemdebruijn.kernel@gmail.com, ms@dev.tdt.de, briannorris@chromium.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, 
 
-From: Xie He <xie.he.0141@gmail.com>
-Date: Wed,  5 Aug 2020 18:50:40 -0700
+On Thu, Aug 06, 2020 at 03:21:25PM -0700, Eric Dumazet wrote:
+> converting get_user(...)   to  copy_from_sockptr(...) really assumed the optlen
+> has been validated to be >= sizeof(int) earlier.
+> 
+> Which is not always the case, for example here.
 
-> 1. Added a skb->len check
-> 
-> This driver expects upper layers to include a pseudo header of 1 byte
-> when passing down a skb for transmission. This driver will read this
-> 1-byte header. This patch added a skb->len check before reading the
-> header to make sure the header exists.
-> 
-> 2. Changed to use needed_headroom instead of hard_header_len to request
-> necessary headroom to be allocated
-> 
-> In net/packet/af_packet.c, the function packet_snd first reserves a
-> headroom of length (dev->hard_header_len + dev->needed_headroom).
-> Then if the socket is a SOCK_DGRAM socket, it calls dev_hard_header,
-> which calls dev->header_ops->create, to create the link layer header.
-> If the socket is a SOCK_RAW socket, it "un-reserves" a headroom of
-> length (dev->hard_header_len), and assumes the user to provide the
-> appropriate link layer header.
-> 
-> So according to the logic of af_packet.c, dev->hard_header_len should
-> be the length of the header that would be created by
-> dev->header_ops->create.
-> 
-> However, this driver doesn't provide dev->header_ops, so logically
-> dev->hard_header_len should be 0.
-> 
-> So we should use dev->needed_headroom instead of dev->hard_header_len
-> to request necessary headroom to be allocated.
-> 
-> This change fixes kernel panic when this driver is used with AF_PACKET
-> SOCK_RAW sockets.
-> 
-> Call stack when panic:
- ...
-> Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Yes.  And besides the bpfilter mess the main reason I even had to add
+the sockptr vs just copying optlen in the high-level socket code.
 
-Applied and queued up for -stable, thanks.
+Please take a look at the patch in the other thread to just revert to
+the "dumb" version everywhere.
