@@ -1,104 +1,45 @@
-From: syzbot <syzbot+1e6138e3196ac80e99b8@syzkaller.appspotmail.com>
-Subject: possible deadlock in x25_disconnect
-Date: Fri, 25 Sep 2020 01:48:16 -0700
-Message-ID: <000000000000b9cf7105b01f60a5@google.com>
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: [PATCH] net/x25: Fix null-ptr-deref in x25_connect
+Date: Mon, 28 Sep 2020 11:23:27 +0200
+Message-ID: <20200928092327.329-1-ms@dev.tdt.de>
 Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, tanxin.ctf@gmail.com, xiyuyang19@fudan.edu.cn, yuehaibing@huawei.com
+To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-Hello,
+This fixes a regression for blocking connects introduced by commit
+4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
 
-syzbot found the following issue on:
+The x25->neighbour is already set to "NULL" by x25_disconnect() now,
+while a blocking connect is waiting in
+x25_wait_for_connection_establishment(). Therefore x25->neighbour must
+not be accessed here again and x25->state is also already set to
+X25_STATE_0 by x25_disconnect().
 
-HEAD commit:    77972b55 Revert "ravb: Fixed to be able to unload modules"
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=110cf809900000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=5f4c828c9e3cef97
-dashboard link: https://syzkaller.appspot.com/bug?extid=1e6138e3196ac80e99b8
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+1e6138e3196ac80e99b8@syzkaller.appspotmail.com
-
-============================================
-WARNING: possible recursive locking detected
-5.9.0-rc6-syzkaller #0 Not tainted
---------------------------------------------
-syz-executor.1/12065 is trying to acquire lock:
-ffffffff8b2e7318 (x25_list_lock){++..}-{2:2}, at: x25_disconnect+0x279/0x3e0 net/x25/x25_subr.c:361
-
-but task is already holding lock:
-ffffffff8b2e7318 (x25_list_lock){++..}-{2:2}, at: x25_kill_by_device net/x25/af_x25.c:209 [inline]
-ffffffff8b2e7318 (x25_list_lock){++..}-{2:2}, at: x25_device_event+0x1bf/0x300 net/x25/af_x25.c:247
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(x25_list_lock);
-  lock(x25_list_lock);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-2 locks held by syz-executor.1/12065:
- #0: ffffffff8b148f28 (rtnl_mutex){+.+.}-{3:3}, at: dev_ioctl+0x1a3/0xc40 net/core/dev_ioctl.c:510
- #1: ffffffff8b2e7318 (x25_list_lock){++..}-{2:2}, at: x25_kill_by_device net/x25/af_x25.c:209 [inline]
- #1: ffffffff8b2e7318 (x25_list_lock){++..}-{2:2}, at: x25_device_event+0x1bf/0x300 net/x25/af_x25.c:247
-
-stack backtrace:
-CPU: 0 PID: 12065 Comm: syz-executor.1 Not tainted 5.9.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x198/0x1fd lib/dump_stack.c:118
- print_deadlock_bug kernel/locking/lockdep.c:2391 [inline]
- check_deadlock kernel/locking/lockdep.c:2432 [inline]
- validate_chain kernel/locking/lockdep.c:3202 [inline]
- __lock_acquire.cold+0x148/0x3b0 kernel/locking/lockdep.c:4441
- lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
- __raw_read_lock_bh include/linux/rwlock_api_smp.h:176 [inline]
- _raw_read_lock_bh+0x32/0x40 kernel/locking/spinlock.c:247
- x25_disconnect+0x279/0x3e0 net/x25/x25_subr.c:361
- x25_kill_by_device net/x25/af_x25.c:213 [inline]
- x25_device_event+0x27c/0x300 net/x25/af_x25.c:247
- notifier_call_chain+0xb5/0x200 kernel/notifier.c:83
- call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:2033
- call_netdevice_notifiers_extack net/core/dev.c:2045 [inline]
- call_netdevice_notifiers net/core/dev.c:2059 [inline]
- __dev_notify_flags+0x1da/0x2b0 net/core/dev.c:8325
- dev_change_flags+0x100/0x160 net/core/dev.c:8361
- dev_ifsioc+0x210/0xa70 net/core/dev_ioctl.c:265
- dev_ioctl+0x1b1/0xc40 net/core/dev_ioctl.c:511
- sock_do_ioctl+0x148/0x2d0 net/socket.c:1070
- sock_ioctl+0x3b8/0x730 net/socket.c:1198
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45e179
-Code: 3d b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 0b b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f623a794c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000015740 RCX: 000000000045e179
-RDX: 0000000020000140 RSI: 0000000000008914 RDI: 0000000000000004
-RBP: 000000000118cf80 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cf4c
-R13: 00007ffc0abd13ff R14: 00007f623a7959c0 R15: 000000000118cf4c
-
-
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconn=
+ect")
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ net/x25/af_x25.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 0bbb283f23c9..0524a5530b91 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -820,7 +820,7 @@ static int x25_connect(struct socket *sock, struct so=
+ckaddr *uaddr,
+=20
+ 	rc =3D x25_wait_for_connection_establishment(sk);
+ 	if (rc)
+-		goto out_put_neigh;
++		goto out;
+=20
+ 	sock->state =3D SS_CONNECTED;
+ 	rc =3D 0;
+--=20
+2.20.1
+
