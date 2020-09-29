@@ -1,45 +1,35 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH] net/x25: Fix null-ptr-deref in x25_connect
-Date: Mon, 28 Sep 2020 11:23:27 +0200
-Message-ID: <20200928092327.329-1-ms@dev.tdt.de>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] net/x25: Fix null-ptr-deref in x25_connect
+Date: Mon, 28 Sep 2020 18:43:26 -0700 (PDT)
+Message-ID: <20200928.184326.1754311969939569006.davem@davemloft.net>
+References: <20200928092327.329-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200928092327.329-1-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Content-Type: Text/Plain; charset="us-ascii"
+To: ms@dev.tdt.de
+Cc: andrew.hendry@gmail.com, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This fixes a regression for blocking connects introduced by commit
-4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
+From: Martin Schiller <ms@dev.tdt.de>
+Date: Mon, 28 Sep 2020 11:23:27 +0200
 
-The x25->neighbour is already set to "NULL" by x25_disconnect() now,
-while a blocking connect is waiting in
-x25_wait_for_connection_establishment(). Therefore x25->neighbour must
-not be accessed here again and x25->state is also already set to
-X25_STATE_0 by x25_disconnect().
+> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+> index 0bbb283f23c9..0524a5530b91 100644
+> --- a/net/x25/af_x25.c
+> +++ b/net/x25/af_x25.c
+> @@ -820,7 +820,7 @@ static int x25_connect(struct socket *sock, struct sockaddr *uaddr,
+>  
+>  	rc = x25_wait_for_connection_establishment(sk);
+>  	if (rc)
+> -		goto out_put_neigh;
+> +		goto out;
 
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconn=
-ect")
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
- net/x25/af_x25.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+If x25_wait_for_connection_establishment() returns because of an interrupting
+signal, we are not going to call x25_disconnect().
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 0bbb283f23c9..0524a5530b91 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -820,7 +820,7 @@ static int x25_connect(struct socket *sock, struct so=
-ckaddr *uaddr,
-=20
- 	rc =3D x25_wait_for_connection_establishment(sk);
- 	if (rc)
--		goto out_put_neigh;
-+		goto out;
-=20
- 	sock->state =3D SS_CONNECTED;
- 	rc =3D 0;
---=20
-2.20.1
+The case you are fixing only applies _sometimes_ when
+x25_wait_for_connection_establishment() returns.  But not always.
 
+That neighbour has to be released at this spot otherwise.
