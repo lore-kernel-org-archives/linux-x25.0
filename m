@@ -1,80 +1,52 @@
-From: Arnd Bergmann <arnd@kernel.org>
+From: Xie He <xie.he.0141@gmail.com>
 Subject: Re: [PATCH net-next] net: x25_asy: Delete the x25_asy driver
-Date: Thu, 5 Nov 2020 16:06:54 +0100
-Message-ID: <CAK8P3a2bk9ZpoEvmhDpSv8ByyO-LevmF-W4Or_6RPRtV6gTQ1w@mail.gmail.com>
-References: <20201105073434.429307-1-xie.he.0141@gmail.com>
+Date: Thu, 5 Nov 2020 12:04:55 -0800
+Message-ID: <CAJht_EPP_otbU226Ub5mC_OZPXO4h0O2-URkpsrMBFovcdDHWQ@mail.gmail.com>
+References: <20201105073434.429307-1-xie.he.0141@gmail.com> <CAK8P3a2bk9ZpoEvmhDpSv8ByyO-LevmF-W4Or_6RPRtV6gTQ1w@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604588832;
-        bh=iGxDjGpgZgvh1at2/59sSPdVCtzZKM9jCmS50+iMi3E=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=RL8Yxi3b4nBNd50oejfwXK6xegX1iflPA7ERuLp1Ndd/RGOer8n4zqguIpdDv7REL
-         0D3kedysHHVG0MONILeThjZnfZ70toRQGAo7rzWFijqay/AGv/7vkSSoSxNO8E855z
-         Ze9Tjix7M53/tgPRrifDZ7YcBCnX0e9ZHhiU88x4=
-In-Reply-To: <20201105073434.429307-1-xie.he.0141@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=seMETD+A0muyA/mqytcvGqhJO4LEpEn0huI9QAUp6i8=;
+        b=lQGBVRxreZ2HL1YK7S/KtNHaL6hNDaZW6v2xBDn0Go4RcZCmJfgyyvj9X93ifBZMd/
+         DKtcKaPoPcaMdNPP4iak5uVgkbj/sRxVt/vuqY/WPg7gjIdt6UiecV+9SaXp4j8b6i/h
+         5IA/8DB4Swijl1UPH2xK8LBZas81eZwQIaAczAaHyRcXjYECzHgmdQD7A61N4DESlMMf
+         vPfx5VCX0alnNBnEavDlS+Qggp7QcW4Z+tdtnSii3MGImxv71fTxDTCGHHKcuons+G/r
+         toULyUA7KsARE+JT8AzsGrtqJhEDYon05wt9f0as6Yr9JH94s85I5bxHjMNgMEbQ4RYB
+         bZDw==
+In-Reply-To: <CAK8P3a2bk9ZpoEvmhDpSv8ByyO-LevmF-W4Or_6RPRtV6gTQ1w@mail.gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Xie He <xie.he.0141@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Networking <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Martin Schiller <ms@dev.tdt.de>, Andrew Hendry <andrew.hendry@gmail.com>, linux-x25@vger.kernel.org
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Networking <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Martin Schiller <ms@dev.tdt.de>, Andrew Hendry <andrew.hendry@gmail.com>, Linux X25 <linux-x25@vger.kernel.org>
 
-On Thu, Nov 5, 2020 at 8:34 AM Xie He <xie.he.0141@gmail.com> wrote:
+On Thu, Nov 5, 2020 at 7:07 AM Arnd Bergmann <arnd@kernel.org> wrote:
 >
-> This driver transports LAPB (X.25 link layer) frames over TTY links.
->
-> I can safely say that this driver has no actual user because it was
-> not working at all until:
-> commit 8fdcabeac398 ("drivers/net/wan/x25_asy: Fix to make it work")
->
-> The code in its current state still has problems:
->
-> 1.
-> The uses of "struct x25_asy" in x25_asy_unesc (when receiving) and in
-> x25_asy_write_wakeup (when sending) are not protected by locks against
-> x25_asy_change_mtu's changing of the transmitting/receiving buffers.
-> Also, all "netif_running" checks in this driver are not protected by
-> locks against the ndo_stop function.
->
-> 2.
-> The driver stops all TTY read/write when the netif is down.
-> I think this is not right because this may cause the last outgoing frame
-> before the netif goes down to be incompletely transmitted, and the first
-> incoming frame after the netif goes up to be incompletely received.
->
-> And there may also be other problems.
->
-> I was planning to fix these problems but after recent discussions about
-> deleting other old networking code, I think we may just delete this
-> driver, too.
->
-> Signed-off-by: Xie He <xie.he.0141@gmail.com>
-> ---
->  Documentation/process/magic-number.rst        |   1 -
->  .../it_IT/process/magic-number.rst            |   1 -
->  .../zh_CN/process/magic-number.rst            |   1 -
->  arch/mips/configs/gpr_defconfig               |   1 -
->  arch/mips/configs/mtx1_defconfig              |   1 -
->  drivers/net/wan/Kconfig                       |  15 -
->  drivers/net/wan/Makefile                      |   1 -
->  drivers/net/wan/x25_asy.c                     | 836 ------------------
->  drivers/net/wan/x25_asy.h                     |  46 -
->  9 files changed, 903 deletions(-)
->  delete mode 100644 drivers/net/wan/x25_asy.c
->  delete mode 100644 drivers/net/wan/x25_asy.h
+> Adding Martin Schiller and Andrew Hendry, plus the linux-x25 mailing
+> list to Cc.
 
-Adding Martin Schiller and Andrew Hendry, plus the linux-x25 mailing
-list to Cc. When I last looked at the wan drivers, I think I concluded
-that this should still be kept around, but I do not remember why.
-OTOH if it was broken for a long time, that is a clear indication that
-it was in fact unused.
+The linux-x25 mail list has stopped working for a long time.
 
-Since you did the bugfix mentioned above, do you have an idea
-when it could have last worked? I see it was originally merged in
-linux-2.3.21, and Stephen Hemminger did a cleanup for
-linux-2.6.0-rc3 that he apparently tested but also said "Not sure
-if anyone ever uses this.".
+> When I last looked at the wan drivers, I think I concluded
+> that this should still be kept around, but I do not remember why.
 
-Hopefully Martin or Andrew can provide a definite Ack or Nack on this.
+I think we only decided that X.25 as a whole was still needed. We
+didn't decide that this particular driver was necessary.
 
-      Arnd
+> Since you did the bugfix mentioned above, do you have an idea
+> when it could have last worked? I see it was originally merged in
+> linux-2.3.21, and Stephen Hemminger did a cleanup for
+> linux-2.6.0-rc3 that he apparently tested but also said "Not sure
+> if anyone ever uses this.".
+
+I think this driver never worked. Looking at the original code in
+Linux 2.1.31, it already has the problems I fixed in commit
+8fdcabeac398.
+
+I guess when people (or bots) say they "tested", they have not
+necessarily used this driver to actually try transporting data. They
+may just have tested open/close, etc. to confirm that the particular
+problem/issue they saw had been fixed.
