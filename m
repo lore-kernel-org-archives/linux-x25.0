@@ -1,55 +1,54 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: Re: [PATCH v2] net/x25: Fix null-ptr-deref in x25_connect
-Date: Fri, 06 Nov 2020 07:23:05 +0100
-Message-ID: <9751fc51170c9bf776e03d079a3e92e3@dev.tdt.de>
-References: <20201006054558.19453-1-ms@dev.tdt.de>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH net-next] net: x25_asy: Delete the x25_asy driver
+Date: Fri, 6 Nov 2020 09:03:20 +0000
+Message-ID: <f4b59cfa4f6b4cc89bf2f111974bb86e@AcuMS.aculab.com>
+References: <20201105073434.429307-1-xie.he.0141@gmail.com>
+ <CAK8P3a2bk9ZpoEvmhDpSv8ByyO-LevmF-W4Or_6RPRtV6gTQ1w@mail.gmail.com>
+ <CAJht_EPP_otbU226Ub5mC_OZPXO4h0O2-URkpsrMBFovcdDHWQ@mail.gmail.com>
+ <CAK8P3a2jd3w=k9HC-kFWZYuzAf2D4npkWdrUn6UBj6JzrrVkpQ@mail.gmail.com>
+ <CAJht_EPAqy_+Cfh1TXoNeC_j7JDgPWrG-=mMMmQ3ot2gNZuB8A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20201006054558.19453-1-ms@dev.tdt.de>
+Content-Transfer-Encoding: base64
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <CAJht_EPAqy_+Cfh1TXoNeC_j7JDgPWrG-=mMMmQ3ot2gNZuB8A@mail.gmail.com>
+Content-Language: en-US
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: 'Xie He' <xie.he.0141@gmail.com>, Arnd Bergmann <arnd@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Networking <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Martin Schiller <ms@dev.tdt.de>, Andrew Hendry <andrew.hendry@gmail.com>, Linux X25 <linux-x25@vger.kernel.org>
 
-On 2020-10-06 07:45, Martin Schiller wrote:
-> This fixes a regression for blocking connects introduced by commit
-> 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 
-> disconnect").
-> 
-> The x25->neighbour is already set to "NULL" by x25_disconnect() now,
-> while a blocking connect is waiting in
-> x25_wait_for_connection_establishment(). Therefore x25->neighbour must
-> not be accessed here again and x25->state is also already set to
-> X25_STATE_0 by x25_disconnect().
-> 
-> Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 
-> disconnect")
-> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-> ---
-> 
-> Change from v1:
-> also handle interrupting signals correctly
-> 
-> ---
->  net/x25/af_x25.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-> index 0bbb283f23c9..046d3fee66a9 100644
-> --- a/net/x25/af_x25.c
-> +++ b/net/x25/af_x25.c
-> @@ -825,7 +825,7 @@ static int x25_connect(struct socket *sock, struct
-> sockaddr *uaddr,
->  	sock->state = SS_CONNECTED;
->  	rc = 0;
->  out_put_neigh:
-> -	if (rc) {
-> +	if (rc && x25->neighbour) {
->  		read_lock_bh(&x25_list_lock);
->  		x25_neigh_put(x25->neighbour);
->  		x25->neighbour = NULL;
-
-@David
-Is there anything left I need to do, to get this fix merged?
+RnJvbTogWGllIEhlDQo+IFNlbnQ6IDA1IE5vdmVtYmVyIDIwMjAgMjI6NDcNCj4gDQo+IE9uIFRo
+dSwgTm92IDUsIDIwMjAgYXQgMTI6NDAgUE0gQXJuZCBCZXJnbWFubiA8YXJuZEBrZXJuZWwub3Jn
+PiB3cm90ZToNCj4gPg0KPiA+ID4gSSB0aGluayB0aGlzIGRyaXZlciBuZXZlciB3b3JrZWQuIExv
+b2tpbmcgYXQgdGhlIG9yaWdpbmFsIGNvZGUgaW4NCj4gPiA+IExpbnV4IDIuMS4zMSwgaXQgYWxy
+ZWFkeSBoYXMgdGhlIHByb2JsZW1zIEkgZml4ZWQgaW4gY29tbWl0DQo+ID4gPiA4ZmRjYWJlYWMz
+OTguDQo+ID4gPg0KPiA+ID4gSSBndWVzcyB3aGVuIHBlb3BsZSAob3IgYm90cykgc2F5IHRoZXkg
+InRlc3RlZCIsIHRoZXkgaGF2ZSBub3QNCj4gPiA+IG5lY2Vzc2FyaWx5IHVzZWQgdGhpcyBkcml2
+ZXIgdG8gYWN0dWFsbHkgdHJ5IHRyYW5zcG9ydGluZyBkYXRhLiBUaGV5DQo+ID4gPiBtYXkganVz
+dCBoYXZlIHRlc3RlZCBvcGVuL2Nsb3NlLCBldGMuIHRvIGNvbmZpcm0gdGhhdCB0aGUgcGFydGlj
+dWxhcg0KPiA+ID4gcHJvYmxlbS9pc3N1ZSB0aGV5IHNhdyBoYWQgYmVlbiBmaXhlZC4NCj4gPg0K
+PiA+IEl0IGRpZG4ndCBzb3VuZCBsaWtlIHRoYXQgZnJvbSB0aGUgY29tbWl0IG1lc3NhZ2UsIGJ1
+dCBpdCBjb3VsZCBiZS4NCj4gPiBGb3IgcmVmZXJlbmNlOg0KPiA+DQo+IGh0dHBzOi8vZ2l0Lmtl
+cm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3RnbHgvaGlzdG9yeS5naXQvY29tbWl0
+P2lkPWFhMmI0NDI3YzM1NWFjYWY4NmQyYzdlNmZhZQ0KPiBhMzQ3MjAwNWUzY2ZmDQo+IA0KPiBJ
+IHNlZS4gVGhlIGF1dGhvciBvZiB0aGlzIGNvbW1pdCBzYWlkICJJIHRlc3RlZCBieSBicmluZ2lu
+ZyB1cCBhbiB4LjI1DQo+IGFzeW5jIGxpbmUgdXNpbmcgYSBtb2RpZmllZCB2ZXJzaW9uIG9mIHNs
+YXR0YWNoLiIgTWF5YmUgaGUgb25seQ0KPiBzd2l0Y2hlZCBUVFkgcG9ydHMgZnJvbSB0aGUgTl9U
+VFkgbGluZSBkaXNjaXBsaW5lIHRvIHRoZSBOX1gyNSBsaW5lDQo+IGRpc2NpcGxpbmUuIFRvIGFj
+dHVhbGx5IHRlc3QgdHJhbnNwb3J0aW5nIGRhdGEsIHdlIG5lZWQgdG8gZWl0aGVyIHVzZQ0KPiBB
+Rl9QQUNLRVQgc29ja2V0cywgb3IgdXNlIEFGX1gyNSBzb2NrZXRzIHdpdGggdGhlIFguMjUgcm91
+dGluZyB0YWJsZQ0KPiBwcm9wZXJseSBzZXQgdXAuIFRoZSBhdXRob3Igb2YgdGhpcyBjb21taXQg
+ZGlkbid0IGNsZWFybHkgaW5kaWNhdGUNCj4gdGhhdCBoZSBkaWQgdGhlc2UuDQoNCkhtbW0uLi4u
+IExBUEIgd291bGQgZXhwZWN0IHRvIGhhdmUgYW4gWC4yNSBsZXZlbCAzIGFuZCBtYXliZSBJU08N
+CnRyYW5zcG9ydCAoY2xhc3MgMCwgMiBvciAzKSBzYXQgb24gdG9wIG9mIGl0Lg0KVGhlIElTTyBu
+ZXR3b3JraW5nIHNlcnZpY2Ugd291bGQgbm9ybWFsbHkgYmUgYWJzZW50IChtb3JlIGxpa2VseSB0
+bw0KYmUgdXNlZCB3aXRoIGNsYXNzIDQgdHJhbnNwb3J0IG92ZXIgZXRoZXJuZXQgLSBidXQgc3Rp
+bGwgb3B0aW9uYWwpLg0KTm90aGluZyBhdCBhbGwgbGlrZSBTTElQLg0KDQpZb3UgY291bGQgdXNl
+IExBUEIgdW5udW1iZXJlZCAoVUkpIGZyYW1lcyB0byBjYXJyeSBJUCBmcmFtZXMNCihhcyBTTElQ
+IGRvZXMpIC0gYnV0IHRoYXQgaXMgcmVhbGx5IGp1c3QgdXNpbmcgSERMQyBpbnN0ZWFkIG9mDQph
+c3luYy4gRG9pbmcgdGhhdCB1c2luZyBhc3luYyBpcyBqdXN0IHNpbGx5Lg0KDQpMb29rcyBsaWtl
+IHRoaXMgY29kZSBzaG91bGQgaGF2ZSBiZWVuIHJlbW92ZWQgZm9yIDIuMiA6LSkNCg0KCURhdmlk
+DQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBG
+YXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2
+IChXYWxlcykNCg==
 
