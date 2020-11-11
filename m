@@ -1,50 +1,46 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [RESEND PATCH v2] net/x25: Fix null-ptr-deref in x25_connect
-Date: Mon,  9 Nov 2020 07:54:49 +0100
-Message-ID: <20201109065449.9014-1-ms@dev.tdt.de>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: Re: [RESEND PATCH v2] net/x25: Fix null-ptr-deref in x25_connect
+Date: Wed, 11 Nov 2020 03:38:05 -0800
+Message-ID: <20201111113805.44617-1-xie.he.0141@gmail.com>
+References: <20201109065449.9014-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=gZypMvFGW5/pMKgzZVWPRnEirLifs50mu6u8h37HDmI=;
+        b=UnTeNA+PLFAXevIi/ssqDSio4u1I91tlJqiYr86WRheEHgdSi1G9D5JAIWe7fSq7KS
+         WGumDuvL39rilD2D9i8ViMAyl3L5nWaOpygSnex2HRvvsw3y9Y6ZplBD0FZPzOW/a8m1
+         6R4hT5U9Z9mTGkp/DB0vHNnwieO/dy7qu6bt+5f/MWc2q2k0/NBDXIHrGyaY8zc9Zoys
+         CCYsYqOl+us1cqiYQ6Q4B2M8sudiVVdr/ka/WQanLqSiRbwftnQLTlx++Gd8iZI51/Ew
+         KYXKh2n4YAFj6oXFGrOkAYl9UubhonkSvVH3wva3UFOSScD2Iq+VaHEvB3RZyI+NJcmm
+         37Rw==
+In-Reply-To: <20201109065449.9014-1-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, xiyuyang19@fudan.edu.cn, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This fixes a regression for blocking connects introduced by commit
-4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
+> This fixes a regression for blocking connects introduced by commit
+> 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
 
-The x25->neighbour is already set to "NULL" by x25_disconnect() now,
-while a blocking connect is waiting in
-x25_wait_for_connection_establishment(). Therefore x25->neighbour must
-not be accessed here again and x25->state is also already set to
-X25_STATE_0 by x25_disconnect().
+> The x25->neighbour is already set to "NULL" by x25_disconnect() now,
+> while a blocking connect is waiting in
+> x25_wait_for_connection_establishment(). Therefore x25->neighbour must
+> not be accessed here again and x25->state is also already set to
+> X25_STATE_0 by x25_disconnect().
 
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconn=
-ect")
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
+> Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 
-Change from v1:
-also handle interrupting signals correctly
+Oh. Sorry, I didn't see your patch. I just submitted another patch to fix
+the same problem.
 
----
- net/x25/af_x25.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I also found another problem introduced by the same regression commit,
+which I was also trying to fix in my patch.
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 0bbb283f23c9..046d3fee66a9 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -825,7 +825,7 @@ static int x25_connect(struct socket *sock, struct so=
-ckaddr *uaddr,
- 	sock->state =3D SS_CONNECTED;
- 	rc =3D 0;
- out_put_neigh:
--	if (rc) {
-+	if (rc && x25->neighbour) {
- 		read_lock_bh(&x25_list_lock);
- 		x25_neigh_put(x25->neighbour);
- 		x25->neighbour =3D NULL;
---=20
-2.20.1
+See:
+http://patchwork.ozlabs.org/project/netdev/patch/20201111100424.3989-1-xie.he.0141@gmail.com/
 
