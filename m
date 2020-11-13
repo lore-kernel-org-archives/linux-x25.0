@@ -1,36 +1,52 @@
-From: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [RESEND PATCH v2] net/x25: Fix null-ptr-deref in x25_connect
-Date: Wed, 11 Nov 2020 14:57:20 -0800
-Message-ID: <20201111145720.0c743104@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-References: <20201109065449.9014-1-ms@dev.tdt.de>
-        <20201111115947.3498-1-xie.he.0141@gmail.com>
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: Re: linux-x25 mail list not working
+Date: Fri, 13 Nov 2020 06:22:59 +0100
+Message-ID: <191fc338cf8755143c7cd54e9d201b6e@dev.tdt.de>
+References: <CAJht_EMXvAEtKfivV2K-mC=0=G1n2_yQAZduSt7rxRV+bFUUMQ@mail.gmail.com>
+ <ed5b91db-fea9-99ff-59b7-fa0ffb810291@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605135441;
-        bh=VPpBI4DLSnoWPj8x+lszpIP40asm1HTFF4ON1H5/z98=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=cF4wZi47/iYP9AeqaRta9P0IHiayGUJlol/cxKBQuRL7lu5c5IvH4DqaxU5jMJ7Bc
-         abtHokQPMEMiu8IZpI5HB8DMr4esvnrTupjK0Hpj/2OeRwNZEMREvOcWTTvchWwA+A
-         1P1k7TMdO0u28BV41U5SJRB6aKa9Mq4M3vQGJHJY=
-In-Reply-To: <20201111115947.3498-1-xie.he.0141@gmail.com>
+Return-path: <linux-x25-owner@vger.kernel.org>
+In-Reply-To: <ed5b91db-fea9-99ff-59b7-fa0ffb810291@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
 To: Xie He <xie.he.0141@gmail.com>
-Cc: Martin Schiller <ms@dev.tdt.de>, andrew.hendry@gmail.com, davem@davemloft.net, edumazet@google.com, xiyuyang19@fudan.edu.cn, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Linux X25 <linux-x25@vger.kernel.org>
 
-On Wed, 11 Nov 2020 03:59:47 -0800 Xie He wrote:
-> > @@ -825,7 +825,7 @@  static int x25_connect(struct socket *sock, struct sockaddr *uaddr,
-> >  	sock->state = SS_CONNECTED;
-> >  	rc = 0;
-> >  out_put_neigh:
-> > -	if (rc) {
-> > +	if (rc && x25->neighbour) {
-> >  		read_lock_bh(&x25_list_lock);
-> >  		x25_neigh_put(x25->neighbour);
-> >  		x25->neighbour = NULL;  
+
+This is a test mail to check if the linux-x25 list works again.
+
+
+-------- Original Message --------
+Subject: Re: linux-x25 mail list not working
+Date: 2020-11-13 03:17
+ From: John 'Warthog9' Hawley <warthog9@kernel.org>
+To: Xie He <xie.he.0141@gmail.com>, <postmaster@vger.kernel.org>, "Jakub 
+Kicinski" <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Martin Schiller <ms@dev.tdt.de>, Arnd Bergmann <arnd@kernel.org>, 
+"Willem de Bruijn" <willemdebruijn.kernel@gmail.com>, Linux Kernel 
+Network Developers <netdev@vger.kernel.org>, LKML 
+<linux-kernel@vger.kernel.org>
+
+Give it a try now, there was a little wonkiness with the alias setup for 
+it, and I have no historical context for a 'why', but I adjusted a 
+couple of things and I was able to subscribe myself.
+
+- John 'Warthog9' Hawley
+
+On 11/12/2020 10:27 AM, Xie He wrote:
+> Hi Linux maintainers,
 > 
-> Reviewed-by: Xie He <xie.he.0141@gmail.com>
-
-Applied, thanks!
+> The linux-x25 mail list doesn't seem to be working. We sent a lot of
+> emails to linux-x25 but Martin Schiller as a subscriber hasn't
+> received a single email from the mail list.
+> 
+> Looking at the mail list archive at:
+>      https://www.spinics.net/lists/linux-x25/
+> I see the last email in the archive was in 2009. It's likely that this
+> mail list has stopped working since 2009.
+> 
+> Can you please help fix this mail list. Thanks!
+> 
+> Xie He
+> 
