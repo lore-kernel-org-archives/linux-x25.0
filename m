@@ -1,58 +1,74 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net-next v2 6/6] net/lapb: fix t1 timer handling
-Date: Mon, 16 Nov 2020 14:55:28 +0100
-Message-ID: <20201116135522.21791-7-ms@dev.tdt.de>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH net-next v2 2/6] net/x25: make neighbour params
+ configurable
+Date: Mon, 16 Nov 2020 17:05:22 +0000
+Message-ID: <5d4faa10de734ba0af7a471b0eadd782@AcuMS.aculab.com>
 References: <20201116135522.21791-1-ms@dev.tdt.de>
+ <20201116135522.21791-3-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20201116135522.21791-1-ms@dev.tdt.de>
+In-Reply-To: <20201116135522.21791-3-ms@dev.tdt.de>
+Content-Language: en-US
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+To: 'Martin Schiller' <ms@dev.tdt.de>, "andrew.hendry@gmail.com" <andrew.hendry@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "kuba@kernel.org" <kuba@kernel.org>, "xie.he.0141@gmail.com" <xie.he.0141@gmail.com>
+Cc: "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-fix t1 timer handling in LAPB_STATE_0:
- o DTE interface changes immediately to LAPB_STATE_1 and start sending
-   SABM(E).
- o DCE interface sends N2-times DM and changes to LAPB_STATE_1
-   afterwards if there is no response in the meantime.
+From: Martin Schiller
+> Sent: 16 November 2020 13:55
+> Extended struct x25_neigh and x25_subscrip_struct to configure following
+> params through SIOCX25SSUBSCRIP:
+>   o mode (DTE/DCE)
+>   o number of channels
+>   o facilities (packet size, window size)
+>   o timer T20
+> 
+> Based on this configuration options the following changes/extensions
+> where made:
+>   o DTE/DCE handling to select the next lc (DCE=from bottom / DTE=from
+>     top)
+>   o DTE/DCE handling to set correct clear/reset/restart cause
+>   o take default facilities from neighbour settings
+> 
+...
+> +/*
+> + *	DTE/DCE subscription options.
+> + *
+> + *      As this is missing lots of options, user should expect major
+> + *	changes of this structure in 2.5.x which might break compatibility.
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
+A little out of date!
 
-Change from v1:
-fix 'subject_prefix' and 'checkpatch' warnings
+> + *      The somewhat ugly dimension 200-sizeof() is needed to maintain
+> + *	backward compatibility.
+> + */
+> +struct x25_subscrip_struct {
+> +	char device[200 - ((2 * sizeof(unsigned long)) +
+> +		    sizeof(struct x25_facilities) +
+> +		    (2 * sizeof(unsigned int)))];
+> +	unsigned int		dce;
+> +	unsigned int		lc;
+> +	struct x25_facilities	facilities;
+> +	unsigned long		t20;
+> +	unsigned long		global_facil_mask;	/* 0 to disable negotiation */
+> +	unsigned int		extended;
+> +};
 
----
- net/lapb/lapb_timer.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Would it be better to used fixed size integer types to avoid
+'compat_32' issues?
 
-diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
-index 8f5b17001a07..baa247fe4ed0 100644
---- a/net/lapb/lapb_timer.c
-+++ b/net/lapb/lapb_timer.c
-@@ -85,11 +85,18 @@ static void lapb_t1timer_expiry(struct timer_list *t)
- 	switch (lapb->state) {
-=20
- 		/*
--		 *	If we are a DCE, keep going DM .. DM .. DM
-+		 *	If we are a DCE, send DM up to N2 times, then switch to
-+		 *	STATE_1 and send SABM(E).
- 		 */
- 		case LAPB_STATE_0:
--			if (lapb->mode & LAPB_DCE)
-+			if (lapb->mode & LAPB_DCE &&
-+			    lapb->n2count !=3D lapb->n2) {
-+				lapb->n2count++;
- 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
-+			} else {
-+				lapb->state =3D LAPB_STATE_1;
-+				lapb_establish_data_link(lapb);
-+			}
- 			break;
-=20
- 		/*
---=20
-2.20.1
+It might even be worth adding padding after the existing
+32bit layout to align any additional fields at the same offset
+in both 64bit and 32bit systems.
+
+I was also wondering if you can use an anonymous structure
+member for the actual fields and then use 200 - sizeof (struct foo)
+for the pad?
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
