@@ -1,38 +1,188 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH net] net: x25: Correct locking for x25_kill_by_device and x25_kill_by_neigh
-Date: Sat, 14 Nov 2020 19:11:13 -0800
-Message-ID: <CAJht_EMN14idYb9uY6eSASVb+ZHM6jZ3c=Kr5mTSjVE+2aYyoA@mail.gmail.com>
-References: <20201114103625.323919-1-xie.he.0141@gmail.com>
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: [PATCH 1/6] net/x25: add/remove x25_link_device by NETDEV_REGISTER/UNREGISTER
+Date: Mon, 16 Nov 2020 08:31:44 +0100
+Message-ID: <20201116073149.23219-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=ukfVupsoBY8wkZwTJBGd3ADBH/ygOk7x7LJMOM5IEEs=;
-        b=MRiaFED49X65sqy4dYNQV9EFlBoCtJ6jSM8VjfGy4myZ6wJA1DPfztU0Nf6wyZ9KWR
-         2pQinrVzpg6N+MqlYJvUHOdpDCit4uvnhLcbbllPLO2YqBhNRfKbsjYT5X1mKGeIV2ZT
-         OeAUHv7gSb0H1SCPElq75gskVmOGpll/ZScs2QC3qom7uuU/q2d8FsdfkQx3KggP1jAr
-         uf7sHrUoH3+4E0koW5VuyhZPSRZCknpxfupKLJ7OmYVQlQI/GFlFbI42NqXHVvDncdtx
-         9dPsZU2vbvyNJYf/L18ux2G6xRH6sN6dSSqgH1nJCaTRgBt1+ztCzWASqTXRi3qWAtxC
-         6qKA==
-In-Reply-To: <20201114103625.323919-1-xie.he.0141@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Martin Schiller <ms@dev.tdt.de>
+To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-On Sat, Nov 14, 2020 at 2:36 AM Xie He <xie.he.0141@gmail.com> wrote:
->
-> This patch adds correct locking for x25_kill_by_device and
-> x25_kill_by_neigh, and removes the incorrect locking in x25_connect and
-> x25_disconnect.
+and also by NETDEV_POST_TYPE_CHANGE/NETDEV_PRE_TYPE_CHANGE.
 
-I see if I do this change, I need to make sure the sock lock is not
-held when calling x25_remove_socket, to prevent deadlock.
+This change is needed so that the x25_neigh struct for an interface is
+already created when it shows up and is kept independantly if the
+interface goes UP or DOWN.
 
-Sorry. I'll deal with this issue and resubmit.
+This is used in the next commit, where x25 params of an neighbour will
+get configurable through ioctls.
 
-I also see that in x25_find_listener and __x25_find_socket, when we
-traverse x25_list, we should probably also hold the sock lock when we
-read the element of the list, and continue to hold the lock when we
-find the sock we want.
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+ include/net/x25.h  |  2 ++
+ net/x25/af_x25.c   | 19 +++++++++++++++++
+ net/x25/x25_link.c | 51 ++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 66 insertions(+), 6 deletions(-)
+
+diff --git a/include/net/x25.h b/include/net/x25.h
+index d7d6c2b4ffa7..af841c5ede28 100644
+--- a/include/net/x25.h
++++ b/include/net/x25.h
+@@ -231,6 +231,8 @@ int x25_backlog_rcv(struct sock *, struct sk_buff *);
+=20
+ /* x25_link.c */
+ void x25_link_control(struct sk_buff *, struct x25_neigh *, unsigned sho=
+rt);
++void x25_link_device_add(struct net_device *);
++void x25_link_device_remove(struct net_device *);
+ void x25_link_device_up(struct net_device *);
+ void x25_link_device_down(struct net_device *);
+ void x25_link_established(struct x25_neigh *);
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index a10487e7574c..d8e5ca251801 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -233,10 +233,20 @@ static int x25_device_event(struct notifier_block *=
+this, unsigned long event,
+ #endif
+ 	 ) {
+ 		switch (event) {
++		case NETDEV_REGISTER:
++			pr_debug("X.25: got event NETDEV_REGISTER for device: %s\n", dev->nam=
+e);
++			x25_link_device_add(dev);
++			break;
++		case NETDEV_POST_TYPE_CHANGE:
++			pr_debug("X.25: got event NETDEV_POST_TYPE_CHANGE for device: %s\n", =
+dev->name);
++			x25_link_device_add(dev);
++			break;
+ 		case NETDEV_UP:
++			pr_debug("X.25: got event NETDEV_UP for device: %s\n", dev->name);
+ 			x25_link_device_up(dev);
+ 			break;
+ 		case NETDEV_GOING_DOWN:
++			pr_debug("X.25: got event NETDEV_GOING_DOWN for device: %s\n", dev->n=
+ame);
+ 			nb =3D x25_get_neigh(dev);
+ 			if (nb) {
+ 				x25_terminate_link(nb);
+@@ -244,10 +254,19 @@ static int x25_device_event(struct notifier_block *=
+this, unsigned long event,
+ 			}
+ 			break;
+ 		case NETDEV_DOWN:
++			pr_debug("X.25: got event NETDEV_DOWN for device: %s\n", dev->name);
+ 			x25_kill_by_device(dev);
+ 			x25_route_device_down(dev);
+ 			x25_link_device_down(dev);
+ 			break;
++		case NETDEV_PRE_TYPE_CHANGE:
++			pr_debug("X.25: got event NETDEV_PRE_TYPE_CHANGE for device: %s\n", d=
+ev->name);
++			x25_link_device_remove(dev);
++			break;
++		case NETDEV_UNREGISTER:
++			pr_debug("X.25: got event NETDEV_UNREGISTER for device: %s\n", dev->n=
+ame);
++			x25_link_device_remove(dev);
++			break;
+ 		}
+ 	}
+=20
+diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
+index fdae054b7dc1..22055ee40056 100644
+--- a/net/x25/x25_link.c
++++ b/net/x25/x25_link.c
+@@ -239,9 +239,19 @@ void x25_link_terminated(struct x25_neigh *nb)
+ /*
+  *	Add a new device.
+  */
+-void x25_link_device_up(struct net_device *dev)
++void x25_link_device_add(struct net_device *dev)
+ {
+-	struct x25_neigh *nb =3D kmalloc(sizeof(*nb), GFP_ATOMIC);
++	struct x25_neigh *nb =3D x25_get_neigh(dev);
++
++	/*
++	 * Check, if we already have a neighbour for this device
++	 */
++	if (nb) {
++		x25_neigh_put(nb);
++		return;
++	}
++
++	nb =3D kmalloc(sizeof(*nb), GFP_ATOMIC);
+=20
+ 	if (!nb)
+ 		return;
+@@ -268,6 +278,22 @@ void x25_link_device_up(struct net_device *dev)
+ 	write_unlock_bh(&x25_neigh_list_lock);
+ }
+=20
++/*
++ *	A device is coming up
++ */
++void x25_link_device_up(struct net_device *dev)
++{
++	struct x25_neigh *nb =3D x25_get_neigh(dev);
++
++	if (!nb)
++		return;
++
++	nb->state =3D X25_LINK_STATE_1;
++	x25_establish_link(nb);
++
++	x25_neigh_put(nb);
++}
++
+ /**
+  *	__x25_remove_neigh - remove neighbour from x25_neigh_list
+  *	@nb: - neigh to remove
+@@ -277,9 +303,6 @@ void x25_link_device_up(struct net_device *dev)
+  */
+ static void __x25_remove_neigh(struct x25_neigh *nb)
+ {
+-	skb_queue_purge(&nb->queue);
+-	x25_stop_t20timer(nb);
+-
+ 	if (nb->node.next) {
+ 		list_del(&nb->node);
+ 		x25_neigh_put(nb);
+@@ -289,7 +312,7 @@ static void __x25_remove_neigh(struct x25_neigh *nb)
+ /*
+  *	A device has been removed, remove its links.
+  */
+-void x25_link_device_down(struct net_device *dev)
++void x25_link_device_remove(struct net_device *dev)
+ {
+ 	struct x25_neigh *nb;
+ 	struct list_head *entry, *tmp;
+@@ -308,6 +331,22 @@ void x25_link_device_down(struct net_device *dev)
+ 	write_unlock_bh(&x25_neigh_list_lock);
+ }
+=20
++/*
++ *	A device is going down
++ */
++void x25_link_device_down(struct net_device *dev)
++{
++	struct x25_neigh *nb =3D x25_get_neigh(dev);
++
++	if (!nb)
++		return;
++
++	skb_queue_purge(&nb->queue);
++	x25_stop_t20timer(nb);
++
++	x25_neigh_put(nb);
++}
++
+ /*
+  *	Given a device, return the neighbour address.
+  */
+--=20
+2.20.1
+
