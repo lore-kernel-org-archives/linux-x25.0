@@ -1,52 +1,34 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH 6/6] net/lapb: fix t1 timer handling
-Date: Mon, 16 Nov 2020 08:31:49 +0100
-Message-ID: <20201116073149.23219-6-ms@dev.tdt.de>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: Re: [PATCH 1/6] net/x25: add/remove x25_link_device by NETDEV_REGISTER/UNREGISTER
+Date: Mon, 16 Nov 2020 00:45:38 -0800
+Message-ID: <CAJht_ENxZhW9MK_HsY_6c_VjUbubQCYZwkVMYbHL-4aWJkaxuQ@mail.gmail.com>
 References: <20201116073149.23219-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eE6kgra1YlTXQSwDwoBMLKyVfTjYvNxtsHARlvdv6S4=;
+        b=goB7l1s/y8wJCBe1/fDM9JnlskpuHR+y6FluwWjlY05HpO62jX5xvTQZM5jicww7hC
+         9bxMGsEnqTMpnOVphEa2Hiq0+tjONnY63Mw2h3/qm/qPxzMfGfUoCzwo8V/rWEe3SUFH
+         wbfUd7DyHqoxehpsJ1/+hforL7ptxEUhU0G2DMGCbwKdQiZS5QTc2ro07hHU5RFkEfjN
+         Uum732C6Emz1vrQZIRWMVZpLk/e91RUcRz+b15EW+nqlmMYlvjiJeAS10e53WNFlJ8sA
+         rwBHC5PAFB5S1WhXBICorQp4RtGo4psnzzRuokrkZGcESA4xe2eZrH9J++86wyP7aq3h
+         jtqw==
 In-Reply-To: <20201116073149.23219-1-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Content-Transfer-Encoding: 7bit
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-fix t1 timer handling in LAPB_STATE_0:
- o DTE interface changes immediately to LAPB_STATE_1 and start sending
-   SABM(E).
- o DCE interface sends N2-times DM and changes to LAPB_STATE_1
-   afterwards if there is no response in the meantime.
+Hi Martin,
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
- net/lapb/lapb_timer.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Thanks for the series. To get the series applied faster, could you
+address the warnings and failures shown on this page?
+https://patchwork.kernel.org/project/netdevbpf/list/?submitter=174539
+Thanks!
 
-diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
-index 8f5b17001a07..d1f80d67892f 100644
---- a/net/lapb/lapb_timer.c
-+++ b/net/lapb/lapb_timer.c
-@@ -85,11 +85,16 @@ static void lapb_t1timer_expiry(struct timer_list *t)
- 	switch (lapb->state) {
-=20
- 		/*
--		 *	If we are a DCE, keep going DM .. DM .. DM
-+		 *	If we are a DCE, send DM up to N2 times, then switch to STATE_1 and=
- send SABM(E)
- 		 */
- 		case LAPB_STATE_0:
--			if (lapb->mode & LAPB_DCE)
-+			if (lapb->mode & LAPB_DCE && lapb->n2count !=3D lapb->n2) {
-+				lapb->n2count++;
- 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
-+			} else {
-+				lapb->state =3D LAPB_STATE_1;
-+				lapb_establish_data_link(lapb);
-+			}
- 			break;
-=20
- 		/*
---=20
-2.20.1
-
+To let the netdev robot know which tree this series should be applied,
+we can use [PATCH net-next 1/6] as the subject prefix.
