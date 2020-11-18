@@ -1,7 +1,7 @@
 From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net-next v3 3/6] net/lapb: handle carrier loss correctly
-Date: Wed, 18 Nov 2020 14:59:16 +0100
-Message-ID: <20201118135919.1447-4-ms@dev.tdt.de>
+Subject: [PATCH net-next v3 4/6] net/lapb: fix t1 timer handling for DCE
+Date: Wed, 18 Nov 2020 14:59:17 +0100
+Message-ID: <20201118135919.1447-5-ms@dev.tdt.de>
 References: <20201118135919.1447-1-ms@dev.tdt.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -12,41 +12,42 @@ Content-Type: text/plain; charset="us-ascii"
 To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
 Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-In case of carrier loss, clear all queues, enter state LABB_STATE_0 and
-stop all timers.
-
-By setting rc =3D LAPB_NOTCONNECTED, the upper layer is informed about th=
-e
-disconnect.
+fix t1 timer handling for DCE in LAPB_STATE_0:
+ o DTE interface changes immediately to LAPB_STATE_1 and start sending
+   SABM(E).
+ o DCE interface sends N2-times DM and changes to LAPB_STATE_1
+   afterwards if there is no response in the meantime.
 
 Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 ---
- net/lapb/lapb_iface.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/lapb/lapb_timer.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
-index 8dd7c420ae93..017bc169c334 100644
---- a/net/lapb/lapb_iface.c
-+++ b/net/lapb/lapb_iface.c
-@@ -303,6 +303,18 @@ int lapb_disconnect_request(struct net_device *dev)
- 	if (!lapb)
- 		goto out;
-=20
-+	if (!netif_carrier_ok(dev)) {
-+		lapb_dbg(0, "(%p) Carrier lost!\n", lapb->dev);
-+		lapb_dbg(0, "(%p) S%d -> S0\n", lapb->dev, lapb->state);
-+		lapb_clear_queues(lapb);
-+		lapb->state =3D LAPB_STATE_0;
-+		lapb->n2count =3D 0;
-+		lapb_stop_t1timer(lapb);
-+		lapb_stop_t2timer(lapb);
-+		rc =3D LAPB_NOTCONNECTED;
-+		goto out_put;
-+	}
-+
+diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
+index 8f5b17001a07..baa247fe4ed0 100644
+--- a/net/lapb/lapb_timer.c
++++ b/net/lapb/lapb_timer.c
+@@ -85,11 +85,18 @@ static void lapb_t1timer_expiry(struct timer_list *t)
  	switch (lapb->state) {
- 	case LAPB_STATE_0:
- 		rc =3D LAPB_NOTCONNECTED;
+=20
+ 		/*
+-		 *	If we are a DCE, keep going DM .. DM .. DM
++		 *	If we are a DCE, send DM up to N2 times, then switch to
++		 *	STATE_1 and send SABM(E).
+ 		 */
+ 		case LAPB_STATE_0:
+-			if (lapb->mode & LAPB_DCE)
++			if (lapb->mode & LAPB_DCE &&
++			    lapb->n2count !=3D lapb->n2) {
++				lapb->n2count++;
+ 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
++			} else {
++				lapb->state =3D LAPB_STATE_1;
++				lapb_establish_data_link(lapb);
++			}
+ 			break;
+=20
+ 		/*
 --=20
 2.20.1
 
