@@ -1,51 +1,26 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net-next v7 5/5] net/x25: remove x25_kill_by_device()
-Date: Thu, 26 Nov 2020 07:35:57 +0100
-Message-ID: <20201126063557.1283-6-ms@dev.tdt.de>
-References: <20201126063557.1283-1-ms@dev.tdt.de>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: Re: [PATCH net-next v7 2/5] net/lapb: support netdev events
+Date: Thu, 26 Nov 2020 11:03:03 -0800
+Message-ID: <CAJht_EN-H0ZbKa4rcOg4riVnecTtfSqPakW-g+UCgun9cWbf_w@mail.gmail.com>
+References: <20201126063557.1283-1-ms@dev.tdt.de> <20201126063557.1283-3-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20201126063557.1283-1-ms@dev.tdt.de>
+Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=P2L/YYCOnFeIb3+K5lIGoZyvHecSdK+D5x1TJ+KPjfw=;
+        b=X19cg+dGU5l8JWl+QsiEVPoZ12oJ+W8FO8y7+XZlEIK/Bgwt8q8dCM6rmu30mqOr3M
+         qvnmaC/aSVAYb29oJvW1CPmG1nbIvzig4t7ikJ4TeosfcaGJZCZBFDWWoCQ0H4jHmCmE
+         0SSjQwYjkfpt2OGkUhxRFHGyaoBRXIFBsw9aH8ea45PIMsiOhgqX54p5rTOttTHV0Y/O
+         XBQ8ulkyqxf1PwPImzVG4UgDbMfWCn504AXCSpaf6bkzR8zH+RKGySE5DGtlyvDauo6P
+         1L34FN9sYSvAYvDGLYDpsn7RBZasplj1Qq1d5xyDWQ1c6x5qIq1IDop53xFihROZ3WJi
+         aVrQ==
+In-Reply-To: <20201126063557.1283-3-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
+Content-Transfer-Encoding: 7bit
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Remove obsolete function x25_kill_by_device(). It's not used any more.
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
----
- net/x25/af_x25.c | 16 ----------------
- 1 file changed, 16 deletions(-)
-
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 313a6222ded9..1432a05805ab 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -199,22 +199,6 @@ static void x25_remove_socket(struct sock *sk)
- 	write_unlock_bh(&x25_list_lock);
- }
-=20
--/*
-- *	Kill all bound sockets on a dropped device.
-- */
--static void x25_kill_by_device(struct net_device *dev)
--{
--	struct sock *s;
--
--	write_lock_bh(&x25_list_lock);
--
--	sk_for_each(s, &x25_list)
--		if (x25_sk(s)->neighbour && x25_sk(s)->neighbour->dev =3D=3D dev)
--			x25_disconnect(s, ENETUNREACH, 0, 0);
--
--	write_unlock_bh(&x25_list_lock);
--}
--
- /*
-  *	Handle device status changes.
-  */
---=20
-2.20.1
-
+Acked-by: Xie He <xie.he.0141@gmail.com>
