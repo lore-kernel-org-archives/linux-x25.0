@@ -1,7 +1,7 @@
 From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net-next v7 2/5] net/lapb: support netdev events
-Date: Thu, 26 Nov 2020 07:35:54 +0100
-Message-ID: <20201126063557.1283-3-ms@dev.tdt.de>
+Subject: [PATCH net-next v7 4/5] net/x25: fix restart request/confirm handling
+Date: Thu, 26 Nov 2020 07:35:56 +0100
+Message-ID: <20201126063557.1283-5-ms@dev.tdt.de>
 References: <20201126063557.1283-1-ms@dev.tdt.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -12,135 +12,78 @@ Content-Type: text/plain; charset="us-ascii"
 To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
 Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-This patch allows layer2 (LAPB) to react to netdev events itself and
-avoids the detour via layer3 (X.25).
-
-1. Establish layer2 on NETDEV_UP events, if the carrier is already up.
-
-2. Call lapb_disconnect_request() on NETDEV_GOING_DOWN events to signal
-   the peer that the connection will go down.
-   (Only when the carrier is up.)
-
-3. When a NETDEV_DOWN event occur, clear all queues, enter state
-   LAPB_STATE_0 and stop all timers.
-
-4. The NETDEV_CHANGE event makes it possible to handle carrier loss and
-   detection.
-
-   In case of Carrier Loss, clear all queues, enter state LAPB_STATE_0
-   and stop all timers.
-
-   In case of Carrier Detection, we start timer t1 on a DCE interface,
-   and on a DTE interface we change to state LAPB_STATE_1 and start
-   sending SABM(E).
+We have to take the actual link state into account to handle
+restart requests/confirms well.
 
 Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 ---
- net/lapb/lapb_iface.c | 82 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 81 insertions(+), 1 deletion(-)
+ net/x25/x25_link.c | 41 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 33 insertions(+), 8 deletions(-)
 
-diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
-index 3c03f6512c5f..213ea7abc9ab 100644
---- a/net/lapb/lapb_iface.c
-+++ b/net/lapb/lapb_iface.c
-@@ -418,14 +418,94 @@ int lapb_data_transmit(struct lapb_cb *lapb, struct=
- sk_buff *skb)
- 	return used;
- }
+diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
+index 11e868aa625d..f92073f3cb11 100644
+--- a/net/x25/x25_link.c
++++ b/net/x25/x25_link.c
+@@ -74,16 +74,43 @@ void x25_link_control(struct sk_buff *skb, struct x25=
+_neigh *nb,
 =20
-+/* Handle device status changes. */
-+static int lapb_device_event(struct notifier_block *this, unsigned long =
-event,
-+			     void *ptr)
-+{
-+	struct net_device *dev =3D netdev_notifier_info_to_dev(ptr);
-+	struct lapb_cb *lapb;
+ 	switch (frametype) {
+ 	case X25_RESTART_REQUEST:
+-		confirm =3D !x25_t20timer_pending(nb);
+-		x25_stop_t20timer(nb);
+-		nb->state =3D X25_LINK_STATE_3;
+-		if (confirm)
++		switch (nb->state) {
++		case X25_LINK_STATE_2:
++			confirm =3D !x25_t20timer_pending(nb);
++			x25_stop_t20timer(nb);
++			nb->state =3D X25_LINK_STATE_3;
++			if (confirm)
++				x25_transmit_restart_confirmation(nb);
++			break;
++		case X25_LINK_STATE_3:
++			/* clear existing virtual calls */
++			x25_kill_by_neigh(nb);
 +
-+	if (!net_eq(dev_net(dev), &init_net))
-+		return NOTIFY_DONE;
-+
-+	if (dev->type !=3D ARPHRD_X25)
-+		return NOTIFY_DONE;
-+
-+	lapb =3D lapb_devtostruct(dev);
-+	if (!lapb)
-+		return NOTIFY_DONE;
-+
-+	switch (event) {
-+	case NETDEV_UP:
-+		lapb_dbg(0, "(%p) Interface up: %s\n", dev, dev->name);
-+
-+		if (netif_carrier_ok(dev)) {
-+			lapb_dbg(0, "(%p): Carrier is already up: %s\n", dev,
-+				 dev->name);
-+			if (lapb->mode & LAPB_DCE) {
-+				lapb_start_t1timer(lapb);
-+			} else {
-+				if (lapb->state =3D=3D LAPB_STATE_0) {
-+					lapb->state =3D LAPB_STATE_1;
-+					lapb_establish_data_link(lapb);
-+				}
-+			}
+ 			x25_transmit_restart_confirmation(nb);
++			break;
 +		}
-+		break;
-+	case NETDEV_GOING_DOWN:
-+		if (netif_carrier_ok(dev))
-+			lapb_disconnect_request(dev);
-+		break;
-+	case NETDEV_DOWN:
-+		lapb_dbg(0, "(%p) Interface down: %s\n", dev, dev->name);
-+		lapb_dbg(0, "(%p) S%d -> S0\n", dev, lapb->state);
-+		lapb_clear_queues(lapb);
-+		lapb->state =3D LAPB_STATE_0;
-+		lapb->n2count   =3D 0;
-+		lapb_stop_t1timer(lapb);
-+		lapb_stop_t2timer(lapb);
-+		break;
-+	case NETDEV_CHANGE:
-+		if (netif_carrier_ok(dev)) {
-+			lapb_dbg(0, "(%p): Carrier detected: %s\n", dev,
-+				 dev->name);
-+			if (lapb->mode & LAPB_DCE) {
-+				lapb_start_t1timer(lapb);
+ 		break;
+=20
+ 	case X25_RESTART_CONFIRMATION:
+-		x25_stop_t20timer(nb);
+-		nb->state =3D X25_LINK_STATE_3;
++		switch (nb->state) {
++		case X25_LINK_STATE_2:
++			if (x25_t20timer_pending(nb)) {
++				x25_stop_t20timer(nb);
++				nb->state =3D X25_LINK_STATE_3;
 +			} else {
-+				if (lapb->state =3D=3D LAPB_STATE_0) {
-+					lapb->state =3D LAPB_STATE_1;
-+					lapb_establish_data_link(lapb);
-+				}
++				x25_transmit_restart_request(nb);
++				x25_start_t20timer(nb);
 +			}
-+		} else {
-+			lapb_dbg(0, "(%p) Carrier lost: %s\n", dev, dev->name);
-+			lapb_dbg(0, "(%p) S%d -> S0\n", dev, lapb->state);
-+			lapb_clear_queues(lapb);
-+			lapb->state =3D LAPB_STATE_0;
-+			lapb->n2count   =3D 0;
-+			lapb_stop_t1timer(lapb);
-+			lapb_stop_t2timer(lapb);
++			break;
++		case X25_LINK_STATE_3:
++			/* clear existing virtual calls */
++			x25_kill_by_neigh(nb);
++
++			x25_transmit_restart_request(nb);
++			nb->state =3D X25_LINK_STATE_2;
++			x25_start_t20timer(nb);
++			break;
 +		}
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block lapb_dev_notifier =3D {
-+	.notifier_call =3D lapb_device_event,
-+};
-+
- static int __init lapb_init(void)
- {
--	return 0;
-+	return register_netdevice_notifier(&lapb_dev_notifier);
- }
+ 		break;
 =20
- static void __exit lapb_exit(void)
+ 	case X25_DIAGNOSTIC:
+@@ -214,8 +241,6 @@ void x25_link_established(struct x25_neigh *nb)
  {
- 	WARN_ON(!list_empty(&lapb_list));
-+
-+	unregister_netdevice_notifier(&lapb_dev_notifier);
- }
-=20
- MODULE_AUTHOR("Jonathan Naylor <g4klx@g4klx.demon.co.uk>");
+ 	switch (nb->state) {
+ 	case X25_LINK_STATE_0:
+-		nb->state =3D X25_LINK_STATE_2;
+-		break;
+ 	case X25_LINK_STATE_1:
+ 		x25_transmit_restart_request(nb);
+ 		nb->state =3D X25_LINK_STATE_2;
 --=20
 2.20.1
 
