@@ -1,53 +1,51 @@
 From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net-next v7 3/5] net/lapb: fix t1 timer handling for LAPB_STATE_0
-Date: Thu, 26 Nov 2020 07:35:55 +0100
-Message-ID: <20201126063557.1283-4-ms@dev.tdt.de>
+Subject: [PATCH net-next v7 5/5] net/x25: remove x25_kill_by_device()
+Date: Thu, 26 Nov 2020 07:35:57 +0100
+Message-ID: <20201126063557.1283-6-ms@dev.tdt.de>
 References: <20201126063557.1283-1-ms@dev.tdt.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20201126063557.1283-1-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: andrew.hendry@gmail.com, davem@davemloft.net, kuba@kernel.org, xie.he.0141@gmail.com
 Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-1. DTE interface changes immediately to LAPB_STATE_1 and start sending
-   SABM(E).
-
-2. DCE interface sends N2-times DM and changes to LAPB_STATE_1
-   afterwards if there is no response in the meantime.
+Remove obsolete function x25_kill_by_device(). It's not used any more.
 
 Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 ---
- net/lapb/lapb_timer.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/x25/af_x25.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
-diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
-index 8f5b17001a07..baa247fe4ed0 100644
---- a/net/lapb/lapb_timer.c
-+++ b/net/lapb/lapb_timer.c
-@@ -85,11 +85,18 @@ static void lapb_t1timer_expiry(struct timer_list *t)
- 	switch (lapb->state) {
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 313a6222ded9..1432a05805ab 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -199,22 +199,6 @@ static void x25_remove_socket(struct sock *sk)
+ 	write_unlock_bh(&x25_list_lock);
+ }
 =20
- 		/*
--		 *	If we are a DCE, keep going DM .. DM .. DM
-+		 *	If we are a DCE, send DM up to N2 times, then switch to
-+		 *	STATE_1 and send SABM(E).
- 		 */
- 		case LAPB_STATE_0:
--			if (lapb->mode & LAPB_DCE)
-+			if (lapb->mode & LAPB_DCE &&
-+			    lapb->n2count !=3D lapb->n2) {
-+				lapb->n2count++;
- 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
-+			} else {
-+				lapb->state =3D LAPB_STATE_1;
-+				lapb_establish_data_link(lapb);
-+			}
- 			break;
-=20
- 		/*
+-/*
+- *	Kill all bound sockets on a dropped device.
+- */
+-static void x25_kill_by_device(struct net_device *dev)
+-{
+-	struct sock *s;
+-
+-	write_lock_bh(&x25_list_lock);
+-
+-	sk_for_each(s, &x25_list)
+-		if (x25_sk(s)->neighbour && x25_sk(s)->neighbour->dev =3D=3D dev)
+-			x25_disconnect(s, ENETUNREACH, 0, 0);
+-
+-	write_unlock_bh(&x25_list_lock);
+-}
+-
+ /*
+  *	Handle device status changes.
+  */
 --=20
 2.20.1
 
