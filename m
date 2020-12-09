@@ -1,80 +1,65 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net-next] net: lapbether: Consider it successful if (dis)connecting when already (dis)connected
-Date: Tue,  8 Dec 2020 14:50:44 -0800
-Message-ID: <20201208225044.5522-1-xie.he.0141@gmail.com>
+Subject: [PATCH net-next] net: hdlc_x25: Remove unnecessary skb_reset_network_header calls
+Date: Tue,  8 Dec 2020 17:07:58 -0800
+Message-ID: <20201209010758.3408-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=czPRgCP4Rbvj8nQm8kV+1nNwcp4eHqLkAIVxs9WjDpk=;
-        b=VXzD6wwNroEMOtTsjKAFrXV3Ykmq11SgT6QT0T+yMgGu3gUnx9joMIFzmJ0oQMo7TD
-         Y5zrQy4AqY3a4iWw4A9W6JapbweHMdHprj+tNKbhbmUVCwwVXDTDKbBJ+IqVFXL34dCv
-         +q5rmn7SjQ77tXvhz0niCCqULV+ynvw+ss4Pvqswb/ABCLgp/VFdbUlfvyO5umzwfebV
-         J0YMrDVHBQI7WG0314/DMIqNeyZ4oGKFvsOAdEE2UMaSxqZtwjTWsRFpmI3INj3VU9ok
-         3KxfDDr/DC5KbpF6lVuHTb1/R6MS3Ow6n6n+iRYSrSPyeO8iRxhr19mR44oDzZdN00yH
-         ncEw==
+        bh=FVaaFvhma/LtEAgKTLdfxnHOJeqm88SA5H4iaroEpmA=;
+        b=pHv4Lz0bvbALDlTuzU3DzO1yRj45wGco2lMyBbQcVGGneEc4ltghcPwzhj4k57Qnsz
+         yUWDsqtAVbeUyWs5zUlsloiCsdz9QTwvCPRURsGGhq1qoelXXARmcEWIrtc4pLMKx+zY
+         g4gqHg6D9173SsOYDA+EPkiuv65RTXZYurNxpMyb+dKdNoqCTyIQXOGbQ9EGwXamY8Sv
+         Oc0jNISmPDN+3dfJbhy5S4Maz/YNNxDVfh1gTxE+hz4p3b+R0GdTpWx82Eupg8oDSeze
+         hRJ+K0JyMCORbYoG0qW/0htHNH7OCowGTCRnizbLWCXirZwUqpi7N6qAJKy0ajWL+0iI
+         YuSQ==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 Cc: Xie He <xie.he.0141@gmail.com>
 
-When the upper layer instruct us to connect (or disconnect), but we have
-already connected (or disconnected), consider this operation successful
-rather than failed.
+1. In x25_xmit, skb_reset_network_header is not necessary before we call
+lapb_data_request. The lapb module doesn't need skb->network_header.
+So there is no need to set skb->network_header before calling
+lapb_data_request.
 
-This can help the upper layer to correct its record about whether we are
-connected or not here in layer 2.
-
-The upper layer may not have the correct information about whether we are
-connected or not. This can happen if this driver has already been running
-for some time when the "x25" module gets loaded.
-
-Another X.25 driver (hdlc_x25) is already doing this, so we make this
-driver do this, too.
+2. In x25_data_indication (called by the lapb module after it has
+processed the skb), skb_reset_network_header is not necessary before we
+call netif_rx. After we call netif_rx, the code in net/core/dev.c will
+call skb_reset_network_header before handing the skb to upper layers
+(in __netif_receive_skb_core, called by __netif_receive_skb_one_core,
+called by __netif_receive_skb, called by process_backlog). So we don't
+need to call skb_reset_network_header by ourselves.
 
 Cc: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
 ---
- drivers/net/wan/lapbether.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc_x25.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index b6be2454b8bd..605fe555e157 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -55,6 +55,9 @@ struct lapbethdev {
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index f52b9fed0593..bb164805804e 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -77,7 +77,6 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ 	}
  
- static LIST_HEAD(lapbeth_devices);
+ 	skb_push(skb, 1);
+-	skb_reset_network_header(skb);
  
-+static void lapbeth_connected(struct net_device *dev, int reason);
-+static void lapbeth_disconnected(struct net_device *dev, int reason);
-+
- /* ------------------------------------------------------------------------ */
- 
- /*
-@@ -167,11 +170,17 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
- 	case X25_IFACE_DATA:
- 		break;
- 	case X25_IFACE_CONNECT:
--		if ((err = lapb_connect_request(dev)) != LAPB_OK)
-+		err = lapb_connect_request(dev);
-+		if (err == LAPB_CONNECTED)
-+			lapbeth_connected(dev, LAPB_OK);
-+		else if (err != LAPB_OK)
- 			pr_err("lapb_connect_request error: %d\n", err);
- 		goto drop;
- 	case X25_IFACE_DISCONNECT:
--		if ((err = lapb_disconnect_request(dev)) != LAPB_OK)
-+		err = lapb_disconnect_request(dev);
-+		if (err == LAPB_NOTCONNECTED)
-+			lapbeth_disconnected(dev, LAPB_OK);
-+		else if (err != LAPB_OK)
- 			pr_err("lapb_disconnect_request err: %d\n", err);
- 		fallthrough;
- 	default:
+ 	ptr  = skb->data;
+ 	*ptr = X25_IFACE_DATA;
+@@ -118,7 +117,6 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:	/* Data to be transmitted */
+ 		skb_pull(skb, 1);
+-		skb_reset_network_header(skb);
+ 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
+ 			dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
 -- 
 2.27.0
 
