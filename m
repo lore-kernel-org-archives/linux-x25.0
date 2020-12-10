@@ -1,56 +1,62 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH net-next] net: x25: Remove unimplemented X.25-over-LLC
- code stubs
-Date: Thu, 10 Dec 2020 09:14:36 +0000
-Message-ID: <3e7fb08afd624399a7f689c2b507a01e@AcuMS.aculab.com>
-References: <20201209033346.83742-1-xie.he.0141@gmail.com>
- <801dc0320e484bf7a5048c0cddac12af@AcuMS.aculab.com>
- <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: Re: [PATCH net-next v7 4/5] net/x25: fix restart request/confirm handling
+Date: Thu, 10 Dec 2020 01:31:50 -0800
+Message-ID: <CAJht_ENaD2N8UHOXYsFGzzRsf=yVqd7RsqDG3p62NAHagnwCGQ@mail.gmail.com>
+References: <20201126063557.1283-1-ms@dev.tdt.de> <20201126063557.1283-5-ms@dev.tdt.de>
+ <CAJht_EMZqcPdE5n3Vp+jJa1sVk9+vbwd-Gbi8Xqy19bEdbNNuA@mail.gmail.com>
+ <CAJht_ENukJrnh6m8FLrHBwnKKyZpzk6uGWhS4_eUCyDzrCG3eA@mail.gmail.com>
+ <3e314d2786857cbd5aaee8b83a0e6daa@dev.tdt.de> <CAJht_ENOhnS7A6997CAP5qhn10NMYSVD3xOxcbPGQFLGb8z_Sg@mail.gmail.com>
+ <CAJht_EPj-4bv6D=Ojz5KCbk0NTVfjRyEA3NmMw7etxrq8GKu8Q@mail.gmail.com> <458f89938c565b82fe30087fb33602b9@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com>
-Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VYZF6b0eAf0D2UpGn/w+5r6w0iBI6SckFUc4KZtxYx4=;
+        b=GVbKgxRpIEs8XnfazLphorUnKvkhAwtOtzBGMkORRuLBGzivBRbhyeouw5NbFmvjg8
+         0jLQHOCcMrlZl0i/H+b4dCCr6IozvyUIiFzADzIMTOHEQ/21DjUVDKxGM3Xjldl5aaks
+         51TMQ44PaAK/FjHA0Df9Qxh4rUuiBDJLGQEWHkDNK4dn9howBkrnLYgxn8a6DnA/vzzD
+         PcUywu3uqdDuFFOsUK3teD8hma8lg4wsLl4dX7edxBQb7wz4tWIR88Fk+T3LYMUDmKgQ
+         tP4h4FcAuHJwMBwV2AhMXSydvdE9/FVDsiagfJX++sqICT/FYkO0rdnxSw9b1HoVjPqH
+         XNuw==
+In-Reply-To: <458f89938c565b82fe30087fb33602b9@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Xie He' <xie.he.0141@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Martin Schiller <ms@dev.tdt.de>
+Content-Transfer-Encoding: 7bit
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: Andrew Hendry <andrew.hendry@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-RnJvbTogWGllIEhlDQo+IFNlbnQ6IDA5IERlY2VtYmVyIDIwMjAgMjI6NTQNCj4gDQo+IE9uIFdl
-ZCwgRGVjIDksIDIwMjAgYXQgMToyMSBQTSBEYXZpZCBMYWlnaHQgPERhdmlkLkxhaWdodEBhY3Vs
-YWIuY29tPiB3cm90ZToNCj4gPg0KPiA+IEkgYWx3YXlzIHdvbmRlcmVkIGFib3V0IHJ1bm5pbmcg
-Q2xhc3MgMiB0cmFuc3BvcnQgZGlyZWN0bHkgb3ZlciBMTEMyDQo+ID4gKHJhdGhlciB0aGFuIENs
-YXNzIDQgb3ZlciBMTEMxKS4NCj4gPiBCdXQgdGhlIG9ubHkgTExDMiB1c2VyIHdhcyBuZXRiaW9z
-IC0gYW5kIG1pY3Jvc29mdCdzIExMQzIgd2FzIGJyb2tlbi4NCj4gPiBOb3QgdG8gbWVudGlvbiB0
-aGUgd2luZG93IHByb2JpbmcgbmVlZGVkIHRvIGhhbmRsZSBzeXN0ZW1zIHRoYXQNCj4gPiBzYWlk
-IHRoZXkgc3VwcG9ydGVkIGEgd2luZG93IG9mIChJSVJDKSAxNSBidXQgd291bGQgZGlzY2FyZCB0
-aGUNCj4gPiA1dGggYmFjayB0byBiYWNrIGZyYW1lLg0KPiANCj4gVG8gbWUsIExMQzEgYW5kIExM
-QzIgYXJlIHRvIEV0aGVybmV0IHdoYXQgVURQIGFuZCBUQ1AgYXJlIHRvIElQDQo+IG5ldHdvcmtz
-LiBJIHRoaW5rIHdlIGNhbiB1c2UgTExDMSBhbmQgTExDMiB3aGVyZXZlciBVRFAgYW5kIFRDUCBj
-YW4gYmUNCj4gdXNlZCwgYXMgbG9uZyBhcyB3ZSBhcmUgaW4gdGhlIHNhbWUgTEFOIGFuZCBhcmUg
-d2lsbGluZyB0byB1c2UgTUFDDQo+IGFkZHJlc3NlcyBhcyB0aGUgYWRkcmVzc2VzLg0KDQpFeGNl
-cHQgdGhhdCB5b3UgZG9uJ3QgaGF2ZSBhbnkgd2hlcmUgbmVhciBlbm91Z2ggJ3BvcnRzJyBzbyB5
-b3UgbmVlZA0Kc29tZXRoaW5nIHRvIGRlbXVsdGlwbGV4IG1lc3NhZ2VzIHRvIGRpZmZlcmVudCBh
-cHBsaWNhdGlvbnMuDQoNCldlIChJQ0wpIGFsd2F5cyByYW4gY2xhc3MgNCB0cmFuc3BvcnQgKHdo
-aWNoIGRvZXMgZXJyb3IgcmVjb3ZlcnkpDQpkaXJlY3RseSBvdmVyIExMQzEgdXNpbmcgTUFDIGFk
-ZHJlc3MgKGEgTlVMIGJ5dGUgZm9yIHRoZSBuZXR3b3JrIGxheWVyKS4NClRoaXMgcmVxdWlyZXMg
-YSBicmlkZ2VkIG5ldHdvcmsgYW5kIGdsb2JhbGx5IHVuaXF1ZSBNQUMgYWRkcmVzc2VzLg0KU2Vu
-ZGluZyBvdXQgYW4gTExDIHJlZmxlY3QgcGFja2V0IHRvIHRoZSBicm9hZGNhc3QgTUFDIGFkZHJl
-c3MgdXNlZCB0bw0KZ2VuZXJhdGUgYSBjb3VwbGUgb2YgdGhvdXNhbmQgcmVzcG9uc2VzIChtYW55
-IHdvdWxkIGdldCBkaXNjYXJkZWQNCmJlY2F1c2UgdGhlIGJyaWRnZXMgZ290IG92ZXJsb2FkZWQp
-Lg0KDQo+IFguMjUgbGF5ZXIgMyBjZXJ0YWlubHkgY2FuIGFsc28gcnVuIG92ZXIgTExDMi4NCg0K
-WW91IGRvbid0IG5lZWQgWC4yNSBsYXllciAzLg0KWC4yNSBsYXllciAyIGRvZXMgZXJyb3IgcmVj
-b3Zlcnkgb3ZlciBhIHBvaW50LXRvLXBvaW50IGxpbmsuDQpYLjI1IGxheWVyIDMgZG9lcyBzd2l0
-Y2hpbmcgYmV0d2VlbiBtYWNoaW5lcy4NCkNsYXNzIDIgdHJhbnNwb3J0IGRvZXMgbXVsdGlwbGV4
-aW5nIG92ZXIgYSByZWxpYWJsZSBsb3dlciBsYXllci4NClNvIHlvdSBub3JtYWxseSBuZWVkIGFs
-bCB0aHJlZS4NCg0KSG93ZXZlciBMTEMyIGdpdmVzIHlvdSBhIHJlbGlhYmxlIGNvbm5lY3Rpb24g
-YmV0d2VlbiB0d28gbWFjaGluZXMNCihzZWxlY3RlZCBieSBNQUMgYWRkcmVzcykuDQpTbyB5b3Ug
-c2hvdWxkIGJlIGFibGUgdG8gcnVuIENsYXNzIDIgdHJhbnNwb3J0ICh3ZWxsIG9uZSBvZiBpdHMN
-CjQgdmFyaWFudHMhKSBkaXJlY3RseSBvdmVyIExMMi4NCg0KVGhlIGFkdmFudGFnZSBvdmVyIENs
-YXNzIDQgdHJhbnNwb3J0IG92ZXIgTExDMSBpcyB0aGF0IHRoZXJlIGlzDQpvbmx5IG9uZSBzZXQg
-b2YgcmV0cmFuc21pdCBidWZmZXJzIChldGMpIHJlZ2FyZGxlc3Mgb2YgdGhlIG51bWJlcg0Kb2Yg
-Y29ubmVjdGlvbnMuDQoNCkJ1dCB0aGlzIGlzIGFsbCAzMCB5ZWFyIG9sZCBoaXN0b3J5Li4uDQoN
-CglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwg
-TW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzog
-MTM5NzM4NiAoV2FsZXMpDQo=
+On Wed, Dec 9, 2020 at 10:27 PM Martin Schiller <ms@dev.tdt.de> wrote:
+>
+> > Hi Martin,
+> >
+> > When you submit future patch series, can you try ensuring the code to
+> > be in a completely working state after each patch in the series? This
+> > makes reviewing the patches easier. After the patches get applied,
+> > this also makes tracing bugs (for example, with "git bisect") through
+> > the commit history easier.
+>
+> Well I thought that's what patch series are for:
+> Send patches that belong together and should be applied together.
+>
+> Of course I will try to make each patch work on its own, but this is not
+> always possible with major changes or ends up in monster patches.
+> And nobody wants that.
 
+Thanks! I admit that this series is a big change and is not easy to
+split up properly. If I were you, I may end up sending a very big
+patch first, and then follow up with small patches for "restart
+request/confirm handling" and "add/remove x25_neigh on
+device-register/unregister instead of device-up/down". (The little
+change in x25_link_established should belong to the first big patch
+instead of "restart request/confirm handling".)
+
+But making each patch work on its own is indeed preferable. I see
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html
+says:
+When dividing your change into a series of patches, take special care
+to ensure that the kernel builds and runs properly after each patch in
+the series. Developers using git bisect to track down a problem can
+end up splitting your patch series at any point; they will not thank
+you if you introduce bugs in the middle.
