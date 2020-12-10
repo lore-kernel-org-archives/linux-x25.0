@@ -1,45 +1,78 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH net-next] net: x25: Fix handling of Restart Request and
- Restart Confirmation
-Date: Thu, 10 Dec 2020 01:40:41 -0800
-Message-ID: <CAJht_EOD9QbCi=AkPRqoT2Hzweb65OTpxkoCeUNm9WUrnyw_8w@mail.gmail.com>
-References: <20201209081604.464084-1-xie.he.0141@gmail.com>
- <7aed2f12bd42013e2d975280a3242136@dev.tdt.de> <dde53213f7e297690e054d01d815957f@dev.tdt.de>
- <CAJht_EPk4uzA+QeL0_nHBhNoaro48ieF1vTwxQihk5_D66GTEA@mail.gmail.com> <8e15d185cabc9294958b13f5cff389aa@dev.tdt.de>
+Subject: Re: [PATCH net-next] net: x25: Remove unimplemented X.25-over-LLC
+ code stubs
+Date: Thu, 10 Dec 2020 02:17:09 -0800
+Message-ID: <CAJht_EMqO8cS3BSnqHA=ROqbkpum8JB_FjzRgPuW=up+e4bO1w@mail.gmail.com>
+References: <20201209033346.83742-1-xie.he.0141@gmail.com> <801dc0320e484bf7a5048c0cddac12af@AcuMS.aculab.com>
+ <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com> <3e7fb08afd624399a7f689c2b507a01e@AcuMS.aculab.com>
 Mime-Version: 1.0
 Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=4wACi7c+y84hFlcOFDDjJ1mfg6gJ3+Zeyx/hwXEAMNU=;
-        b=hJHsvvU/+uBIFX6TLQB40KT17anRRYSMu4q+h9i6CGgJUtcvGs8/l2Dy+eDmBoEFZ4
-         pWKWCQGfBTdhFGKjGBfCHNHX1vgxY59IfxFVg1MHIebHR3SPRvy6Jg5NYUG0MIGYqdFx
-         VL+D9RRYsdt0aXZPv1uiKd7o6uVr8rZPxzq+w4t4Nkt0WpHUYxlRWoCDnR0q4k/jJrqz
-         DJ74T5HbAPcRjvbcVzQwb4iS5qjIx/F84LFOnCQkHX0noBBjoAKuh7pW1bCmHBV33FGG
-         STMKGJbHQ92uZ2qXQ+pXHlwWlKJd/eU/NvvybgpfHU34/GsaervI4S720y1ZY7e1Xw5T
-         CWVQ==
-In-Reply-To: <8e15d185cabc9294958b13f5cff389aa@dev.tdt.de>
+        bh=F1GNlk+sMt03zW3RJz1MQRTqkMVaVyhGe/dSlf7Cqn4=;
+        b=pIY+tLvtWWNfOAXPaSavrpTgFYmDboG6IC8Pppte6rzX0gQ8GPCAH4ZgKv5h5uBQYG
+         gvaEcy3wF9hdBPqwShxn/oORarKmYqVW7SeU73zjrLCnisgdJKUlNk+mxx8GhrUpXpkQ
+         3tqMjcvy15ECZImd81vCbh3OI7f7B5MibU+mUH2TvQsZ0orhfq+KTmNfvHOOA5IOphoV
+         UiBX74wWV2bKL3/z7hYKlXN+rrAQuvq3rV7z5oR05QJXKBb/jtYX2LIePEZkgqRgdEvR
+         D6V6LKPEp+f76yOYs/NuXKOogYLS6fHHy9NYBc7FelEMpup5invXi/hUFq77lKhYUX0q
+         73kw==
+In-Reply-To: <3e7fb08afd624399a7f689c2b507a01e@AcuMS.aculab.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: David Laight <David.Laight@aculab.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Martin Schiller <ms@dev.tdt.de>
 
-On Wed, Dec 9, 2020 at 10:35 PM Martin Schiller <ms@dev.tdt.de> wrote:
+On Thu, Dec 10, 2020 at 1:14 AM David Laight <David.Laight@aculab.com> wrote:
 >
-> Yes, that's also the reason why I already acked this patch. We can
-> solve this later a little bit cleaner if necessary.
+> > To me, LLC1 and LLC2 are to Ethernet what UDP and TCP are to IP
+> > networks. I think we can use LLC1 and LLC2 wherever UDP and TCP can be
+> > used, as long as we are in the same LAN and are willing to use MAC
+> > addresses as the addresses.
 >
-> My patch that takes care of the orphaned packets in x25_receive_data()
-> has again a dependency on other patches, especially the patch to
-> configure the neighbor parameters (DCE/DTE, number of channels etc.),
-> which I already sent before but still have to revise.
->
-> Unfortunately I have only limited time for this topic, so I am not as
-> fast as some people would wish. Sorry for that.
+> Except that you don't have any where near enough 'ports' so you need
+> something to demultiplex messages to different applications.
 
-OK. Thanks! I appreciate your work! Code needs to have specialist
-developers like you to keep it alive and evolving.
+Yes, LLC only has 256 "ports" compared to more than 60000 for UDP/TCP.
 
-I understand you have limited time. Please take your time. Thanks!
+> We (ICL) always ran class 4 transport (which does error recovery)
+> directly over LLC1 using MAC address (a NUL byte for the network layer).
+> This requires a bridged network and globally unique MAC addresses.
+> Sending out an LLC reflect packet to the broadcast MAC address used to
+> generate a couple of thousand responses (many would get discarded
+> because the bridges got overloaded).
+
+Wow, You have a really big LAN!
+
+> > X.25 layer 3 certainly can also run over LLC2.
+>
+> You don't need X.25 layer 3.
+> X.25 layer 2 does error recovery over a point-to-point link.
+> X.25 layer 3 does switching between machines.
+> Class 2 transport does multiplexing over a reliable lower layer.
+> So you normally need all three.
+
+Yes, I was just saying X.25 layer 3 can run over any reliable
+point-to-point links, including X.25 layer 2, LLC2 and TCP.
+
+> However LLC2 gives you a reliable connection between two machines
+> (selected by MAC address).
+> So you should be able to run Class 2 transport (well one of its
+> 4 variants!) directly over LL2.
+
+Yes.
+
+> The advantage over Class 4 transport over LLC1 is that there is
+> only one set of retransmit buffers (etc) regardless of the number
+> of connections.
+
+Right. But nowadays we have big enough memories for many buffers, so
+it may be preferable to make connections operate independent of each
+other. This way one lost frame wouldn't affect all connections. This
+is also why HTTP3 moved to QUIC instead of using TCP.
+
+> But this is all 30 year old history...
+
+Haha, we are talking about really old technologies.
