@@ -1,82 +1,56 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: Re: [PATCH net-next] net: lapbether: Consider it successful if
- (dis)connecting when already (dis)connected
-Date: Thu, 10 Dec 2020 07:41:28 +0100
-Message-ID: <15c1ad7b52562e2ca37d8084a90197d8@dev.tdt.de>
-References: <20201208225044.5522-1-xie.he.0141@gmail.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH net-next] net: x25: Remove unimplemented X.25-over-LLC
+ code stubs
+Date: Thu, 10 Dec 2020 09:14:36 +0000
+Message-ID: <3e7fb08afd624399a7f689c2b507a01e@AcuMS.aculab.com>
+References: <20201209033346.83742-1-xie.he.0141@gmail.com>
+ <801dc0320e484bf7a5048c0cddac12af@AcuMS.aculab.com>
+ <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <20201208225044.5522-1-xie.he.0141@gmail.com>
+In-Reply-To: <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com>
+Content-Language: en-US
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Xie He <xie.he.0141@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: 'Xie He' <xie.he.0141@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Martin Schiller <ms@dev.tdt.de>
 
-On 2020-12-08 23:50, Xie He wrote:
-> When the upper layer instruct us to connect (or disconnect), but we 
-> have
-> already connected (or disconnected), consider this operation successful
-> rather than failed.
-> 
-> This can help the upper layer to correct its record about whether we 
-> are
-> connected or not here in layer 2.
-> 
-> The upper layer may not have the correct information about whether we 
-> are
-> connected or not. This can happen if this driver has already been 
-> running
-> for some time when the "x25" module gets loaded.
-> 
-> Another X.25 driver (hdlc_x25) is already doing this, so we make this
-> driver do this, too.
+RnJvbTogWGllIEhlDQo+IFNlbnQ6IDA5IERlY2VtYmVyIDIwMjAgMjI6NTQNCj4gDQo+IE9uIFdl
+ZCwgRGVjIDksIDIwMjAgYXQgMToyMSBQTSBEYXZpZCBMYWlnaHQgPERhdmlkLkxhaWdodEBhY3Vs
+YWIuY29tPiB3cm90ZToNCj4gPg0KPiA+IEkgYWx3YXlzIHdvbmRlcmVkIGFib3V0IHJ1bm5pbmcg
+Q2xhc3MgMiB0cmFuc3BvcnQgZGlyZWN0bHkgb3ZlciBMTEMyDQo+ID4gKHJhdGhlciB0aGFuIENs
+YXNzIDQgb3ZlciBMTEMxKS4NCj4gPiBCdXQgdGhlIG9ubHkgTExDMiB1c2VyIHdhcyBuZXRiaW9z
+IC0gYW5kIG1pY3Jvc29mdCdzIExMQzIgd2FzIGJyb2tlbi4NCj4gPiBOb3QgdG8gbWVudGlvbiB0
+aGUgd2luZG93IHByb2JpbmcgbmVlZGVkIHRvIGhhbmRsZSBzeXN0ZW1zIHRoYXQNCj4gPiBzYWlk
+IHRoZXkgc3VwcG9ydGVkIGEgd2luZG93IG9mIChJSVJDKSAxNSBidXQgd291bGQgZGlzY2FyZCB0
+aGUNCj4gPiA1dGggYmFjayB0byBiYWNrIGZyYW1lLg0KPiANCj4gVG8gbWUsIExMQzEgYW5kIExM
+QzIgYXJlIHRvIEV0aGVybmV0IHdoYXQgVURQIGFuZCBUQ1AgYXJlIHRvIElQDQo+IG5ldHdvcmtz
+LiBJIHRoaW5rIHdlIGNhbiB1c2UgTExDMSBhbmQgTExDMiB3aGVyZXZlciBVRFAgYW5kIFRDUCBj
+YW4gYmUNCj4gdXNlZCwgYXMgbG9uZyBhcyB3ZSBhcmUgaW4gdGhlIHNhbWUgTEFOIGFuZCBhcmUg
+d2lsbGluZyB0byB1c2UgTUFDDQo+IGFkZHJlc3NlcyBhcyB0aGUgYWRkcmVzc2VzLg0KDQpFeGNl
+cHQgdGhhdCB5b3UgZG9uJ3QgaGF2ZSBhbnkgd2hlcmUgbmVhciBlbm91Z2ggJ3BvcnRzJyBzbyB5
+b3UgbmVlZA0Kc29tZXRoaW5nIHRvIGRlbXVsdGlwbGV4IG1lc3NhZ2VzIHRvIGRpZmZlcmVudCBh
+cHBsaWNhdGlvbnMuDQoNCldlIChJQ0wpIGFsd2F5cyByYW4gY2xhc3MgNCB0cmFuc3BvcnQgKHdo
+aWNoIGRvZXMgZXJyb3IgcmVjb3ZlcnkpDQpkaXJlY3RseSBvdmVyIExMQzEgdXNpbmcgTUFDIGFk
+ZHJlc3MgKGEgTlVMIGJ5dGUgZm9yIHRoZSBuZXR3b3JrIGxheWVyKS4NClRoaXMgcmVxdWlyZXMg
+YSBicmlkZ2VkIG5ldHdvcmsgYW5kIGdsb2JhbGx5IHVuaXF1ZSBNQUMgYWRkcmVzc2VzLg0KU2Vu
+ZGluZyBvdXQgYW4gTExDIHJlZmxlY3QgcGFja2V0IHRvIHRoZSBicm9hZGNhc3QgTUFDIGFkZHJl
+c3MgdXNlZCB0bw0KZ2VuZXJhdGUgYSBjb3VwbGUgb2YgdGhvdXNhbmQgcmVzcG9uc2VzIChtYW55
+IHdvdWxkIGdldCBkaXNjYXJkZWQNCmJlY2F1c2UgdGhlIGJyaWRnZXMgZ290IG92ZXJsb2FkZWQp
+Lg0KDQo+IFguMjUgbGF5ZXIgMyBjZXJ0YWlubHkgY2FuIGFsc28gcnVuIG92ZXIgTExDMi4NCg0K
+WW91IGRvbid0IG5lZWQgWC4yNSBsYXllciAzLg0KWC4yNSBsYXllciAyIGRvZXMgZXJyb3IgcmVj
+b3Zlcnkgb3ZlciBhIHBvaW50LXRvLXBvaW50IGxpbmsuDQpYLjI1IGxheWVyIDMgZG9lcyBzd2l0
+Y2hpbmcgYmV0d2VlbiBtYWNoaW5lcy4NCkNsYXNzIDIgdHJhbnNwb3J0IGRvZXMgbXVsdGlwbGV4
+aW5nIG92ZXIgYSByZWxpYWJsZSBsb3dlciBsYXllci4NClNvIHlvdSBub3JtYWxseSBuZWVkIGFs
+bCB0aHJlZS4NCg0KSG93ZXZlciBMTEMyIGdpdmVzIHlvdSBhIHJlbGlhYmxlIGNvbm5lY3Rpb24g
+YmV0d2VlbiB0d28gbWFjaGluZXMNCihzZWxlY3RlZCBieSBNQUMgYWRkcmVzcykuDQpTbyB5b3Ug
+c2hvdWxkIGJlIGFibGUgdG8gcnVuIENsYXNzIDIgdHJhbnNwb3J0ICh3ZWxsIG9uZSBvZiBpdHMN
+CjQgdmFyaWFudHMhKSBkaXJlY3RseSBvdmVyIExMMi4NCg0KVGhlIGFkdmFudGFnZSBvdmVyIENs
+YXNzIDQgdHJhbnNwb3J0IG92ZXIgTExDMSBpcyB0aGF0IHRoZXJlIGlzDQpvbmx5IG9uZSBzZXQg
+b2YgcmV0cmFuc21pdCBidWZmZXJzIChldGMpIHJlZ2FyZGxlc3Mgb2YgdGhlIG51bWJlcg0Kb2Yg
+Y29ubmVjdGlvbnMuDQoNCkJ1dCB0aGlzIGlzIGFsbCAzMCB5ZWFyIG9sZCBoaXN0b3J5Li4uDQoN
+CglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwg
+TW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzog
+MTM5NzM4NiAoV2FsZXMpDQo=
 
-Looks good to me.
-
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-
-> 
-> Cc: Martin Schiller <ms@dev.tdt.de>
-> Signed-off-by: Xie He <xie.he.0141@gmail.com>
-> ---
->  drivers/net/wan/lapbether.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-> index b6be2454b8bd..605fe555e157 100644
-> --- a/drivers/net/wan/lapbether.c
-> +++ b/drivers/net/wan/lapbether.c
-> @@ -55,6 +55,9 @@ struct lapbethdev {
-> 
->  static LIST_HEAD(lapbeth_devices);
-> 
-> +static void lapbeth_connected(struct net_device *dev, int reason);
-> +static void lapbeth_disconnected(struct net_device *dev, int reason);
-> +
->  /* 
-> ------------------------------------------------------------------------ 
-> */
-> 
->  /*
-> @@ -167,11 +170,17 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff 
-> *skb,
->  	case X25_IFACE_DATA:
->  		break;
->  	case X25_IFACE_CONNECT:
-> -		if ((err = lapb_connect_request(dev)) != LAPB_OK)
-> +		err = lapb_connect_request(dev);
-> +		if (err == LAPB_CONNECTED)
-> +			lapbeth_connected(dev, LAPB_OK);
-> +		else if (err != LAPB_OK)
->  			pr_err("lapb_connect_request error: %d\n", err);
->  		goto drop;
->  	case X25_IFACE_DISCONNECT:
-> -		if ((err = lapb_disconnect_request(dev)) != LAPB_OK)
-> +		err = lapb_disconnect_request(dev);
-> +		if (err == LAPB_NOTCONNECTED)
-> +			lapbeth_disconnected(dev, LAPB_OK);
-> +		else if (err != LAPB_OK)
->  			pr_err("lapb_disconnect_request err: %d\n", err);
->  		fallthrough;
->  	default:
