@@ -1,43 +1,35 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH net-next] net: x25: Remove unimplemented X.25-over-LLC
- code stubs
-Date: Wed, 9 Dec 2020 14:53:55 -0800
-Message-ID: <CAJht_EMQFtR_-QH=QMHt9+cLcNO6LHBSy2fy=mgbic+=JUsR-Q@mail.gmail.com>
-References: <20201209033346.83742-1-xie.he.0141@gmail.com> <801dc0320e484bf7a5048c0cddac12af@AcuMS.aculab.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next v2] net: hdlc_x25: Remove unnecessary
+ skb_reset_network_header calls
+Date: Wed, 09 Dec 2020 19:23:51 -0800 (PST)
+Message-ID: <20201209.192351.1592604556832105313.davem@davemloft.net>
+References: <20201209014013.4996-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lanATv4oPPkDwFaB9qQIK45VqUMTlXl+oCa+92TkqwA=;
-        b=a1LJT7CHqVkFmpPPq4vfKK2iHYDskt9d+GXuzzpCWibXJC1W/p0QZTjJR6YKYQR8Iz
-         RzGqgrBd52sbdim6Bi9MPNMld+VVyXPFECoaK0mUOwvsB8tZTlaaNoJFMeOW8cQxTEet
-         lI3pKj2aVudpw8X5z1WYy0+uKlJRUqJQsJy6gFgVJPNL4dSi+TmO1BuDaLsbP4oy5tw3
-         H5WtWrkk5M6zfPoLmutuxcfzxOm6iqz5McABNS85JISQj1//HO1QtV7/qyCObtYUhNUm
-         b6uKHxTOtbtrue3mIGyVoYQxQjfmytvIoF1YMI7gbYFOPsi3LFgtdRscTtaBi5Kh7RSZ
-         hwCg==
-In-Reply-To: <801dc0320e484bf7a5048c0cddac12af@AcuMS.aculab.com>
-List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Laight <David.Laight@aculab.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Martin Schiller <ms@dev.tdt.de>
+Return-path: <linux-x25-owner@vger.kernel.org>
+In-Reply-To: <20201209014013.4996-1-xie.he.0141@gmail.com>
+List-ID: <linux-x25.vger.kernel.org>
+Content-Type: Text/Plain; charset="us-ascii"
+To: xie.he.0141@gmail.com
+Cc: kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, ms@dev.tdt.de
 
-On Wed, Dec 9, 2020 at 1:21 PM David Laight <David.Laight@aculab.com> wrote:
->
-> I always wondered about running Class 2 transport directly over LLC2
-> (rather than Class 4 over LLC1).
-> But the only LLC2 user was netbios - and microsoft's LLC2 was broken.
-> Not to mention the window probing needed to handle systems that
-> said they supported a window of (IIRC) 15 but would discard the
-> 5th back to back frame.
+From: Xie He <xie.he.0141@gmail.com>
+Date: Tue,  8 Dec 2020 17:40:13 -0800
 
-To me, LLC1 and LLC2 are to Ethernet what UDP and TCP are to IP
-networks. I think we can use LLC1 and LLC2 wherever UDP and TCP can be
-used, as long as we are in the same LAN and are willing to use MAC
-addresses as the addresses. X.25 layer 3 certainly can also run over
-LLC2.
+> 1. In x25_xmit, skb_reset_network_header is not necessary before we call
+> lapb_data_request. The lapb module doesn't need skb->network_header.
+> So there is no need to set skb->network_header before calling
+> lapb_data_request.
+> 
+> 2. In x25_data_indication (called by the lapb module after some data
+> have been received), skb_reset_network_header is not necessary before we
+> call netif_rx. After we call netif_rx, the code in net/core/dev.c will
+> call skb_reset_network_header before handing the skb to upper layers
+> (in __netif_receive_skb_core, called by __netif_receive_skb_one_core,
+> called by __netif_receive_skb, called by process_backlog). So we don't
+> need to call skb_reset_network_header by ourselves.
+> 
+> Cc: Martin Schiller <ms@dev.tdt.de>
+> Signed-off-by: Xie He <xie.he.0141@gmail.com>
 
-Linux actually has support for LLC1 and LLC2. User space programs can
-transmit data directly over LLC1 and LLC2 using "AF_LLC" sockets.
+Applied, thanks.
