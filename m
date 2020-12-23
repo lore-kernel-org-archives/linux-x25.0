@@ -1,22 +1,22 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 34/48] net/lapb: fix t1 timer handling for LAPB_STATE_0
-Date: Tue, 22 Dec 2020 21:24:02 -0500
-Message-ID: <20201223022417.2794032-34-sashal@kernel.org>
-References: <20201223022417.2794032-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 45/66] net/lapb: fix t1 timer handling for LAPB_STATE_0
+Date: Tue, 22 Dec 2020 21:22:31 -0500
+Message-ID: <20201223022253.2793452-45-sashal@kernel.org>
+References: <20201223022253.2793452-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690298;
-        bh=qTIW01HslnQB8/7Do60W1UDScsQm6zVFr5VugLYSJ4o=;
+        s=k20201202; t=1608690229;
+        bh=/c4YffwbuflVEpdaKVkVhdpanUfzt8myrSXK6LvF4OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prbHZdsSXkx1Ya23WNa1FhBke1yDuyajeBTyT5wGeDT7OhwKUtXF3tkph60Ly5Ci4
-         3qwZ3Ghu4cTlU6wrKknoxay/elr+jhyaa29MVdRjgLpBv5MdIOz+i7WfmDUIenCdYh
-         3oAQ9lKcjpLBQDIotcVzBZmNC3fGZiZ2AVTlEdcL7MfyEIB0sUIxB7+62xc7C6Nxmw
-         WBHGC2DzA/9hK3DIsRyUxldMNcQ93xALK5YnY6lmu5R0OSKGsSpkFeBNab0vnkUDjP
-         XcmBB8Y9y/CCOS/7kD5VvwuWO18WoxOR26PPgQ53GAvt3agAoYiQ/j91jg8Xz1mZM9
-         gb46/yIXzmiUA==
-In-Reply-To: <20201223022417.2794032-1-sashal@kernel.org>
+        b=YSVihZkZzyQWWNx6DK8R7U4lRJfAxXgtBk5ylUb/ANQBtaJRgFBfQvx5TCOVmgro1
+         uqgIaxWLfHTg9vdkdBANPex/6sqRfyMFesWNATDyIazC1gqNDlmeKl00fTCOet2Ma0
+         9DEO7xTgQtCGw7GEV9jkOow5lJkjCirJksZQT6bXLrX/WN4R86Mf356/1MYfby7BUO
+         YePW4zK2HR6u+HTd0vNkR/V1uRoJGwF5hC4rAVSlcqjWUdp8a3Z8m0p4kX39pDEIQa
+         Jl77AKddfKaUwhjYW7Qw6j3MaS0oI+jyGtULaAwa4B4plj4WFHYaXd7ouJYhLmBbxk
+         qbi1UBQDsOYAw==
+In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -40,7 +40,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
-index 355cc3b6fa4d3..3d99205f003da 100644
+index 1a5535bc3b8d8..57882eb654c07 100644
 --- a/net/lapb/lapb_timer.c
 +++ b/net/lapb/lapb_timer.c
 @@ -92,11 +92,18 @@ static void lapb_t1timer_expiry(unsigned long param)
