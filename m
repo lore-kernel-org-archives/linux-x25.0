@@ -1,42 +1,46 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for LAPB_STATE_0
-Date: Thu, 24 Dec 2020 01:49:47 -0800
-Message-ID: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
-References: <20201223021813.2791612-75-sashal@kernel.org> <20201223170124.5963-1-xie.he.0141@gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for
+ LAPB_STATE_0
+Date: Sun, 27 Dec 2020 16:27:46 -0500
+Message-ID: <20201227212746.GF2790422@sasha-vm>
+References: <20201223021813.2791612-75-sashal@kernel.org>
+ <20201223170124.5963-1-xie.he.0141@gmail.com>
+ <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pR2ACc6d8aTjF9n2K3igB+WCeCgG4pxrdUZ6N6y3XI8=;
-        b=F0hRaYSIk4MzxylL/ODRdzxdbcBJG2XTEKKFPPjS/e6+wv80GeoxPfKfzYneDuCNCC
-         CHiQngXEUCEHaSxZQbe0EvGvKuJBzn4uUQZsOhoNlBfM+EQD+7hcS2TdqDQDPXg7aq24
-         IWm8zHFInPmY9dfoaethXfjxzbiY0N/7CjnmYXj+r/riZAy5ljkCgDOPqsUYVMlzWFt9
-         qIrGIel3ehiGDT3y8ufUGJCvnvZ5BfpnpjxelSVkfc5Xl1Q968ZWdYclR7PNXWzTMlUP
-         ApzZ1jaXDMRwxhwewd2oMVNALF06JfTuUJBrmCYUieUpyd1Pyu36pOE7PYZqJcYpQkcH
-         hSjQ==
-In-Reply-To: <20201223170124.5963-1-xie.he.0141@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609104468;
+        bh=dlUOHzdT6jqxNMlS7tKqm2HOUmsvt41fj/QA+qUzYuY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LmC2caxmKrmbf7bEAgezvmwRBWBxQ0zThEPdwxvwtMI9dZ6Ri2AeWQrxIypSzHa4U
+         MuvrouwwqnAi+Bz4M08GCuZp1ESgAYv5x5k38Dr25b2vwhVA2uSmbQi+jxW7uFfLjM
+         cAR64DMSdHM7T91XYSvTrgc7hiPjKBPYOFdy55iiN2iugdPwONLW9+tLOGm9hYpVM+
+         1kFXEEnPiaZK+1zMwiw460a/7go+/uHu2FZ52+cdFdRxbfSj4oGZre/BVnNtVogWkN
+         zk12bzwTSn2UHGfqr5sF38U+er57hCVHQaJYSX1DQZV1loLFycMID4Mo5OG/is3fsG
+         yS3yQCE0VHAvA==
+Content-Disposition: inline
+In-Reply-To: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
 Content-Transfer-Encoding: 7bit
-To: Sasha Levin <sashal@kernel.org>
+To: Xie He <xie.he.0141@gmail.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>, Jakub Kicinski <kuba@kernel.org>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>
 
-On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
+On Thu, Dec 24, 2020 at 01:49:47AM -0800, Xie He wrote:
+>On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
+>>
+>> I don't think this patch is suitable for stable branches. This patch is
+>> part of a patch series that changes the lapb module from "establishing the
+>> L2 connection only when needed by L3", to "establishing the L2 connection
+>> automatically whenever we are able to". This is a behavioral change. It
+>> should be seen as a new feature. It is not a bug fix.
 >
-> I don't think this patch is suitable for stable branches. This patch is
-> part of a patch series that changes the lapb module from "establishing the
-> L2 connection only when needed by L3", to "establishing the L2 connection
-> automatically whenever we are able to". This is a behavioral change. It
-> should be seen as a new feature. It is not a bug fix.
+>Applying this patch without other patches in the same series will also
+>introduce problems, because this patch relies on part of the changes
+>in the subsequent patch in the same series to be correct.
 
-Applying this patch without other patches in the same series will also
-introduce problems, because this patch relies on part of the changes
-in the subsequent patch in the same series to be correct.
+I'll drop it, thanks!
 
-Hi Martin,
-
-It's better that we avoid using words like "fix" in non-bug-fix
-patches, and make every patch work on its own without subsequent
-patches. Otherwise we'll make people confused.
+-- 
+Thanks,
+Sasha
