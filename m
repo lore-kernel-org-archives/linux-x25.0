@@ -1,7 +1,7 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net] net: lapb: Add locking to the lapb module
-Date: Sun, 17 Jan 2021 00:08:16 -0800
-Message-ID: <20210117080816.22475-1-xie.he.0141@gmail.com>
+Subject: [PATCH net v2] net: lapb: Add locking to the lapb module
+Date: Sun, 17 Jan 2021 14:47:50 -0800
+Message-ID: <20210117224750.6572-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
@@ -9,13 +9,13 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=obnZR0NyV+B7lkaH0Nw+SIxRwBgzDZBrRGSyQNYyqF4=;
-        b=ejYLM1ndmWurwe076eG8EGGkdxWecZCUr2RbOqzLqnTM01YKGT1RYofleCAtF2+3ms
-         JVNerc58NRVu9W5SqOvRzi3sAxUqdqUqzpyfIze9ENNclGlKpZBA9sUilkmMxeNCkq8L
-         nHxJGp4lKbFDsbHpaI9HQq7xGjKHwxtZxO+DP8M3DItGOMfeB2VQ7mv/D58ClRADnwC2
-         Jy4TAZ8o0ClZSj42shXRF+wzNJJY34Rjznbu4lkz20bfnaT/K8f+0ECyGGXmt60XIMfd
-         3uEQORS+WDwTCrOlwmUjR/s9goxc6zTxeIXGEyHuEEyjPzwoTikUie5sxiZOext78nXC
-         2D8w==
+        bh=/2hbi2dKwVl31NeiC0aTSjst7es3pRpjrzEtDyhBGs4=;
+        b=tt++JfGFwId8s2GP2L4EAUAuYmqxzm1AEekBQB1+WZyFizrB5C7LV7pot+FLneUCnd
+         Xicp67fc4pT/EPYTNSwShPmUd37Daa1VWQyC3tIMoco0IcuYXQ8/Df5LUDn1tmet05Vu
+         hRKb1rKORQxhHl+pc7d5L7lR8f+IKpF5H3lWQMVdQgP8il263VjGIU6YN5NQNMlCvwJR
+         lN2AEQTFlgABN6kCQIb7WjGomX1cux+b0rYr/FAt5ocw64S45luWU6R3ppRojUNbw8FD
+         4icqk5Bc4Cj72ovwNbYCo/4kSi6PvA+xjsddmhdokZBHz/bvVCDOoCC7J4HHHaeFfsIh
+         4VKw==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
@@ -40,17 +40,17 @@ to "del_timer_sync" to make sure all running timers have exited.
 
 4. In lapb_device_event, replace the "lapb_disconnect_request" call with
 the content of "lapb_disconnect_request", to avoid trying to hold the
-lock twice. When doing this, "lapb_start_t1timer" is removed because
-I don't think it's necessary to start the timer when "NETDEV_GOING_DOWN".
+lock twice. When I do this, I removed "lapb_start_t1timer" because I
+don't think it's necessary to start the timer when "NETDEV_GOING_DOWN".
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
 ---
  include/net/lapb.h    |  2 ++
- net/lapb/lapb_iface.c | 54 +++++++++++++++++++++++++++++++++++++++----
- net/lapb/lapb_timer.c | 30 ++++++++++++++++++++----
- 3 files changed, 78 insertions(+), 8 deletions(-)
+ net/lapb/lapb_iface.c | 56 +++++++++++++++++++++++++++++++++++++++----
+ net/lapb/lapb_timer.c | 30 +++++++++++++++++++----
+ 3 files changed, 80 insertions(+), 8 deletions(-)
 
 diff --git a/include/net/lapb.h b/include/net/lapb.h
 index ccc3d1f020b0..eee73442a1ba 100644
@@ -73,7 +73,7 @@ index ccc3d1f020b0..eee73442a1ba 100644
  };
  
 diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
-index 40961889e9c0..ad6197381d05 100644
+index 40961889e9c0..45f332607685 100644
 --- a/net/lapb/lapb_iface.c
 +++ b/net/lapb/lapb_iface.c
 @@ -122,6 +122,8 @@ static struct lapb_cb *lapb_create_cb(void)
@@ -209,7 +209,7 @@ index 40961889e9c0..ad6197381d05 100644
  	switch (event) {
  	case NETDEV_UP:
  		lapb_dbg(0, "(%p) Interface up: %s\n", dev, dev->name);
-@@ -453,8 +476,30 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
+@@ -453,8 +476,32 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
  		}
  		break;
  	case NETDEV_GOING_DOWN:
@@ -222,7 +222,8 @@ index 40961889e9c0..ad6197381d05 100644
 +		case LAPB_STATE_1:
 +			lapb_dbg(1, "(%p) S1 TX DISC(1)\n", lapb->dev);
 +			lapb_dbg(0, "(%p) S1 -> S0\n", lapb->dev);
-+			lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON, LAPB_COMMAND);
++			lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON,
++					  LAPB_COMMAND);
 +			lapb->state = LAPB_STATE_0;
 +			break;
 +
@@ -232,7 +233,8 @@ index 40961889e9c0..ad6197381d05 100644
 +		default:
 +			lapb_clear_queues(lapb);
 +			lapb->n2count = 0;
-+			lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON, LAPB_COMMAND);
++			lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON,
++					  LAPB_COMMAND);
 +			lapb_stop_t2timer(lapb);
 +			lapb->state = LAPB_STATE_2;
 +			lapb_dbg(1, "(%p) S3 DISC(1)\n", lapb->dev);
@@ -242,7 +244,7 @@ index 40961889e9c0..ad6197381d05 100644
  		break;
  	case NETDEV_DOWN:
  		lapb_dbg(0, "(%p) Interface down: %s\n", dev, dev->name);
-@@ -489,6 +534,7 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
+@@ -489,6 +536,7 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
  		break;
  	}
  
