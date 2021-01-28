@@ -1,70 +1,107 @@
-From: Martin Schiller <ms@dev.tdt.de>
+From: Jakub Kicinski <kuba@kernel.org>
 Subject: Re: [PATCH net] net: hdlc_x25: Use qdisc to queue outgoing LAPB
  frames
-Date: Thu, 28 Jan 2021 07:39:38 +0100
-Message-ID: <2b14439178ff54e991c45a9a1574243e@dev.tdt.de>
+Date: Thu, 28 Jan 2021 11:46:59 -0800
+Message-ID: <20210128114659.2d81a85f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 References: <20210127090747.364951-1-xie.he.0141@gmail.com>
- <77971dffcff441c3ad3d257825dc214b@AcuMS.aculab.com>
- <CAJht_ENmxCBk=h68CN55qySMAiYhcgS0AtVzo6RvS5xf_6EkRw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <CAJht_ENmxCBk=h68CN55qySMAiYhcgS0AtVzo6RvS5xf_6EkRw@mail.gmail.com>
+Return-path: <netdev-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611863221;
+        bh=H6v8ZXXV2Uym43MsLOBYTQXBG2B+5yMYkUpZPMWn644=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=AWdLNwASDJjkawvi33IHgk2Zd43mbPji3juUCNIX4wOLf/YIWLq/ohWIu74Bdp56c
+         k8WDDTuMUgrR9CQc7KWw5qZaVGtMi+F1V+H/Y4eBiitIXngFAvga3kq0T+jAKErfqM
+         t2JjcA1OmZ11Je5t/wXUm4DaWXCgdRYsZhJ9xXHA4pFWKg2kdGkjkXl8V7igYVckCQ
+         /OT0MGwzNLGKOPSnagKaBtaN3KLRHHeOyT88a4VJru6albHvmMZCFnSv7SPHF5h0YK
+         whBdhho3ffywPJY1RAy/bjgn/GSiOzU8GRlNJ6QOsNHO1FKpULm8PFPbjz+HhVYK6V
+         yQCAhFD8f9EtA==
+In-Reply-To: <20210127090747.364951-1-xie.he.0141@gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 To: Xie He <xie.he.0141@gmail.com>
-Cc: David Laight <David.Laight@aculab.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>, Krzysztof Halasa <khc@pm.waw.pl>
 
-On 2021-01-27 21:29, Xie He wrote:
-> On Wed, Jan 27, 2021 at 2:14 AM David Laight <David.Laight@aculab.com> 
-> wrote:
->> 
->> If I read this correctly it adds a (potentially big) queue between the
->> LAPB code that adds the sequence numbers to the frames and the 
->> hardware
->> that actually sends them.
+On Wed, 27 Jan 2021 01:07:47 -0800 Xie He wrote:
+> An HDLC hardware driver may call netif_stop_queue to temporarily stop
+> the TX queue when the hardware is busy sending a frame, and after the
+> hardware has finished sending the frame, call netif_wake_queue to
+> resume the TX queue.
 > 
-> Yes. The actual number of outgoing LAPB frames being queued depends on
-> how long the hardware driver stays in the TX busy state, and is
-> limited by the LAPB sending window.
+> However, the LAPB module doesn't know about this. Whether or not the
+> hardware driver has stopped the TX queue, the LAPB module still feeds
+> outgoing frames to the hardware driver for transmission. This can cause
+> frames to be dropped by the hardware driver.
 > 
->> IIRC [1] there is a general expectation that the NR in a transmitted 
->> frame
->> will be the same as the last received NS unless acks are being delayed
->> for flow control reasons.
->> 
->> You definitely want to be able to ack a received frame while 
->> transmitting
->> back-to-back I-frames.
->> 
->> This really means that you only want 2 frames in the hardware driver.
->> The one being transmitted and the next one - so it gets sent with a
->> shared flag.
->> There is no point sending an RR unless the hardware link is actually 
->> idle.
+> It's not easy to fix this issue in the LAPB module. We can indeed let the
+> LAPB module check whether the TX queue has been stopped before feeding
+> each frame to the hardware driver, but when the hardware driver resumes
+> the TX queue, it's not easy to immediately notify the LAPB module and ask
+> it to resume transmission.
 > 
-> If I understand correctly, what you mean is that the frames sent on
-> the wire should reflect the most up-to-date status of what is received
-> from the wire, so queueing outgoing LAPB frames is not appropriate.
-> 
-> But this would require us to deal with the "TX busy" issue in the LAPB
-> module. This is (as I said) not easy to do. I currently can't think of
-> a good way of doing this.
-> 
-> Instead, we can think of the TX queue as part of the "wire". We can
-> think of the wire as long and having a little higher latency. I
-> believe the LAPB protocol has no problem in handling long wires.
-> 
-> What do you think?
+> Instead, we can fix this issue at the hdlc_x25 layer, by using qdisc TX
+> queues to queue outgoing LAPB frames. The qdisc TX queue will then
+> automatically be controlled by netif_stop_queue and netif_wake_queue.
 
-David: Can you please elaborate on your concerns a little bit more?
+Noob question - could you point at or provide a quick guide to layering
+here? I take there is only one netdev, and something maintains an
+internal queue which is not stopped when HW driver stops the qdisc?
 
-I think Xie's approach is not bad at all. LAPB (L2) has no idea about L1
-(apart from the link state) and sends as many packets as possible, which
-of course we should not discard. The remaining window determines how
-many packets are put into this queue.
-Since we can't send anything over the line due to the TX Busy state, the
-remote station (due to lack of ACKs) will also stop sending anything
-at some point.
+> This way, when sending, we will use the qdisc queue to queue and send
+> the data twice: once as the L3 packet and then (after processed by the
+> LAPB module) as an LAPB (L2) frame. This does not make the logic of the
+> code messy, because when receiving, data are already "received" on the
+> device twice: once as an LAPB (L2) frame and then (after processed by
+> the LAPB module) as the L3 packet.
+> 
+> Some more details about the code change:
+> 
+> 1. dev_queue_xmit_nit is removed because we already have it when we send
+> the skb through the qdisc TX queue (in xmit_one).
+> 
+> 2. hdlc_type_trans is replaced by assigning skb->dev and skb->protocol
+> directly. skb_reset_mac_header in hdlc_type_trans is no longer necessary
+> because it will be called in __dev_queue_xmit.
 
-When the link goes down, all buffers/queues must be cleared.
+Sounds like we're optimizing to prevent drops, and this was not
+reported from production, rather thru code inspection. Ergo I think
+net-next will be more appropriate here, unless Martin disagrees.
+
+> diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+> index bb164805804e..b7f2823bf100 100644
+> --- a/drivers/net/wan/hdlc_x25.c
+> +++ b/drivers/net/wan/hdlc_x25.c
+> @@ -89,15 +89,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+>  
+>  static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
+>  {
+> -	hdlc_device *hdlc = dev_to_hdlc(dev);
+> -
+> +	skb->dev = dev;
+> +	skb->protocol = htons(ETH_P_HDLC);
+>  	skb_reset_network_header(skb);
+> -	skb->protocol = hdlc_type_trans(skb, dev);
+> -
+> -	if (dev_nit_active(dev))
+> -		dev_queue_xmit_nit(skb, dev);
+> -
+> -	hdlc->xmit(skb, dev); /* Ignore return value :-( */
+> +	dev_queue_xmit(skb);
+>  }
+>  
+>  
+> @@ -106,6 +101,12 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+>  {
+>  	int result;
+>  
+> +	if (skb->protocol == htons(ETH_P_HDLC)) {
+> +		hdlc_device *hdlc = dev_to_hdlc(dev);
+> +
+> +		return hdlc->xmit(skb, dev);
+> +	}
+> +
+>  	/* There should be a pseudo header of 1 byte added by upper layers.
+>  	 * Check to make sure it is there before reading it.
+>  	 */
+
