@@ -1,49 +1,66 @@
-From: patchwork-bot+netdevbpf@kernel.org
-Subject: Re: [PATCH net] net: lapb: Copy the skb before sending a packet
-Date: Tue, 02 Feb 2021 16:50:07 +0000
-Message-ID: <161228460738.23213.13014448307375459803.git-patchwork-notify@kernel.org>
-References: <20210201055706.415842-1-xie.he.0141@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
+Subject: [PATCH net] net: hdlc_x25: Return meaningful error code in x25_open
+Date: Tue,  2 Feb 2021 23:15:41 -0800
+Message-ID: <20210203071541.86138-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612284607;
-        bh=1pyS1O/tfQWwIdEuctiuv1WSn/cICDq2gO6ZI5MLyZA=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=qt+bYOoaif+OB/INxcPDne0PeMVbxxORuDpNI16pbNOCCU4a5tZO5vvLS03z5jveX
-         G+Bafubjefm+jxrIXV/LLBvJJ1dlbTE/zFrmH+gWJFNTYiOvPr2acASlyDvPfizQdx
-         ozHjlJ/igtTdoamKzZ7Zap5VGKntlfdpGdyx3jpH/uesYIftYG3HEx+LYDWtOkx+1E
-         MRLqH2573UW9iEKCNpmiUdHQlggyORBwu29gY6WZNCpqMWmJ4Av/0ghsw2pSGkdq1y
-         W3tkKlIEWlxIT5dxLb3T2AjEN8vvJ9Kr5EZ7dksAAzxzMZ70lGVHX311Lna1tmYlK8
-         euCa+Je5VO2Uw==
-In-Reply-To: <20210201055706.415842-1-xie.he.0141@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vCplaxx+G/WjU4K1QFLVkvqSzFQBK1Dh3zZTYlV1r9g=;
+        b=H7MtAneniyH/4SWxkj4bIPDg7tNEFkIJmh/URu3iGiyAFYphZBpJdujnazu09VQck3
+         6u0lD0VnvKZoXmgSzyJzLvqHluXddaEYyZAfF0MX2qNpGe09ihytlVR0eDbuLPdHh6iZ
+         ZSzh0CQ+Y1tKictzkI2yF1z9Y1VyiRMSpGFpKSgvfwu+APdWIVhy0pfkJ2O5BQ7P5n1D
+         haYaPd6W6xc3Kl7B91dBYReDPKHfMwzUn0UrcajujUffzjTk4tp8SKDKMj9Vx9ceITlg
+         OGiCea81wNVbm1Z3T2H6eizyc47z9id8x/EuOELUuD9QPU/fbWhhgr3yKxqIMkoHIS9C
+         j97w==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Xie He <xie.he.0141@gmail.com>
-Cc: davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, ms@dev.tdt.de
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>, Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Xie He <xie.he.0141@gmail.com>
 
-Hello:
+It's not meaningful to pass on LAPB error codes to HDLC code or other
+parts of the system, because they will not understand the error codes.
 
-This patch was applied to netdev/net.git (refs/heads/master):
+Instead, use system-wide recognizable error codes.
 
-On Sun, 31 Jan 2021 21:57:06 -0800 you wrote:
-> When sending a packet, we will prepend it with an LAPB header.
-> This modifies the shared parts of a cloned skb, so we should copy the
-> skb rather than just clone it, before we prepend the header.
-> 
-> In "Documentation/networking/driver.rst" (the 2nd point), it states
-> that drivers shouldn't modify the shared parts of a cloned skb when
-> transmitting.
-> 
-> [...]
+Fixes: f362e5fe0f1f ("wan/hdlc_x25: make lapb params configurable")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+ drivers/net/wan/hdlc_x25.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Here is the summary with links:
-  - [net] net: lapb: Copy the skb before sending a packet
-    https://git.kernel.org/netdev/net/c/88c7a9fd9bdd
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index bb164805804e..4aaa6388b9ee 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -169,11 +169,11 @@ static int x25_open(struct net_device *dev)
+ 
+ 	result = lapb_register(dev, &cb);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -ENOMEM;
+ 
+ 	result = lapb_getparms(dev, &params);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -EINVAL;
+ 
+ 	if (state(hdlc)->settings.dce)
+ 		params.mode = params.mode | LAPB_DCE;
+@@ -188,7 +188,7 @@ static int x25_open(struct net_device *dev)
+ 
+ 	result = lapb_setparms(dev, &params);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -EINVAL;
+ 
+ 	return 0;
+ }
+-- 
+2.27.0
 
