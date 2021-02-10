@@ -1,7 +1,7 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net-next RFC] net: hdlc_x25: Queue outgoing LAPB frames
-Date: Wed, 10 Feb 2021 07:56:10 -0800
-Message-ID: <20210210155610.13753-1-xie.he.0141@gmail.com>
+Subject: [PATCH net-next RFC v2] net: hdlc_x25: Queue outgoing LAPB frames
+Date: Wed, 10 Feb 2021 09:35:32 -0800
+Message-ID: <20210210173532.370914-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
@@ -9,13 +9,13 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=McQRFsxOcI8aHwHC0zjblj7atjYGCgUIoXv69mIC1Q4=;
-        b=YQgJ3cij+gOOioVvpKXjQqCFsFuVNYsWtI5SZO2XC8tJJGo4lxjRC0G+3GuzoTmteE
-         9wJ5M1nbWfqon52DmLiXjr6ZQgm9aYaimKuBJwxd+gv74MeYNHpyex93K1c4oqnL1pEj
-         vXwPVsck7bclSEx2JTNdX6FQ7uFxYJXGT52+PGAg/gvg92ggCVp2MEw7LX4fp6oDf/LT
-         hNwJfxYof8e/xPsF24GiNm3//MY4Hy+m40Da7/8P/CnSZ/jxk5QhAL6aaAwgPS2/No9l
-         W4APuHb/YAS37hyuPdfDaGR/WcCSbNi3maXql05N4fF5QtN3ykfVsB42A/O9TUF7HpIo
-         29eA==
+        bh=0zXiWXS+ItGfo45/5tHO26C3RlXyNypOLSac5INY45I=;
+        b=u53EBIGpvxNsrbvvNljPgLTSlplNxHyMG9jF80LzjhnHVJflgqqlOg+CUhtYTh+lzf
+         zOQrP1EJoJQ5f5hdFuES3Hfnhs/2SHyi6/wGVjgvPgSWjqza+xC61xhb9o+mbvel3tb5
+         C4pXFbtwmpsfEct+H+ndkf6KtBZ/XGJyJgHxTJkzN+tsyPbehAGcRSfcSP2cwYj1JXN8
+         10H+K0wl8cnjjez5THzXIbQpLu3Q7s/dnQrCN7PZ5LIfchm9T7WiTLqta3z2MhbZmtP1
+         deRtaRf3ZhWNl3c/ckg9aunMZs34fJiGzymsFiSI9kgwTgM5SOOeIYhlUL9kOAjz8ZlT
+         O1+g==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>, Krzysztof Halasa <khc@pm.waw.pl>
@@ -54,11 +54,16 @@ outgoing (L3) packets will not be affected by these calls.
 Cc: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
 ---
- drivers/net/wan/hdlc_x25.c | 156 ++++++++++++++++++++++++++++++-------
- 1 file changed, 127 insertions(+), 29 deletions(-)
+
+Change from RFC v1:
+Properly initialize state(hdlc)->x25_dev and state(hdlc)->x25_dev_lock.
+
+---
+ drivers/net/wan/hdlc_x25.c | 158 ++++++++++++++++++++++++++++++-------
+ 1 file changed, 129 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index bb164805804e..f21aaee364e2 100644
+index bb164805804e..2a7b3c3d0c05 100644
 --- a/drivers/net/wan/hdlc_x25.c
 +++ b/drivers/net/wan/hdlc_x25.c
 @@ -23,6 +23,13 @@
@@ -281,9 +286,12 @@ index bb164805804e..f21aaee364e2 100644
  	.module		= THIS_MODULE,
  };
  
-@@ -299,15 +406,6 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+@@ -298,16 +405,9 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+ 			return result;
  
  		memcpy(&state(hdlc)->settings, &new_settings, size);
++		state(hdlc)->x25_dev = NULL;
++		spin_lock_init(&state(hdlc)->x25_dev_lock);
  
 -		/* There's no header_ops so hard_header_len should be 0. */
 -		dev->hard_header_len = 0;
