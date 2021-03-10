@@ -1,39 +1,52 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: Re: [PATCH net-next RFC] net: x25: Queue received packets in the
- drivers instead of per-CPU queues
-Date: Tue, 9 Mar 2021 11:31:47 -0800
-Message-ID: <CAJht_EM7Wtmtwi4=vEybSNbQrNmugC7HCLYcAjM07gEgeRtHMA@mail.gmail.com>
-References: <20210305054312.254922-1-xie.he.0141@gmail.com> <4b30ca506b0d79ef5ba1a5e9ce9cf2cd@dev.tdt.de>
+From: patchwork-bot+netdevbpf@kernel.org
+Subject: Re: [PATCH net] net: lapbether: Remove netif_start_queue /
+ netif_stop_queue
+Date: Wed, 10 Mar 2021 00:10:07 +0000
+Message-ID: <161533500795.28934.16429387083913505207.git-patchwork-notify@kernel.org>
+References: <20210307113309.443631-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
-Return-path: <netdev-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HYJycecCKR8mJEVeAV0bVwc2FaxFgSqtKDz5fqSfG+Y=;
-        b=t/BAtgEgV5Af5sZNLuhwg2mdyygRwGzvxfza2L1PSTQ6joDvwFqZ8lbBB+By+CVx8/
-         dUqnPxqvWKnjVW+DAQdeYYddYwnXCiTXS+gRCOmwf50ydHtFaTTdJSkJD3cC8ydC+Gze
-         Ykg6oQQ7UEKaTY1Bm86L0+LFwWHnybFhTlmYqONyfIEtKyCV6u8kt68Mwh4PN6hryHfv
-         NyQsnZZCaGGMKf0/7tNfVmSnhHbiz2lRUO3BDw0/PhNNZxZAHj6hp/Aq6/Plhk3db8xN
-         RpYtQCQNgk7c14Z5nBq9fA0iRHVwjHJJxGrZ80Ymthrn9iohWPWdp4y+MEVbfYTNqJLN
-         U2JQ==
-In-Reply-To: <4b30ca506b0d79ef5ba1a5e9ce9cf2cd@dev.tdt.de>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615335008;
+        bh=PGEt5bFRFlNAUoeIB5rHrSNUk4l8L6wARw3TkEvgqkQ=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=nUtdVZUt7Xa+KzZ7W6cWbh1b6TM4Ec3chAEuh+V6kFkrubI9OX2r7S5m8fnHUYZgr
+         kuUBskTungauTMmbIDnjF+M20nbr13QXYf3BtxdU+5l0Qdzr131A2mxWA7WmgnyeS/
+         IchxdLpKK0HNwmlXgbr+5IXnObClEswEMw6KjrcsKiV27VMnxkEA1Dsjfcuu7FqqCq
+         bujscD767VU2XNSOFUhCV/Lnl36Nvp3bovauLjsyV1bTeVW3UxwndhE26WKV34mfHR
+         I+tvX2wsBAfQyVBj/dQ4wnUJiWUGQztVQKtm4iw9UTHOAkVPm22cakdLbXyHkARSJB
+         A+xgM7kTTISDg==
+In-Reply-To: <20210307113309.443631-1-xie.he.0141@gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Krzysztof Halasa <khc@pm.waw.pl>, Linux X25 <linux-x25@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Xie He <xie.he.0141@gmail.com>
+Cc: ms@dev.tdt.de, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Mar 9, 2021 at 5:23 AM Martin Schiller <ms@dev.tdt.de> wrote:
->
-> I've tested the hdlc_x25 driver.
-> Looks good to me.
->
-> Acked-by: Martin Schiller <ms@dev.tdt.de>
+Hello:
 
-Thank you!!
+This patch was applied to netdev/net.git (refs/heads/master):
 
-I'll re-send this patch after net-next is re-opened and my other fixes
-get merged into net-next.
+On Sun,  7 Mar 2021 03:33:07 -0800 you wrote:
+> For the devices in this driver, the default qdisc is "noqueue",
+> because their "tx_queue_len" is 0.
+> 
+> In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
+> "noqueue" qdisc are specially handled. Packets are transmitted without
+> being queued after a "dev->flags & IFF_UP" check. However, it's possible
+> that even if this check succeeds, "ops->ndo_stop" may still have already
+> been called. This is because in "__dev_close_many", "ops->ndo_stop" is
+> called before clearing the "IFF_UP" flag.
+> 
+> [...]
 
-Thanks!
+Here is the summary with links:
+  - [net] net: lapbether: Remove netif_start_queue / netif_stop_queue
+    https://git.kernel.org/netdev/net/c/f7d9d4854519
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
