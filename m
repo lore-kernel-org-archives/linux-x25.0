@@ -1,7 +1,7 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net] net: hdlc_x25: Prevent racing between "x25_close" and "x25_xmit"/"x25_rx"
-Date: Sun, 14 Mar 2021 03:31:04 -0700
-Message-ID: <20210314103104.43679-1-xie.he.0141@gmail.com>
+Subject: [PATCH net v2] net: hdlc_x25: Prevent racing between "x25_close" and "x25_xmit"/"x25_rx"
+Date: Sun, 14 Mar 2021 04:21:01 -0700
+Message-ID: <20210314112103.45242-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
@@ -9,13 +9,13 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=sGsgx5lItdpsm8V+9ERiYzuHPqJCAN3gYhOnOr9sdcw=;
-        b=OqMC6mJdcDBX+Nq9dTpDAQ0gw5q8HqOYtNpRyYJ6OWIw7Wd5Nc/9QFCOEy4VLAQi0E
-         Nl15WAEnoz59uw9aQDwQajdOhLIMHq8MyXuwjqGm+Ubx+dHHUHIkGUrd2KlBOR1OgXtP
-         8N+bJKTjpvnthdthIziiKkjus39Ku2upwodilcQGfePlR3pyoNtmRBJkvoSqSdFhxMmh
-         f3BQ2k8Tz80EsFZRZ3xGXICefJyPrvVCE8me7AmHQjViCvFp2ZIvMlAA6UT3R1DY6NrK
-         H589QGALYBNCmcj8KitVlEuRxrRWM2TPmZxANir9QSX1NfPQEawHTCBH56x5Tmc2Ad2K
-         PT/g==
+        bh=PPVao1AHhEvdFq9PUk1U5Ula5rKqEXhakDYfJk3USYw=;
+        b=jN5Ph6okeJzmxcfgrkWZCOiJqQ+apMPw5qBNEIb+2pJhWddRWQr4loM/yMWyAt4s8I
+         2+LTO5Qa56CzgbXjneAGe45KpjROK8mTAmWEf4lV7ZwwMP3LDq+R91ZCWnRXno3Np6mU
+         vz8Xn7mw3gqo3FvrGjOMPqZWrM/KfGXSvKLfmoAVKQYbDs9x+mq8AzKUmL+jdw1ozic0
+         EJadfT/NflcY4mEuxR/h8hngbFFc7exxEyU+HnWhzWKElupKXUzmikJ+nAk253fig/F1
+         kA+iTjxdc9Qn0QNsWBdlo9eqOyLY9w6M5PfULtdbRShciOylBpj8HMa50d0qBT/q/M8K
+         np5Q==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Martin Schiller <ms@dev.tdt.de>, Krzysztof Halasa <khc@pm.waw.pl>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -44,7 +44,13 @@ have full control over the TX queue, and the HDLC protocol drivers (like
 this driver) have no control. Controlling the queue here in the protocol
 driver may interfere with hardware drivers' control of the queue.
 
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+
+Change from v1:
+Added a "Fixes" tag.
+
 ---
  drivers/net/wan/hdlc_x25.c | 42 +++++++++++++++++++++++++++++++++++++-
  1 file changed, 41 insertions(+), 1 deletion(-)
