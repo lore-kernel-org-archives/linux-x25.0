@@ -1,182 +1,49 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net v2] net: hdlc_x25: Prevent racing between "x25_close" and "x25_xmit"/"x25_rx"
-Date: Sun, 14 Mar 2021 04:21:01 -0700
-Message-ID: <20210314112103.45242-1-xie.he.0141@gmail.com>
+From: patchwork-bot+netdevbpf@kernel.org
+Subject: Re: [PATCH net v2] net: hdlc_x25: Prevent racing between "x25_close" and
+ "x25_xmit"/"x25_rx"
+Date: Mon, 15 Mar 2021 19:40:08 +0000
+Message-ID: <161583720808.23197.12484881848858187227.git-patchwork-notify@kernel.org>
+References: <20210314112103.45242-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PPVao1AHhEvdFq9PUk1U5Ula5rKqEXhakDYfJk3USYw=;
-        b=jN5Ph6okeJzmxcfgrkWZCOiJqQ+apMPw5qBNEIb+2pJhWddRWQr4loM/yMWyAt4s8I
-         2+LTO5Qa56CzgbXjneAGe45KpjROK8mTAmWEf4lV7ZwwMP3LDq+R91ZCWnRXno3Np6mU
-         vz8Xn7mw3gqo3FvrGjOMPqZWrM/KfGXSvKLfmoAVKQYbDs9x+mq8AzKUmL+jdw1ozic0
-         EJadfT/NflcY4mEuxR/h8hngbFFc7exxEyU+HnWhzWKElupKXUzmikJ+nAk253fig/F1
-         kA+iTjxdc9Qn0QNsWBdlo9eqOyLY9w6M5PfULtdbRShciOylBpj8HMa50d0qBT/q/M8K
-         np5Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615837208;
+        bh=R6h91gj5vHVWc+MLmad2vahHrwu1cI9nPg/3KlKm1Ak=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=bgB4/GWfciXHLp6OVakDQlza2U7uGPeTnbrtwn4xtUpvwlVz3qFLLULd+obaT+nLr
+         vjkhLQNrXzZmC9WVzA3XIcVbObp3zrTJ1mzps2HU7iwQj3uN0MDn1r7cyUQUNQ4bpf
+         WUByKsTieYqGlu5TWo7AnFhG9q5fqz8DGM/deWDb3n/qB64uVNfvCozI6isDeGo0ez
+         E6AGIBGWY5H1t3efvNE6X1YJR/jDYakSbM/JvhEi1GEWzpX3Ad1jc4I4qfQVWgmsyK
+         GnMep7afF8Z5tmaz0SOdB1I7plO2SKUO2nGcXjdnEbQdd+XqK2QSKWJ3PNzLExeFL3
+         ADbGprf5CRXvQ==
+In-Reply-To: <20210314112103.45242-1-xie.he.0141@gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Martin Schiller <ms@dev.tdt.de>, Krzysztof Halasa <khc@pm.waw.pl>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Xie He <xie.he.0141@gmail.com>
+To: Xie He <xie.he.0141@gmail.com>
+Cc: ms@dev.tdt.de, khc@pm.waw.pl, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-"x25_close" is called by "hdlc_close" in "hdlc.c", which is called by
-hardware drivers' "ndo_stop" function.
-"x25_xmit" is called by "hdlc_start_xmit" in "hdlc.c", which is hardware
-drivers' "ndo_start_xmit" function.
-"x25_rx" is called by "hdlc_rcv" in "hdlc.c", which receives HDLC frames
-from "net/core/dev.c".
+Hello:
 
-"x25_close" races with "x25_xmit" and "x25_rx" because their callers race.
+This patch was applied to netdev/net.git (refs/heads/master):
 
-However, we need to ensure that the LAPB APIs called in "x25_xmit" and
-"x25_rx" are called before "lapb_unregister" is called in "x25_close".
+On Sun, 14 Mar 2021 04:21:01 -0700 you wrote:
+> "x25_close" is called by "hdlc_close" in "hdlc.c", which is called by
+> hardware drivers' "ndo_stop" function.
+> "x25_xmit" is called by "hdlc_start_xmit" in "hdlc.c", which is hardware
+> drivers' "ndo_start_xmit" function.
+> "x25_rx" is called by "hdlc_rcv" in "hdlc.c", which receives HDLC frames
+> from "net/core/dev.c".
+> 
+> [...]
 
-This patch adds locking to ensure when "x25_xmit" and "x25_rx" are doing
-their work, "lapb_unregister" is not yet called in "x25_close".
+Here is the summary with links:
+  - [net,v2] net: hdlc_x25: Prevent racing between "x25_close" and "x25_xmit"/"x25_rx"
+    https://git.kernel.org/netdev/net/c/bf0ffea336b4
 
-Reasons for not solving the racing between "x25_close" and "x25_xmit" by
-calling "netif_tx_disable" in "x25_close":
-1. We still need to solve the racing between "x25_close" and "x25_rx";
-2. The design of the HDLC subsystem assumes the HDLC hardware drivers
-have full control over the TX queue, and the HDLC protocol drivers (like
-this driver) have no control. Controlling the queue here in the protocol
-driver may interfere with hardware drivers' control of the queue.
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
----
-
-Change from v1:
-Added a "Fixes" tag.
-
----
- drivers/net/wan/hdlc_x25.c | 42 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index 4aaa6388b9ee..5a6a945f6c81 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -23,6 +23,8 @@
- 
- struct x25_state {
- 	x25_hdlc_proto settings;
-+	bool up;
-+	spinlock_t up_lock; /* Protects "up" */
- };
- 
- static int x25_ioctl(struct net_device *dev, struct ifreq *ifr);
-@@ -104,6 +106,8 @@ static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
- 
- static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- {
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 	int result;
- 
- 	/* There should be a pseudo header of 1 byte added by upper layers.
-@@ -114,11 +118,19 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 		return NETDEV_TX_OK;
- 	}
- 
-+	spin_lock_bh(&x25st->up_lock);
-+	if (!x25st->up) {
-+		spin_unlock_bh(&x25st->up_lock);
-+		kfree_skb(skb);
-+		return NETDEV_TX_OK;
-+	}
-+
- 	switch (skb->data[0]) {
- 	case X25_IFACE_DATA:	/* Data to be transmitted */
- 		skb_pull(skb, 1);
- 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
- 			dev_kfree_skb(skb);
-+		spin_unlock_bh(&x25st->up_lock);
- 		return NETDEV_TX_OK;
- 
- 	case X25_IFACE_CONNECT:
-@@ -147,6 +159,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 		break;
- 	}
- 
-+	spin_unlock_bh(&x25st->up_lock);
- 	dev_kfree_skb(skb);
- 	return NETDEV_TX_OK;
- }
-@@ -164,6 +177,7 @@ static int x25_open(struct net_device *dev)
- 		.data_transmit = x25_data_transmit,
- 	};
- 	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 	struct lapb_parms_struct params;
- 	int result;
- 
-@@ -190,6 +204,10 @@ static int x25_open(struct net_device *dev)
- 	if (result != LAPB_OK)
- 		return -EINVAL;
- 
-+	spin_lock_bh(&x25st->up_lock);
-+	x25st->up = true;
-+	spin_unlock_bh(&x25st->up_lock);
-+
- 	return 0;
- }
- 
-@@ -197,6 +215,13 @@ static int x25_open(struct net_device *dev)
- 
- static void x25_close(struct net_device *dev)
- {
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
-+
-+	spin_lock_bh(&x25st->up_lock);
-+	x25st->up = false;
-+	spin_unlock_bh(&x25st->up_lock);
-+
- 	lapb_unregister(dev);
- }
- 
-@@ -205,15 +230,28 @@ static void x25_close(struct net_device *dev)
- static int x25_rx(struct sk_buff *skb)
- {
- 	struct net_device *dev = skb->dev;
-+	hdlc_device *hdlc = dev_to_hdlc(dev);
-+	struct x25_state *x25st = state(hdlc);
- 
- 	if ((skb = skb_share_check(skb, GFP_ATOMIC)) == NULL) {
- 		dev->stats.rx_dropped++;
- 		return NET_RX_DROP;
- 	}
- 
--	if (lapb_data_received(dev, skb) == LAPB_OK)
-+	spin_lock_bh(&x25st->up_lock);
-+	if (!x25st->up) {
-+		spin_unlock_bh(&x25st->up_lock);
-+		kfree_skb(skb);
-+		dev->stats.rx_dropped++;
-+		return NET_RX_DROP;
-+	}
-+
-+	if (lapb_data_received(dev, skb) == LAPB_OK) {
-+		spin_unlock_bh(&x25st->up_lock);
- 		return NET_RX_SUCCESS;
-+	}
- 
-+	spin_unlock_bh(&x25st->up_lock);
- 	dev->stats.rx_errors++;
- 	dev_kfree_skb_any(skb);
- 	return NET_RX_DROP;
-@@ -298,6 +336,8 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
- 			return result;
- 
- 		memcpy(&state(hdlc)->settings, &new_settings, size);
-+		state(hdlc)->up = false;
-+		spin_lock_init(&state(hdlc)->up_lock);
- 
- 		/* There's no header_ops so hard_header_len should be 0. */
- 		dev->hard_header_len = 0;
--- 
-2.27.0
 
