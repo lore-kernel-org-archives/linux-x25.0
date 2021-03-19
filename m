@@ -1,54 +1,50 @@
-From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net-next] net: lapbether: Close the LAPB device before its underlying Ethernet device closes
-Date: Thu, 18 Mar 2021 12:07:47 -0700
-Message-ID: <20210318190747.25705-1-xie.he.0141@gmail.com>
+From: patchwork-bot+netdevbpf@kernel.org
+Subject: Re: [PATCH net-next] net: lapbether: Close the LAPB device before its
+ underlying Ethernet device closes
+Date: Fri, 19 Mar 2021 02:20:12 +0000
+Message-ID: <161612041219.22955.6908099617636460546.git-patchwork-notify@kernel.org>
+References: <20210318190747.25705-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4Fu6JikyYlZ618SKkUnTqBGhiDDGhC+oWvRchCQbz94=;
-        b=vSmbs0l/jA/7uHxiCBD22P3prOaRzXFgXVLwiU3p0c7miN+j9ZY38Vxa4rkZfrGiEq
-         MYG6EhPnqzwNbrpxsDxtKX5VisjuX2yYGHaoMIbQzM+hga1Zgl9cLcvVuea33N6LCQ9Q
-         WOGiX2Z+cl9kYMCEd15zHozb91qVO2ijNlNq6qlcYaccBonMzwSX8VYeW+NbZCHalmOg
-         f9vqvEQO0Ky1MKJvW3p/puyBWft4+xLA1bamYkOwPZiivfsAfJNh1JDiA9oWW0wKC1Hq
-         G8yER7KWg97YJ7EIvySyip/PIlT3TqS4mtjZ6YlE6SGOh4x7NbBQFL6G8QSmSNuk/5BK
-         4pyQ==
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616120412;
+        bh=ZqSvhPp1B2l9AziKMr7pvU3nP1NT+v/dJD6fK5r/WTQ=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=t7CHjk5tftMUP3MM6BFiBuBlDfFKvc12ChUGFSsE8SS4haCtnyeAy75S2dXdmsvvc
+         Vn28tOOp3e4UPXs3J/9wJzghMyzEC+GL8VzfX7rxcDtIL68YALGd+NERatYBpOOuTu
+         z7wKIgXvXbyHOM1uyM9+WvHuYGPfCmZlC5Q1iPFYc14vfjko7A36x68M4hFwaqM8f4
+         LuxATvPvaqLmh44kpD112wehFNt0OCRB5uXwfc87EpHJvHRtcvyB826sI0SW2lBRxB
+         ilr5Aw6F26ZQ1ayFF0cUtwroL0Z+yKZmna+lT3NqEE4QQjeZt9THKU4NkJ9cjF7Adu
+         5eBe+P+Y7rDqA==
+In-Reply-To: <20210318190747.25705-1-xie.he.0141@gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Martin Schiller <ms@dev.tdt.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Xie He <xie.he.0141@gmail.com>
+To: Xie He <xie.he.0141@gmail.com>
+Cc: ms@dev.tdt.de, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When a virtual LAPB device's underlying Ethernet device closes, the LAPB
-device is also closed.
+Hello:
 
-However, currently the LAPB device is closed after the Ethernet device
-closes. It would be better to close it before the Ethernet device closes.
-This would allow the LAPB device to transmit a last frame to notify the
-other side that it is disconnecting.
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
----
- drivers/net/wan/lapbether.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Thu, 18 Mar 2021 12:07:47 -0700 you wrote:
+> When a virtual LAPB device's underlying Ethernet device closes, the LAPB
+> device is also closed.
+> 
+> However, currently the LAPB device is closed after the Ethernet device
+> closes. It would be better to close it before the Ethernet device closes.
+> This would allow the LAPB device to transmit a last frame to notify the
+> other side that it is disconnecting.
+> 
+> [...]
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 8fda0446ff71..45d74285265a 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -421,8 +421,8 @@ static int lapbeth_device_event(struct notifier_block *this,
- 		if (lapbeth_get_x25_dev(dev) == NULL)
- 			lapbeth_new_device(dev);
- 		break;
--	case NETDEV_DOWN:	
--		/* ethernet device closed -> close LAPB interface */
-+	case NETDEV_GOING_DOWN:
-+		/* ethernet device closes -> close LAPB interface */
- 		lapbeth = lapbeth_get_x25_dev(dev);
- 		if (lapbeth) 
- 			dev_close(lapbeth->axdev);
--- 
-2.27.0
+Here is the summary with links:
+  - [net-next] net: lapbether: Close the LAPB device before its underlying Ethernet device closes
+    https://git.kernel.org/netdev/net-next/c/536e1004d273
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
