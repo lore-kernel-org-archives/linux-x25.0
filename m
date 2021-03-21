@@ -1,7 +1,7 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net-next] net: lapb: Make "lapb_t1timer_running" able to detect an already running timer
-Date: Sun, 21 Mar 2021 00:53:16 -0700
-Message-ID: <20210321075316.90385-1-xie.he.0141@gmail.com>
+Subject: [PATCH net-next v2] net: lapb: Make "lapb_t1timer_running" able to detect an already running timer
+Date: Sun, 21 Mar 2021 02:39:35 -0700
+Message-ID: <20210321093935.93438-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
@@ -9,13 +9,13 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=3YMMQWqv0WQD77AlOgo+glNplzrUfg5GTEMFWXwVjL0=;
-        b=IPuWVof6WPFXhMXb4yA4nsWGYwzZqcCkry3NLfhR26kRgj4egffTt3VhVVwXNM/Lhp
-         FsZB2Auj2IQUp78Tf5QMlDELd66RtrLS6vRdXEekT1zvlZgrJzSZkBtUy6v4xYRYJLr2
-         6g95gTJO/PEXmqbRYuPF5pYN9q9okPXdE05tNJ21iRSHztf1/vZxoXt/L9+LOgYT8JMq
-         N8MXglHLG+cYCgeYynBxMA13BjCoaJOQ1eUDDITTdo7p7N0PcVBOeQGOT18n1htK7Uv/
-         gsND702wGZZeiQNuQxitH0eUmE9pzdCpIZDTamvcWWFhCm64HI4uqq/iUiMYmrGBofOP
-         xEOA==
+        bh=qEB2xKGyehuWamIa0Nk18mP9k4IMt9ZA/EgpxbGM3UQ=;
+        b=EMZ2ysgpzNMMyWACMknvDReSa2qVfd3RqQ9XY0n7lit5nXc7V7CEvzEU2g26ywvzFY
+         NG3Wq7Xdpq+Y4GvAImmcUZ9j52FI6Jtesyq6xbRE6PhsG+wfGyWCC5sTu+y/QoIH+no6
+         RaYilyOLdo8p3WWhG+QAk3tj2CfE9j9HolQf0Y5RRW6N1ZyEbSkyVgvFVKHLIsIrxnBk
+         /525ZJkN6hKmTJVsZlw5DMsx5CYvqpELmzFJfd6thYdY6Y9B+NFjQzEAFwEmpELO89IE
+         snpmaPerSfSOPwIuO0G24dggUS2CSs7djc73RqylmSYbLWo2GYM9I4iMSQjca8ZJtaxl
+         Qj2A==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Martin Schiller <ms@dev.tdt.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -30,8 +30,8 @@ it is not, schedule it to run.
 
 However, if the timer has already fired and is running, and is waiting to
 get the "lapb->lock" lock, "lapb_t1timer_running" will not detect this,
-and "lapb_kick" will then schedule a new timer, which causes the old
-timer to be aborted.
+and "lapb_kick" will then schedule a new timer. The old timer will then
+abort when it sees a new timer pending.
 
 I think this is not right. The purpose of "lapb_kick" should be ensuring
 that the actual work of the timer function is scheduled to be done.
@@ -59,6 +59,11 @@ For consistency of the code, I also added "t2timer_running" and deleted
 "t2timer_stop".
 
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
+---
+
+Change from v1:
+Small improvement to the commit message.
+
 ---
  include/net/lapb.h    |  2 +-
  net/lapb/lapb_iface.c |  4 ++--
