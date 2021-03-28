@@ -1,21 +1,21 @@
 From: Xie He <xie.he.0141@gmail.com>
-Subject: [PATCH net-next v2] net: x25: Queue received packets in the drivers instead of per-CPU queues
-Date: Sun, 28 Mar 2021 09:30:30 -0700
-Message-ID: <20210328163030.604227-1-xie.he.0141@gmail.com>
+Subject: [PATCH net-next v3] net: x25: Queue received packets in the drivers instead of per-CPU queues
+Date: Sun, 28 Mar 2021 10:26:53 -0700
+Message-ID: <20210328172654.625055-1-xie.he.0141@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=fflf44PBhll8Lp+gQ+hj9EJ05dwi+4skqTSj/7exmuA=;
-        b=oyjwO6bZf2rxohsoCvLa8Gq6kwlM/at46UrRoXCFinGaKO8va+OtOHSkzQfayE5r14
-         vY+7ANH4Cq5gImHu21Ct58SgZAZ2QfFwxilyj+ny5E4vSpTJwhzxEmA2PQGHRJvAohBj
-         +LKs/KA/6ts77rAlg9ImeEKuaDfV1XQmBsrIyoA35W9btVv/0V1Dswrrv28COy8c1iVx
-         Ht89HHIUaFUK5KzRl8/LsXr6PBzG02wvWGuCCV6FIxyTzv+fq8/hh2iXq5LyekO42AuZ
-         IhIZ8B8CCm4c8+JKUlcPoGUUU8qavMlHOVYZUjk850oChxKfh9NtnthURZdsJMykknxY
-         G3Nw==
+        bh=FQX/gcJriWUwtViUDE6a7G+1n/p69e58iSq2bIyX1xQ=;
+        b=meG7Yrn8vVfd+VkQjxIsi4PUs5ZF8eTRpNn6FWK8slwKBPOgPAXeG1YxMl8/80++/9
+         YRWbsUx/tS1R58SDaX5uYJKJx5kOWgqCYvowVH5vqUhTAGnUUC8PXLPLO61TZyQEcgJ4
+         I2H4ICHpv/IaAW8T3SgIMU8vuilLsgD6us3yMP+9l5oXcen0pyYCAFOI6JUemcvyLbtW
+         AAalZpn1zl4dIzdIxV8YhCsbfn1Bor285w8MJYDZPzGj+ze0GJXTEiQsohejE/FfR5H8
+         8mPZw7jOPNLh3obOBDJIShP0goTjr2qMvaqsdC8Xsi8zH57yw+R+kpHEGikQneFlib1u
+         aNAw==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Martin Schiller <ms@dev.tdt.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Krzysztof Halasa <khc@pm.waw.pl>, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -42,6 +42,11 @@ Cc: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: Xie He <xie.he.0141@gmail.com>
 ---
 
+Change from v2:
+No need to print out-of-memory errors when receiving data packets,
+because the LAPB module is able to handle this situation.
+(We still need to print the errors when generating control packets.)
+
 Change from v1:
 Drop all PFMEMALLOC skbs because we cannot handle them.
 
@@ -52,9 +57,9 @@ Martin Schiller has acked the RFC version.
 
 ---
  Documentation/networking/x25-iface.rst | 65 ++++----------------------
- drivers/net/wan/hdlc_x25.c             | 37 ++++++++++++++-
- drivers/net/wan/lapbether.c            | 59 +++++++++++++++++++++--
- 3 files changed, 100 insertions(+), 61 deletions(-)
+ drivers/net/wan/hdlc_x25.c             | 36 +++++++++++++-
+ drivers/net/wan/lapbether.c            | 58 +++++++++++++++++++++--
+ 3 files changed, 98 insertions(+), 61 deletions(-)
 
 diff --git a/Documentation/networking/x25-iface.rst b/Documentation/networking/x25-iface.rst
 index df401891dce6..f34e9ec64937 100644
@@ -131,7 +136,7 @@ index df401891dce6..f34e9ec64937 100644
 +call "netif_rx" to deliver the received packets. Instead, it should
 +call "netif_receive_skb_core" from softirq context to deliver them.
 diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index 5a6a945f6c81..849e71f6466f 100644
+index 5a6a945f6c81..df3cad58030b 100644
 --- a/drivers/net/wan/hdlc_x25.c
 +++ b/drivers/net/wan/hdlc_x25.c
 @@ -25,6 +25,8 @@ struct x25_state {
@@ -187,7 +192,7 @@ index 5a6a945f6c81..849e71f6466f 100644
  }
  
  
-@@ -71,12 +92,18 @@ static void x25_disconnected(struct net_device *dev, int reason)
+@@ -71,12 +92,17 @@ static void x25_disconnected(struct net_device *dev, int reason)
  
  static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
  {
@@ -199,14 +204,13 @@ index 5a6a945f6c81..849e71f6466f 100644
  		return NET_RX_DROP;
  	}
 +	if (skb_pfmemalloc(skb)) {
-+		netdev_err(dev, "out of memory\n");
 +		kfree_skb(skb);
 +		return NET_RX_DROP;
 +	}
  
  	skb_push(skb, 1);
  
-@@ -84,7 +111,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+@@ -84,7 +110,10 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
  	*ptr = X25_IFACE_DATA;
  
  	skb->protocol = x25_type_trans(skb, dev);
@@ -218,7 +222,7 @@ index 5a6a945f6c81..849e71f6466f 100644
  }
  
  
-@@ -223,6 +253,7 @@ static void x25_close(struct net_device *dev)
+@@ -223,6 +252,7 @@ static void x25_close(struct net_device *dev)
  	spin_unlock_bh(&x25st->up_lock);
  
  	lapb_unregister(dev);
@@ -226,7 +230,7 @@ index 5a6a945f6c81..849e71f6466f 100644
  }
  
  
-@@ -338,6 +369,8 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
+@@ -338,6 +368,8 @@ static int x25_ioctl(struct net_device *dev, struct ifreq *ifr)
  		memcpy(&state(hdlc)->settings, &new_settings, size);
  		state(hdlc)->up = false;
  		spin_lock_init(&state(hdlc)->up_lock);
@@ -236,7 +240,7 @@ index 5a6a945f6c81..849e71f6466f 100644
  		/* There's no header_ops so hard_header_len should be 0. */
  		dev->hard_header_len = 0;
 diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 45d74285265a..e2cb1cb568da 100644
+index 45d74285265a..d72724411b8b 100644
 --- a/drivers/net/wan/lapbether.c
 +++ b/drivers/net/wan/lapbether.c
 @@ -53,6 +53,8 @@ struct lapbethdev {
@@ -274,7 +278,7 @@ index 45d74285265a..e2cb1cb568da 100644
  /*
   *	Receive a LAPB frame via an ethernet interface.
   */
-@@ -135,12 +156,18 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
+@@ -135,12 +156,17 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
  
  static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
  {
@@ -286,14 +290,13 @@ index 45d74285265a..e2cb1cb568da 100644
  		return NET_RX_DROP;
  	}
 +	if (skb_pfmemalloc(skb)) {
-+		pr_err("out of memory\n");
 +		kfree_skb(skb);
 +		return NET_RX_DROP;
 +	}
  
  	skb_push(skb, 1);
  
-@@ -148,7 +175,10 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
+@@ -148,7 +174,10 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
  	*ptr = X25_IFACE_DATA;
  
  	skb->protocol = x25_type_trans(skb, dev);
@@ -305,7 +308,7 @@ index 45d74285265a..e2cb1cb568da 100644
  }
  
  /*
-@@ -233,6 +263,7 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+@@ -233,6 +262,7 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
  
  static void lapbeth_connected(struct net_device *dev, int reason)
  {
@@ -313,7 +316,7 @@ index 45d74285265a..e2cb1cb568da 100644
  	unsigned char *ptr;
  	struct sk_buff *skb = dev_alloc_skb(1);
  
-@@ -240,16 +271,24 @@ static void lapbeth_connected(struct net_device *dev, int reason)
+@@ -240,16 +270,24 @@ static void lapbeth_connected(struct net_device *dev, int reason)
  		pr_err("out of memory\n");
  		return;
  	}
@@ -339,7 +342,7 @@ index 45d74285265a..e2cb1cb568da 100644
  	unsigned char *ptr;
  	struct sk_buff *skb = dev_alloc_skb(1);
  
-@@ -257,12 +296,19 @@ static void lapbeth_disconnected(struct net_device *dev, int reason)
+@@ -257,12 +295,19 @@ static void lapbeth_disconnected(struct net_device *dev, int reason)
  		pr_err("out of memory\n");
  		return;
  	}
@@ -360,7 +363,7 @@ index 45d74285265a..e2cb1cb568da 100644
  }
  
  /*
-@@ -293,6 +339,8 @@ static int lapbeth_open(struct net_device *dev)
+@@ -293,6 +338,8 @@ static int lapbeth_open(struct net_device *dev)
  	struct lapbethdev *lapbeth = netdev_priv(dev);
  	int err;
  
@@ -369,7 +372,7 @@ index 45d74285265a..e2cb1cb568da 100644
  	if ((err = lapb_register(dev, &lapbeth_callbacks)) != LAPB_OK) {
  		pr_err("lapb_register error: %d\n", err);
  		return -ENODEV;
-@@ -317,6 +365,8 @@ static int lapbeth_close(struct net_device *dev)
+@@ -317,6 +364,8 @@ static int lapbeth_close(struct net_device *dev)
  	if ((err = lapb_unregister(dev)) != LAPB_OK)
  		pr_err("lapb_unregister error: %d\n", err);
  
@@ -378,7 +381,7 @@ index 45d74285265a..e2cb1cb568da 100644
  	return 0;
  }
  
-@@ -374,6 +424,9 @@ static int lapbeth_new_device(struct net_device *dev)
+@@ -374,6 +423,9 @@ static int lapbeth_new_device(struct net_device *dev)
  	lapbeth->up = false;
  	spin_lock_init(&lapbeth->up_lock);
  
