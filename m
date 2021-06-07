@@ -1,22 +1,22 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 16/18] net/x25: Return the correct errno code
-Date: Mon,  7 Jun 2021 12:15:14 -0400
-Message-ID: <20210607161517.3584577-16-sashal@kernel.org>
-References: <20210607161517.3584577-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 13/15] net/x25: Return the correct errno code
+Date: Mon,  7 Jun 2021 12:15:41 -0400
+Message-ID: <20210607161543.3584778-13-sashal@kernel.org>
+References: <20210607161543.3584778-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082539;
-        bh=+p6Ru1HAnt4vdsR80m3zPO30bLQzBT3Pqydpwqgfn60=;
+        s=k20201202; t=1623082562;
+        bh=ucLNLCf5rRm6SkudXfKKiS8NBTQNhJd1UmBUBzRPhyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQXazXEO6t1nKmljZL8u+ekzJbGG2VIK+ObhqHLS2zCpODkdQ5sEt4DKfMf8tPkuU
-         7FDmmRMFOAsi8nv+aQHtOtADaNCoicg9G11JtLUzm1IJ9eA3YwgTkkgQCFZsEX+llh
-         q3bUJf2Yidk0hqW227PcEGmyCyPQ91T7y7rGlWLl1QhR0wut8fx/5RPuPBlyMDLv56
-         ntuDfl/laIThLIyYWLq1eRcXyPfUXIetZG154+VaQTu7RPSsuoQLiAkjsq3UEMDZ/1
-         1lsHM7R4GjM7qyW+f8Z7sTWeA9Ac+/GlDK2zTM2PEILa/UNdPSE5+KR5vXALKguXWl
-         3BqIXZkjdNdIg==
-In-Reply-To: <20210607161517.3584577-1-sashal@kernel.org>
+        b=abg4vSLbHYhngPARmiTB32j4TdEtVZ5ADsOQPQ+pnLSDcifujpDHKuEJZARpgZU3g
+         0goZBmqQsuNqcQVQztcg8/wC6ft9mRIpnxX6acqsXtSOD4CG7SfpN6h/I8GwXRoMJ4
+         4DOO5xJ5wS4R92/gVt+xU0tPB7LV56c8bLTEgFrE98vFgsexHBpRyrGkxpweVuFQka
+         M4JnVd9WBI6auxukQxNdmdBlfmTFWCTj31QgljQFSIoNOclGGtPobx/N2gg5cEaxLR
+         +WOeBOIRnlWcGhqROx6mBxIHTsshSihj0iTqr/HsOtfGzIjUcJyEkW7QwaZ6u6vKWj
+         CAgw+jMAP094Q==
+In-Reply-To: <20210607161543.3584778-1-sashal@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -36,7 +36,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 987e5f8cafbe..fd0a6c6c77b6 100644
+index 9c3fbf4553cc..c23c04d38a82 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
 @@ -550,7 +550,7 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
