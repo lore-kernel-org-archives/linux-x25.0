@@ -1,22 +1,22 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 27/29] net/x25: Return the correct errno code
-Date: Mon,  7 Jun 2021 12:14:08 -0400
-Message-ID: <20210607161410.3584036-27-sashal@kernel.org>
-References: <20210607161410.3584036-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 19/21] net/x25: Return the correct errno code
+Date: Mon,  7 Jun 2021 12:14:46 -0400
+Message-ID: <20210607161448.3584332-19-sashal@kernel.org>
+References: <20210607161448.3584332-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082485;
-        bh=tMG4lMg4GzPU9jOWI6iZ4MqnHaiekNjdVNQFOZWfJ1A=;
+        s=k20201202; t=1623082513;
+        bh=IL/Vz4f4SrTgU1DV5ryAUiCb28bM+1h3wnNOHLKW1ZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=df3c7kA8nZ/wdDZVLXOkEgvNENYIDfwUfYu2xaiw+9tOIYlsSoJawEGJeFafGfdO3
-         3ltUrUjqR+E+mnl5+Whv3FdKixdeyWNyM2lCAUzxmyMqweLH77y51qgaAJ+iRH81v+
-         p5QfaP1ipCsjdlDvx7u1N7BX7/lMJ/2vnFlCjTidhkTlffqOg8uQ4O+4gftdnXG0tw
-         aghTIyMNzNgDSOwdwJeqaF6VwOlyb+a/zdeuWHk24pHOizSnW44muxXjSe2SByqtK7
-         r/7UXCOj5mZnV2I2xK2TLCSCN1j8tHy5XceAKDV+q5VJVfOlSOUCyTiyrldvs9GCBc
-         db6zeDq7wh0PQ==
-In-Reply-To: <20210607161410.3584036-1-sashal@kernel.org>
+        b=YtkzHazOBvzAuonhs4yD/i5sHf/ktewLwzGJk0+vZiDiGVIpEhO5PPcFAWhHTxMSI
+         cna/3x2MYKrpQcfnDvMUhRXVIHPZmCFhqo65POm71PneVLL0Sptnsc0fwVlTj7cqRZ
+         DqrD/5v+9L6KJs/mwzZg1tzyX5fufx8igKw/8G6zsLVqdAPLblBZKNwknraLGsKv26
+         vBUTf02HuYEsS1piPYsCCzhIpqIUaDxjAzym5XQr5nKPCBcYVtkQm4afuTLxrDMjkM
+         GzZ1cOhMlqqZ5gCd+XGVrxA+LNIloGIm2HEC1zy41oiAS7lJiec3dinU+V/ekyS1V+
+         8UaCAiUdTbU5g==
+In-Reply-To: <20210607161448.3584332-1-sashal@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -36,10 +36,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index cb1f5016c433..d8d603aa4887 100644
+index f43d037ea852..f87002792836 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
-@@ -546,7 +546,7 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
+@@ -551,7 +551,7 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
  	if (protocol)
  		goto out;
  
