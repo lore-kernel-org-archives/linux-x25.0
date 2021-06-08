@@ -1,23 +1,23 @@
 From: patchwork-bot+netdevbpf@kernel.org
 Subject: Re: [PATCH net-next] net: x25: Use list_for_each_entry() to simplify code
- in x25_forward.c
+ in x25_link.c
 Date: Tue, 08 Jun 2021 23:40:06 +0000
-Message-ID: <162319560616.24693.4749938341746092636.git-patchwork-notify@kernel.org>
-References: <20210608133007.69476-1-wanghai38@huawei.com>
+Message-ID: <162319560611.24693.17594586719275755475.git-patchwork-notify@kernel.org>
+References: <20210608080505.32466-1-wanghai38@huawei.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1623195606;
-        bh=HPTe0Pt7xPO/bl7CBFMALBHy6E9DK2spYtNrVR7lD64=;
+        bh=//JH77kiDMU57tEzPV/jpr6xAw3QTOwBzIc4UkbZWx4=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=NS4WQAh6pR7VIFBhxyScpAVgd1X7k5pXxV8I7sd4URMUOgshhq/Y3V6p+AIBLCwFs
-         SS8m0J3gmQJ9xQKVN34tKw6VNZotZN1b/77IxYUqBJNC8QFCMmT8NHQG4ftydryipi
-         apA8qfM7WBaaBMvm+VQ34oS+SfkeZ2D6q7/kTv75vYgnEq+wVrIdaW4DtZokEQL3bf
-         yMM2I5bc/j2Tgm9cX8v6AdnQ/PzcQ/Ya80znUa5j20maS+rMH9c7X8mNWKSlFZQPon
-         k09lB3WjXQjgabYMbvCe2YXuOqcGrBMLE2bRe3qaGHWi+faWOE7oLDFWZ2y56UHWyH
-         86wH1WsPe0KAQ==
-In-Reply-To: <20210608133007.69476-1-wanghai38@huawei.com>
+        b=XfAJKnLUlMtthL3lhZQ3ZZ40dORSQOfpyW8D9iUjICXb69Pi+urdfSpXM+tNWxle7
+         fOWWNvu235MR9Fm95jaBAJWQzmw6DYaO0dBMbP49MzMjnaFw5w11/xz7EI9hsUZjUw
+         SgyNqzN58G1p2ha63rO+SQrxyJ7RXjYY2S5WxxDXLHY0PncqGdEdNJ1ZvGeRmOEzCH
+         AqEzix+KJ/TOCvGr4HI8Zj1up5JZ0fR+7FhKtFd9/8fOjqALXrOm2QG04VvVo2O7/t
+         x7kvVtOnQeE1AANa8sAl7+CgUih7SPApNs8Tul4aLVuqy6Hol5fex+sBvQeKtcMTC2
+         wO4nvTrU+mlEw==
+In-Reply-To: <20210608080505.32466-1-wanghai38@huawei.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Wang Hai <wanghai38@huawei.com>
@@ -27,19 +27,19 @@ Hello:
 
 This patch was applied to netdev/net-next.git (refs/heads/master):
 
-On Tue, 8 Jun 2021 13:30:07 +0000 you wrote:
+On Tue, 8 Jun 2021 08:05:05 +0000 you wrote:
 > Convert list_for_each() to list_for_each_entry() where
 > applicable. This simplifies the code.
 > 
 > Reported-by: Hulk Robot <hulkci@huawei.com>
 > Signed-off-by: Wang Hai <wanghai38@huawei.com>
 > ---
->  net/x25/x25_forward.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
+>  net/x25/x25_link.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
 
 Here is the summary with links:
-  - [net-next] net: x25: Use list_for_each_entry() to simplify code in x25_forward.c
-    https://git.kernel.org/netdev/net-next/c/96bffe70231c
+  - [net-next] net: x25: Use list_for_each_entry() to simplify code in x25_link.c
+    https://git.kernel.org/netdev/net-next/c/3835a6614ae7
 
 You are awesome, thank you!
 --
