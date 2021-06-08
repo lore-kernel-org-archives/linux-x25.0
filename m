@@ -1,45 +1,45 @@
 From: patchwork-bot+netdevbpf@kernel.org
-Subject: Re: [PATCH net-next] net: lapb: Use list_for_each_entry() to simplify
- code in lapb_iface.c
+Subject: Re: [PATCH net-next] net: x25: Use list_for_each_entry() to simplify code
+ in x25_forward.c
 Date: Tue, 08 Jun 2021 23:40:06 +0000
-Message-ID: <162319560600.24693.16569197587430448345.git-patchwork-notify@kernel.org>
-References: <20210608081301.15264-1-wanghai38@huawei.com>
+Message-ID: <162319560616.24693.4749938341746092636.git-patchwork-notify@kernel.org>
+References: <20210608133007.69476-1-wanghai38@huawei.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1623195606;
-        bh=LnQ+lHGhnwQmcMtw0TxDMw1RWXsvIIVyy88FpuSuKjk=;
+        bh=HPTe0Pt7xPO/bl7CBFMALBHy6E9DK2spYtNrVR7lD64=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=klkGH44vV5p7wrrlmAyNK9z7Nk42v5zghamhO7MM3No/sHq2OkxmbShHq70UHbaqT
-         EAoxyh5LlF9qjmOGj/N+FspZb9Y6W0WIA8rSEiYUB0Y0uJFue2GGrDTwdFApNy7wBw
-         uyb02R9zE8q1TQZPgqqChInOuM3+KauD4+ym8ABpcfnTlCgt3gw/LUrIjTP2r5WodD
-         GMTOPRKNTzGwxjvCxU0cjuf/+5hq0bDFkvrFHDzqQ7QZKNg+5Sooc1AqFGzhXd5IL1
-         iMMuDjLW+CFxgno4goC9XOQQpPsgBNnt1pf7ihcnPPJPHK84m9xEmkKJq0G0rpzD5P
-         2ksezcWNOAWfg==
-In-Reply-To: <20210608081301.15264-1-wanghai38@huawei.com>
+        b=NS4WQAh6pR7VIFBhxyScpAVgd1X7k5pXxV8I7sd4URMUOgshhq/Y3V6p+AIBLCwFs
+         SS8m0J3gmQJ9xQKVN34tKw6VNZotZN1b/77IxYUqBJNC8QFCMmT8NHQG4ftydryipi
+         apA8qfM7WBaaBMvm+VQ34oS+SfkeZ2D6q7/kTv75vYgnEq+wVrIdaW4DtZokEQL3bf
+         yMM2I5bc/j2Tgm9cX8v6AdnQ/PzcQ/Ya80znUa5j20maS+rMH9c7X8mNWKSlFZQPon
+         k09lB3WjXQjgabYMbvCe2YXuOqcGrBMLE2bRe3qaGHWi+faWOE7oLDFWZ2y56UHWyH
+         86wH1WsPe0KAQ==
+In-Reply-To: <20210608133007.69476-1-wanghai38@huawei.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Wang Hai <wanghai38@huawei.com>
-Cc: ms@dev.tdt.de, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: davem@davemloft.net, kuba@kernel.org, ms@dev.tdt.de, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hello:
 
 This patch was applied to netdev/net-next.git (refs/heads/master):
 
-On Tue, 8 Jun 2021 08:13:01 +0000 you wrote:
+On Tue, 8 Jun 2021 13:30:07 +0000 you wrote:
 > Convert list_for_each() to list_for_each_entry() where
 > applicable. This simplifies the code.
 > 
 > Reported-by: Hulk Robot <hulkci@huawei.com>
 > Signed-off-by: Wang Hai <wanghai38@huawei.com>
 > ---
->  net/lapb/lapb_iface.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+>  net/x25/x25_forward.c | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
 
 Here is the summary with links:
-  - [net-next] net: lapb: Use list_for_each_entry() to simplify code in lapb_iface.c
-    https://git.kernel.org/netdev/net-next/c/e83332842a46
+  - [net-next] net: x25: Use list_for_each_entry() to simplify code in x25_forward.c
+    https://git.kernel.org/netdev/net-next/c/96bffe70231c
 
 You are awesome, thank you!
 --
