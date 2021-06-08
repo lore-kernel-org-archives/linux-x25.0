@@ -1,63 +1,49 @@
-From: Wang Hai <wanghai38@huawei.com>
-Subject: [PATCH net-next] net: x25: Use list_for_each_entry() to simplify code in x25_forward.c
-Date: Tue, 8 Jun 2021 13:30:07 +0000
-Message-ID: <20210608133007.69476-1-wanghai38@huawei.com>
+From: patchwork-bot+netdevbpf@kernel.org
+Subject: Re: [PATCH net-next] net: lapb: Use list_for_each_entry() to simplify
+ code in lapb_iface.c
+Date: Tue, 08 Jun 2021 23:40:06 +0000
+Message-ID: <162319560600.24693.16569197587430448345.git-patchwork-notify@kernel.org>
+References: <20210608081301.15264-1-wanghai38@huawei.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623195606;
+        bh=LnQ+lHGhnwQmcMtw0TxDMw1RWXsvIIVyy88FpuSuKjk=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=klkGH44vV5p7wrrlmAyNK9z7Nk42v5zghamhO7MM3No/sHq2OkxmbShHq70UHbaqT
+         EAoxyh5LlF9qjmOGj/N+FspZb9Y6W0WIA8rSEiYUB0Y0uJFue2GGrDTwdFApNy7wBw
+         uyb02R9zE8q1TQZPgqqChInOuM3+KauD4+ym8ABpcfnTlCgt3gw/LUrIjTP2r5WodD
+         GMTOPRKNTzGwxjvCxU0cjuf/+5hq0bDFkvrFHDzqQ7QZKNg+5Sooc1AqFGzhXd5IL1
+         iMMuDjLW+CFxgno4goC9XOQQpPsgBNnt1pf7ihcnPPJPHK84m9xEmkKJq0G0rpzD5P
+         2ksezcWNOAWfg==
+In-Reply-To: <20210608081301.15264-1-wanghai38@huawei.com>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: davem@davemloft.net, kuba@kernel.org, ms@dev.tdt.de
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wang Hai <wanghai38@huawei.com>
+Cc: ms@dev.tdt.de, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Convert list_for_each() to list_for_each_entry() where
-applicable. This simplifies the code.
+Hello:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
----
- net/x25/x25_forward.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-diff --git a/net/x25/x25_forward.c b/net/x25/x25_forward.c
-index d48ad6d29197..21b30b56e889 100644
---- a/net/x25/x25_forward.c
-+++ b/net/x25/x25_forward.c
-@@ -19,7 +19,6 @@ int x25_forward_call(struct x25_address *dest_addr, struct x25_neigh *from,
- {
- 	struct x25_route *rt;
- 	struct x25_neigh *neigh_new = NULL;
--	struct list_head *entry;
- 	struct x25_forward *x25_frwd, *new_frwd;
- 	struct sk_buff *skbn;
- 	short same_lci = 0;
-@@ -46,8 +45,7 @@ int x25_forward_call(struct x25_address *dest_addr, struct x25_neigh *from,
- 	 * established LCI? It shouldn't happen, just in case..
- 	 */
- 	read_lock_bh(&x25_forward_list_lock);
--	list_for_each(entry, &x25_forward_list) {
--		x25_frwd = list_entry(entry, struct x25_forward, node);
-+	list_for_each_entry(x25_frwd, &x25_forward_list, node) {
- 		if (x25_frwd->lci == lci) {
- 			pr_warn("call request for lci which is already registered!, transmitting but not registering new pair\n");
- 			same_lci = 1;
-@@ -92,15 +90,13 @@ int x25_forward_call(struct x25_address *dest_addr, struct x25_neigh *from,
- int x25_forward_data(int lci, struct x25_neigh *from, struct sk_buff *skb) {
- 
- 	struct x25_forward *frwd;
--	struct list_head *entry;
- 	struct net_device *peer = NULL;
- 	struct x25_neigh *nb;
- 	struct sk_buff *skbn;
- 	int rc = 0;
- 
- 	read_lock_bh(&x25_forward_list_lock);
--	list_for_each(entry, &x25_forward_list) {
--		frwd = list_entry(entry, struct x25_forward, node);
-+	list_for_each_entry(frwd, &x25_forward_list, node) {
- 		if (frwd->lci == lci) {
- 			/* The call is established, either side can send */
- 			if (from->dev == frwd->dev1) {
--- 
-2.17.1
+On Tue, 8 Jun 2021 08:13:01 +0000 you wrote:
+> Convert list_for_each() to list_for_each_entry() where
+> applicable. This simplifies the code.
+> 
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Wang Hai <wanghai38@huawei.com>
+> ---
+>  net/lapb/lapb_iface.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+
+Here is the summary with links:
+  - [net-next] net: lapb: Use list_for_each_entry() to simplify code in lapb_iface.c
+    https://git.kernel.org/netdev/net-next/c/e83332842a46
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
