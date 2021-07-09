@@ -1,47 +1,45 @@
-From: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Subject: Re: [PATCH 1/6] arm: crypto: rename 'mod_init' & 'mod_exit'
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: Re: [PATCH 6/6] net: wireguard: rename 'mod_init' & 'mod_exit'
  functions to be module-specific
-Date: Fri, 9 Jul 2021 10:59:02 +0100
-Message-ID: <20210709095902.GY22278@shell.armlinux.org.uk>
-References: <20210709021747.32737-1-rdunlap@infradead.org>
- <20210709021747.32737-2-rdunlap@infradead.org>
+Date: Fri, 9 Jul 2021 12:21:39 +0200
+Message-ID: <CAHmME9rUJndFC-6KAxGL3w6Ka4WgyP_m5DS+1_vuHdQowonSOg@mail.gmail.com>
+References: <20210709021747.32737-1-rdunlap@infradead.org> <20210709021747.32737-7-rdunlap@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=GDAKEVAY6G2FkEMJUuqWlfJMGpOgImfNbDfdp8SNumE=; b=IMZi9QswDZgjH87rP0vZpPXoF
-        hkkdXd5InlsEhhdJjWVgtPUSzH8uLG1mhs1nLgoJJGh1TJ/umARn53rRP2XFvZfTfrqhig93+SrEk
-        pwSdP0aiFbhBENQhAM0rgOslCQM6GiVkJkdzxlHoZ6jeDm+YEKs6hQ2Ef45vT8MpHaoShG9hM6lEL
-        2J4tVIIQoTMfyMszH1ymZ/IiUmcXyU8uMLVL3pza6vWQACxls3lgWLTjRQ5XiC6JP8UKk+/fQqkcJ
-        mhiCWgutwI1MQY2qUSq115qrial/eLIyOqV2+P74Tsp8YNW7Dhz6reW2bby88gZoY5TMXrPrUv4ff
-Content-Disposition: inline
-In-Reply-To: <20210709021747.32737-2-rdunlap@infradead.org>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Return-path: <linux-crypto-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1625826113;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7dR0/VUJHKDLRMz9yU5Zdn5RWQOxI+Wc0vq05RWjQvE=;
+        b=SvQ1Je064yhDKpHtC+rohJT39TVuxD85wqjML8PO3gxEcEu4/YVvk3iaUzENwcWcM5wqDH
+        thvwKk3BjAVh7F3FOpUHcQhDhnWXtVUhiWZl/AB9a/0FYWH9OU9sN96yOgwmH9E5N6HbE3
+        GTlcQVkPe26jsPPQ4IgmztdiwLeX+Qk=
+In-Reply-To: <20210709021747.32737-7-rdunlap@infradead.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-kernel@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
+Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, Netdev <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, WireGuard mailing list <wireguard@lists.zx2c4.com>
 
-On Thu, Jul 08, 2021 at 07:17:42PM -0700, Randy Dunlap wrote:
-> Rename module_init & module_exit functions that are named
-> "mod_init" and "mod_exit" so that they are unique in both the
-> System.map file and in initcall_debug output instead of showing
-> up as almost anonymous "mod_init".
-> 
-> This is helpful for debugging and in determining how long certain
-> module_init calls take to execute.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-> Cc: linux-arm-kernel@lists.infradead.org
+Hi Randy,
 
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+The commit subject line should be:
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+wireguard: main: rename 'mod_init' & 'mod_exit' functions to be module-specific
+
+And:
+
+On Fri, Jul 9, 2021 at 4:17 AM Randy Dunlap <rdunlap@infradead.org> wrote:
+> -static int __init mod_init(void)
+> +static int __init wireguard_init(void)
+
+wg_mod_init
+
+> -static void __exit mod_exit(void)
+> +static void __exit wireguard_exit(void)
+
+wg_mod_exit
+
+Thanks,
+Jason
