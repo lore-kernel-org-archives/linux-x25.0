@@ -1,141 +1,71 @@
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: Re: [PATCH] net: x25: Optimize the code in
- {compat_}x25_subscr_ioctl()
-Date: Thu, 01 Jul 2021 07:51:10 +0200
-Message-ID: <c9af2f27b8459af35c91ec3347a96d6d@dev.tdt.de>
-References: <20210630091521.15568-1-yajun.deng@linux.dev>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 6/6] net: wireguard: rename 'mod_init' & 'mod_exit' functions to be module-specific
+Date: Thu,  8 Jul 2021 19:17:47 -0700
+Message-ID: <20210709021747.32737-7-rdunlap@infradead.org>
+References: <20210709021747.32737-1-rdunlap@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-In-Reply-To: <20210630091521.15568-1-yajun.deng@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=Ep9SfC7/Ynwl3BgyBMLme/h0/tBd0UyBTX7M2kcAoJE=; b=Sx7g5Hj1ylzSFnfbdHGFcWdsY5
+        kkmBqvIvhGUCBg+k+HGby30LlED/ptI7tKMQi8WgkwAz2CZnxCRxOilTaM8WIOVTiXswWg5oc7MUu
+        DMVjnptiCY+FU23LQit80+jAf5UIY73/1XvaC1wwQodLoDHPGTGldi40lZ9Su0DjUrjp9sYHcGGT2
+        cV5ffQJbTcR+ioERVCiV93HeoHLHzVG0nbcZWH0tlIMn6yeZYFGDlsbS4HGb18agPO/IfZb0fI9wo
+        cnNKIgn0PAfOHPX+4T9FGeCoh5HGtassgxW7VSLUTMfBtqGB1YV+bqKgA3JcKWScwvdmWDGhkR5Jq
+        tpTUonVQ==;
+In-Reply-To: <20210709021747.32737-1-rdunlap@infradead.org>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Yajun Deng <yajun.deng@linux.dev>
-Cc: davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: Randy Dunlap <rdunlap@infradead.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
 
-On 2021-06-30 11:15, Yajun Deng wrote:
-> Combine the redundant return values, make it more concise.
-> 
-> Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-> ---
->  net/x25/af_x25.c   | 19 ++++++++-----------
->  net/x25/x25_link.c | 21 ++++++++++-----------
->  2 files changed, 18 insertions(+), 22 deletions(-)
-> 
-> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-> index 3583354a7d7f..53c40fc7c1fd 100644
-> --- a/net/x25/af_x25.c
-> +++ b/net/x25/af_x25.c
-> @@ -1625,21 +1625,19 @@ static int compat_x25_subscr_ioctl(unsigned int 
-> cmd,
->  	struct net_device *dev;
->  	int rc = -EINVAL;
-> 
-> -	rc = -EFAULT;
-> -	if (copy_from_user(&x25_subscr, x25_subscr32, sizeof(*x25_subscr32)))
-> +	if (copy_from_user(&x25_subscr, x25_subscr32, sizeof(*x25_subscr32))) 
-> {
-> +		rc = -EFAULT;
->  		goto out;
-> +	}
-> 
-> -	rc = -EINVAL;
->  	dev = x25_dev_get(x25_subscr.device);
-> -	if (dev == NULL)
-> +	if (!dev)
->  		goto out;
-> 
->  	nb = x25_get_neigh(dev);
-> -	if (nb == NULL)
-> +	if (!nb)
->  		goto out_dev_put;
-> 
-> -	dev_put(dev);
-> -
->  	if (cmd == SIOCX25GSUBSCRIP) {
->  		read_lock_bh(&x25_neigh_list_lock);
->  		x25_subscr.extended = nb->extended;
-> @@ -1648,7 +1646,6 @@ static int compat_x25_subscr_ioctl(unsigned int 
-> cmd,
->  		rc = copy_to_user(x25_subscr32, &x25_subscr,
->  				sizeof(*x25_subscr32)) ? -EFAULT : 0;
->  	} else {
-> -		rc = -EINVAL;
->  		if (x25_subscr.extended == 0 || x25_subscr.extended == 1) {
->  			rc = 0;
->  			write_lock_bh(&x25_neigh_list_lock);
-> @@ -1658,11 +1655,11 @@ static int compat_x25_subscr_ioctl(unsigned int 
-> cmd,
->  		}
->  	}
->  	x25_neigh_put(nb);
-> -out:
-> -	return rc;
-> +
->  out_dev_put:
->  	dev_put(dev);
-> -	goto out;
-> +out:
-> +	return rc;
->  }
-> 
->  static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
-> diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-> index 5460b9146dd8..01a13ec88ce8 100644
-> --- a/net/x25/x25_link.c
-> +++ b/net/x25/x25_link.c
-> @@ -360,19 +360,19 @@ int x25_subscr_ioctl(unsigned int cmd, void 
-> __user *arg)
->  	if (cmd != SIOCX25GSUBSCRIP && cmd != SIOCX25SSUBSCRIP)
->  		goto out;
-> 
-> -	rc = -EFAULT;
-> -	if (copy_from_user(&x25_subscr, arg, sizeof(x25_subscr)))
-> +	if (copy_from_user(&x25_subscr, arg, sizeof(x25_subscr))) {
-> +		rc = -EFAULT;
->  		goto out;
-> +	}
-> 
-> -	rc = -EINVAL;
-> -	if ((dev = x25_dev_get(x25_subscr.device)) == NULL)
-> +	dev = x25_dev_get(x25_subscr.device);
-> +	if (!dev)
->  		goto out;
-> 
-> -	if ((nb = x25_get_neigh(dev)) == NULL)
-> +	nb = x25_get_neigh(dev);
-> +	if (!nb)
->  		goto out_dev_put;
-> 
-> -	dev_put(dev);
-> -
->  	if (cmd == SIOCX25GSUBSCRIP) {
->  		read_lock_bh(&x25_neigh_list_lock);
->  		x25_subscr.extended	     = nb->extended;
-> @@ -381,7 +381,6 @@ int x25_subscr_ioctl(unsigned int cmd, void __user 
-> *arg)
->  		rc = copy_to_user(arg, &x25_subscr,
->  				  sizeof(x25_subscr)) ? -EFAULT : 0;
->  	} else {
-> -		rc = -EINVAL;
->  		if (!(x25_subscr.extended && x25_subscr.extended != 1)) {
->  			rc = 0;
->  			write_lock_bh(&x25_neigh_list_lock);
-> @@ -391,11 +390,11 @@ int x25_subscr_ioctl(unsigned int cmd, void 
-> __user *arg)
->  		}
->  	}
->  	x25_neigh_put(nb);
-> -out:
-> -	return rc;
-> +
->  out_dev_put:
->  	dev_put(dev);
-> -	goto out;
-> +out:
-> +	return rc;
->  }
+Rename module_init & module_exit functions that are named
+"mod_init" and "mod_exit" so that they are unique in both the
+System.map file and in initcall_debug output instead of showing
+up as almost anonymous "mod_init".
 
-Looks good to me.
+This is helpful for debugging and in determining how long certain
+module_init calls take to execute.
 
-Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: wireguard@lists.zx2c4.com
+Cc: netdev@vger.kernel.org
+---
+ drivers/net/wireguard/main.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-next-20210708.orig/drivers/net/wireguard/main.c
++++ linux-next-20210708/drivers/net/wireguard/main.c
+@@ -17,7 +17,7 @@
+ #include <linux/genetlink.h>
+ #include <net/rtnetlink.h>
+ 
+-static int __init mod_init(void)
++static int __init wireguard_init(void)
+ {
+ 	int ret;
+ 
+@@ -60,7 +60,7 @@ err_allowedips:
+ 	return ret;
+ }
+ 
+-static void __exit mod_exit(void)
++static void __exit wireguard_exit(void)
+ {
+ 	wg_genetlink_uninit();
+ 	wg_device_uninit();
+@@ -68,8 +68,8 @@ static void __exit mod_exit(void)
+ 	wg_allowedips_slab_uninit();
+ }
+ 
+-module_init(mod_init);
+-module_exit(mod_exit);
++module_init(wireguard_init);
++module_exit(wireguard_exit);
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("WireGuard secure network tunnel");
+ MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
