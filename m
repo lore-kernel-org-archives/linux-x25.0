@@ -1,124 +1,47 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 3/6] lib: crypto: rename 'mod_init' & 'mod_exit' functions to be module-specific
-Date: Thu,  8 Jul 2021 19:17:44 -0700
-Message-ID: <20210709021747.32737-4-rdunlap@infradead.org>
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+Subject: Re: [PATCH 1/6] arm: crypto: rename 'mod_init' & 'mod_exit'
+ functions to be module-specific
+Date: Fri, 9 Jul 2021 10:59:02 +0100
+Message-ID: <20210709095902.GY22278@shell.armlinux.org.uk>
 References: <20210709021747.32737-1-rdunlap@infradead.org>
+ <20210709021747.32737-2-rdunlap@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=d+8/yiZu3L6P8B8KGhlE8N/aoGjld+tQjqmLrEW8N7I=; b=2upCU0SvCtNVlT5M+Ewo4m8Xk7
-        w3Tc6jfNlf9YWdPluWHekPTO6s0p3hgDWxCG19jcsqNLu6SbLdiFBSpvqQGltufSQNIxLgNcS2WlM
-        rgM6IAakdgAgHU7ZHoo/oqyfz9ocgEG+MF7r45nScZP9cXFBHAHfDkJIdsHxkMJpHNb5sYjpc2MbM
-        QraSo4ox+vT07/iJiZECgNAkT6VZwNgq+eAmW714EW1sA4f06itWeCS8ALaIn/3wc9U3bhaRek5Ta
-        g9jNFDz+nB9qcPjV3bzdhE0HZFzTPEdU5RG/lcg7nS5IwBM3aYlfeuLlcYmG3E/RYYlWfrwp3PEJe
-        rJj174cA==;
-In-Reply-To: <20210709021747.32737-1-rdunlap@infradead.org>
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=GDAKEVAY6G2FkEMJUuqWlfJMGpOgImfNbDfdp8SNumE=; b=IMZi9QswDZgjH87rP0vZpPXoF
+        hkkdXd5InlsEhhdJjWVgtPUSzH8uLG1mhs1nLgoJJGh1TJ/umARn53rRP2XFvZfTfrqhig93+SrEk
+        pwSdP0aiFbhBENQhAM0rgOslCQM6GiVkJkdzxlHoZ6jeDm+YEKs6hQ2Ef45vT8MpHaoShG9hM6lEL
+        2J4tVIIQoTMfyMszH1ymZ/IiUmcXyU8uMLVL3pza6vWQACxls3lgWLTjRQ5XiC6JP8UKk+/fQqkcJ
+        mhiCWgutwI1MQY2qUSq115qrial/eLIyOqV2+P74Tsp8YNW7Dhz6reW2bby88gZoY5TMXrPrUv4ff
+Content-Disposition: inline
+In-Reply-To: <20210709021747.32737-2-rdunlap@infradead.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
+Content-Transfer-Encoding: 7bit
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-kernel@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
 
-Rename module_init & module_exit functions that are named
-"mod_init" and "mod_exit" so that they are unique in both the
-System.map file and in initcall_debug output instead of showing
-up as almost anonymous "mod_init".
+On Thu, Jul 08, 2021 at 07:17:42PM -0700, Randy Dunlap wrote:
+> Rename module_init & module_exit functions that are named
+> "mod_init" and "mod_exit" so that they are unique in both the
+> System.map file and in initcall_debug output instead of showing
+> up as almost anonymous "mod_init".
+> 
+> This is helpful for debugging and in determining how long certain
+> module_init calls take to execute.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+> Cc: linux-arm-kernel@lists.infradead.org
 
-This is helpful for debugging and in determining how long certain
-module_init calls take to execute.
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
----
- lib/crypto/blake2s.c          |    8 ++++----
- lib/crypto/chacha20poly1305.c |    8 ++++----
- lib/crypto/curve25519.c       |    8 ++++----
- 3 files changed, 12 insertions(+), 12 deletions(-)
-
---- linux-next-20210708.orig/lib/crypto/blake2s.c
-+++ linux-next-20210708/lib/crypto/blake2s.c
-@@ -73,7 +73,7 @@ void blake2s256_hmac(u8 *out, const u8 *
- }
- EXPORT_SYMBOL(blake2s256_hmac);
- 
--static int __init mod_init(void)
-+static int __init blake2s_mod_init(void)
- {
- 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
- 	    WARN_ON(!blake2s_selftest()))
-@@ -81,12 +81,12 @@ static int __init mod_init(void)
- 	return 0;
- }
- 
--static void __exit mod_exit(void)
-+static void __exit blake2s_mod_exit(void)
- {
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(blake2s_mod_init);
-+module_exit(blake2s_mod_exit);
- MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("BLAKE2s hash function");
- MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
---- linux-next-20210708.orig/lib/crypto/chacha20poly1305.c
-+++ linux-next-20210708/lib/crypto/chacha20poly1305.c
-@@ -354,7 +354,7 @@ bool chacha20poly1305_decrypt_sg_inplace
- }
- EXPORT_SYMBOL(chacha20poly1305_decrypt_sg_inplace);
- 
--static int __init mod_init(void)
-+static int __init chacha20poly1305_init(void)
- {
- 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
- 	    WARN_ON(!chacha20poly1305_selftest()))
-@@ -362,12 +362,12 @@ static int __init mod_init(void)
- 	return 0;
- }
- 
--static void __exit mod_exit(void)
-+static void __exit chacha20poly1305_exit(void)
- {
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(chacha20poly1305_init);
-+module_exit(chacha20poly1305_exit);
- MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("ChaCha20Poly1305 AEAD construction");
- MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
---- linux-next-20210708.orig/lib/crypto/curve25519.c
-+++ linux-next-20210708/lib/crypto/curve25519.c
-@@ -13,7 +13,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- 
--static int __init mod_init(void)
-+static int __init curve25519_init(void)
- {
- 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
- 	    WARN_ON(!curve25519_selftest()))
-@@ -21,12 +21,12 @@ static int __init mod_init(void)
- 	return 0;
- }
- 
--static void __exit mod_exit(void)
-+static void __exit curve25519_exit(void)
- {
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(curve25519_init);
-+module_exit(curve25519_exit);
- 
- MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("Curve25519 scalar multiplication");
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
