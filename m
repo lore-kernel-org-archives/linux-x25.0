@@ -1,45 +1,126 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH 6/6] net: wireguard: rename 'mod_init' & 'mod_exit'
- functions to be module-specific
-Date: Fri, 9 Jul 2021 12:21:39 +0200
-Message-ID: <CAHmME9rUJndFC-6KAxGL3w6Ka4WgyP_m5DS+1_vuHdQowonSOg@mail.gmail.com>
-References: <20210709021747.32737-1-rdunlap@infradead.org> <20210709021747.32737-7-rdunlap@infradead.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 3/6 v2] lib: crypto: rename 'mod_init' & 'mod_exit' functions to be module-specific
+Date: Sun, 11 Jul 2021 15:31:45 -0700
+Message-ID: <20210711223148.5250-4-rdunlap@infradead.org>
+References: <20210711223148.5250-1-rdunlap@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-crypto-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1625826113;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=7dR0/VUJHKDLRMz9yU5Zdn5RWQOxI+Wc0vq05RWjQvE=;
-        b=SvQ1Je064yhDKpHtC+rohJT39TVuxD85wqjML8PO3gxEcEu4/YVvk3iaUzENwcWcM5wqDH
-        thvwKk3BjAVh7F3FOpUHcQhDhnWXtVUhiWZl/AB9a/0FYWH9OU9sN96yOgwmH9E5N6HbE3
-        GTlcQVkPe26jsPPQ4IgmztdiwLeX+Qk=
-In-Reply-To: <20210709021747.32737-7-rdunlap@infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=H7RHC9PAGo7nFqGD22lHzISKCO3dCV+vM/OnCERLMj0=; b=0tg9x+gIqCAtRRWK4CGLvarT1M
+        FwzOnutPg7Isls3CQeaHSgUlMGUH768rgd+x6J/sKo2k+cA/CpXJmoAwhxchiBY17ZPBYBIEoq+Q0
+        2FxMAVdvtYvkFu3urD+szA6LmlFn+3RYeoLqPw+ciReHsPbXWE9ZEFULxMDgCDgPJtrGiaB+bmgGk
+        q6dAXvzyJvTi/JCucxpK7meGmk9n6/oNUcL028PlBl+PZn0opSdYUGGBHx76tYZo1YjPMvuJoMQ1V
+        Xhqko7QjQcExEKk50ttJ1ME+t1lucqDoujFAGH4Smgr+BO1fG5Q+dVNKqb5SLP3fp7siUsI9Fe4mT
+        IFJzp0jw==;
+In-Reply-To: <20210711223148.5250-1-rdunlap@infradead.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, Netdev <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, WireGuard mailing list <wireguard@lists.zx2c4.com>
+To: linux-kernel@vger.kernel.org
+Cc: Randy Dunlap <rdunlap@infradead.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
 
-Hi Randy,
+Rename module_init & module_exit functions that are named
+"mod_init" and "mod_exit" so that they are unique in both the
+System.map file and in initcall_debug output instead of showing
+up as almost anonymous "mod_init".
 
-The commit subject line should be:
+This is helpful for debugging and in determining how long certain
+module_init calls take to execute.
 
-wireguard: main: rename 'mod_init' & 'mod_exit' functions to be module-specific
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+v2: no change
 
-And:
+ lib/crypto/blake2s.c          |    8 ++++----
+ lib/crypto/chacha20poly1305.c |    8 ++++----
+ lib/crypto/curve25519.c       |    8 ++++----
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-On Fri, Jul 9, 2021 at 4:17 AM Randy Dunlap <rdunlap@infradead.org> wrote:
-> -static int __init mod_init(void)
-> +static int __init wireguard_init(void)
-
-wg_mod_init
-
-> -static void __exit mod_exit(void)
-> +static void __exit wireguard_exit(void)
-
-wg_mod_exit
-
-Thanks,
-Jason
+--- linux-next-20210708.orig/lib/crypto/blake2s.c
++++ linux-next-20210708/lib/crypto/blake2s.c
+@@ -73,7 +73,7 @@ void blake2s256_hmac(u8 *out, const u8 *
+ }
+ EXPORT_SYMBOL(blake2s256_hmac);
+ 
+-static int __init mod_init(void)
++static int __init blake2s_mod_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
+ 	    WARN_ON(!blake2s_selftest()))
+@@ -81,12 +81,12 @@ static int __init mod_init(void)
+ 	return 0;
+ }
+ 
+-static void __exit mod_exit(void)
++static void __exit blake2s_mod_exit(void)
+ {
+ }
+ 
+-module_init(mod_init);
+-module_exit(mod_exit);
++module_init(blake2s_mod_init);
++module_exit(blake2s_mod_exit);
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("BLAKE2s hash function");
+ MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
+--- linux-next-20210708.orig/lib/crypto/chacha20poly1305.c
++++ linux-next-20210708/lib/crypto/chacha20poly1305.c
+@@ -354,7 +354,7 @@ bool chacha20poly1305_decrypt_sg_inplace
+ }
+ EXPORT_SYMBOL(chacha20poly1305_decrypt_sg_inplace);
+ 
+-static int __init mod_init(void)
++static int __init chacha20poly1305_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
+ 	    WARN_ON(!chacha20poly1305_selftest()))
+@@ -362,12 +362,12 @@ static int __init mod_init(void)
+ 	return 0;
+ }
+ 
+-static void __exit mod_exit(void)
++static void __exit chacha20poly1305_exit(void)
+ {
+ }
+ 
+-module_init(mod_init);
+-module_exit(mod_exit);
++module_init(chacha20poly1305_init);
++module_exit(chacha20poly1305_exit);
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("ChaCha20Poly1305 AEAD construction");
+ MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
+--- linux-next-20210708.orig/lib/crypto/curve25519.c
++++ linux-next-20210708/lib/crypto/curve25519.c
+@@ -13,7 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+-static int __init mod_init(void)
++static int __init curve25519_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
+ 	    WARN_ON(!curve25519_selftest()))
+@@ -21,12 +21,12 @@ static int __init mod_init(void)
+ 	return 0;
+ }
+ 
+-static void __exit mod_exit(void)
++static void __exit curve25519_exit(void)
+ {
+ }
+ 
+-module_init(mod_init);
+-module_exit(mod_exit);
++module_init(curve25519_init);
++module_exit(curve25519_exit);
+ 
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("Curve25519 scalar multiplication");
