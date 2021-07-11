@@ -1,172 +1,114 @@
 From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 2/6 v2] hw_random: rename 'mod_init' & 'mod_exit' functions to be module-specific
-Date: Sun, 11 Jul 2021 15:31:44 -0700
-Message-ID: <20210711223148.5250-3-rdunlap@infradead.org>
-References: <20210711223148.5250-1-rdunlap@infradead.org>
+Subject: [PATCH 0/6 v2] treewide: rename 'mod_init' & 'mod_exit' functions to be module-specific
+Date: Sun, 11 Jul 2021 15:31:42 -0700
+Message-ID: <20210711223148.5250-1-rdunlap@infradead.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-crypto-owner@vger.kernel.org>
+Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=TGRhbMUsl1yRfRw9a46SZWtCcXw/VTCt/x/NlatoqFI=; b=rCutemvyW97aDoDJnIHx9zNGr5
-        P4KjtYJoRO4HGCeQEwObV7IsSabg03DpqPRvbTp48NFcCFjFITzbbUfDCJP3wXrY89rDg+y6t34TT
-        yehA9kBkncbOaCUjNOjck8pbW7r2xxqmoZtyQwoNJ0TeHyroaOr1zjbaApIQBgIXd1oPWsjO9fb4g
-        Q3ap7qAeqvGugj3Bd44VW2iHg/E+C3627osokc78k+RsnYklgI5n1PxyiR2QXcRgwTjFputCO8c2t
-        ZFCC2ux0W6lzRw5Va7FiIKLvXg2ZXj51QvVT2O6HYLyWkBZRHYRzXbYSK0/WO/8fSV5Dq8cTl9jTd
-        J7u4mZRA==;
-In-Reply-To: <20210711223148.5250-1-rdunlap@infradead.org>
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=Mo6qpJjml5U8iLYgc9vnqw2QRu2qtGojLIGPXWhslFE=; b=KScQpnoW/TzXIY7cNb0X+9rSTc
+        VObwFUOiCt5HhPY75lZjfPLHLVTbCMD/VuuLAIMQ6hApemoQ3hw+wz9SbNb1RYnuqNuz9S+iJZ+qC
+        qpwFw/szYblDg5BxhQ6jVt5jV5/IgXdKU5VdSizKG8cz9ymXhlV4DVkqXcDBzZ7ZHVtx/kbFP+gAT
+        2xBpaSPyAWZdj1ri7FYqhc25RuGLS9aH0tO+XVxQvViZyD8FqCesqZvCyGJ3VPiVzrGrb2MIdT0i3
+        u85KjU46Lwn0uiOOAqTZbFPM8Kx/3MxtWtNzLLZXUIJrII87eXv7QPEgz3iehZU173pcqyK7SzmnD
+        JpVvManQ==;
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Randy Dunlap <rdunlap@infradead.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andres Salomon <dilinger@queued.net>, linux-geode@lists.infradead.org, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Christian Gromm <christian.gromm@microchip.com>, Krzysztof Halasa <khc@pm.waw.pl>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org, wireguard@lists.zx2c4.com
 
-Rename module_init & module_exit functions that are named
-"mod_init" and "mod_exit" so that they are unique in both the
-System.map file and in initcall_debug output instead of showing
-up as almost anonymous "mod_init".
+There are multiple (16) modules which use a module_init() function
+with the name 'mod_init' and a module_exit() function with the name
+'mod_exit'. This can lead to confusion or ambiguity when reading
+crashes/oops/bugs etc. and when reading an initcall_debug log.
 
-This is helpful for debugging and in determining how long certain
-module_init calls take to execute.
+Example 1: (System.map file)
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+ffffffff83446d10 t mod_init
+ffffffff83446d18 t mod_init
+ffffffff83446d20 t mod_init
+...
+ffffffff83454665 t mod_init
+ffffffff834548a4 t mod_init
+ffffffff83454a53 t mod_init
+...
+ffffffff8345bd42 t mod_init
+...
+ffffffff8345c916 t mod_init
+ffffffff8345c92a t mod_init
+ffffffff8345c93e t mod_init
+ffffffff8345c952 t mod_init
+ffffffff8345c966 t mod_init
+...
+ffffffff834672c9 t mod_init
+
+Example 2: (boot log when using 'initcall_debug')
+
+[    0.252157] initcall mod_init+0x0/0x8 returned 0 after 0 usecs
+[    0.252180] initcall mod_init+0x0/0x8 returned 0 after 0 usecs
+[    0.252202] initcall mod_init+0x0/0x8 returned 0 after 0 usecs
+...
+[    0.892907] initcall mod_init+0x0/0x23f returned -19 after 104 usecs
+[    0.913788] initcall mod_init+0x0/0x1af returned -19 after 9 usecs
+[    0.934353] initcall mod_init+0x0/0x49 returned -19 after 0 usecs
+...
+[    1.454870] initcall mod_init+0x0/0x66 returned 0 after 72 usecs
+...
+[    1.455527] initcall mod_init+0x0/0x14 returned 0 after 0 usecs
+[    1.455531] initcall mod_init+0x0/0x14 returned 0 after 0 usecs
+[    1.455536] initcall mod_init+0x0/0x14 returned 0 after 0 usecs
+[    1.455541] initcall mod_init+0x0/0x14 returned 0 after 0 usecs
+[    1.455545] initcall mod_init+0x0/0x52 returned 0 after 0 usecs
+...
+[    1.588162] initcall mod_init+0x0/0xef returned 0 after 45 usecs
+
+
+v2: wireguard: changes per Jason
+    arm/crypto/curve25519-glue: add Russell's Acked-by
+
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Andres Salomon <dilinger@queued.net>
 Cc: linux-geode@lists.infradead.org
 Cc: Matt Mackall <mpm@selenic.com>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
 Cc: linux-crypto@vger.kernel.org
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
----
-v2: no change
+Cc: Christian Gromm <christian.gromm@microchip.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: linux-x25@vger.kernel.org
+Cc: wireguard@lists.zx2c4.com
 
+[PATCH 1/6 v2] arm: crypto: rename 'mod_init' & 'mod_exit' functions to be module-specific
+[PATCH 2/6 v2] hw_random: rename 'mod_init' & 'mod_exit' functions to be module-specific
+[PATCH 3/6 v2] lib: crypto: rename 'mod_init' & 'mod_exit' functions to be module-specific
+[PATCH 4/6 v2] MOST: cdev: rename 'mod_init' & 'mod_exit' functions to be module-specific
+[PATCH 5/6 v2] net: hdlc: rename 'mod_init' & 'mod_exit' functions to be module-specific
+[PATCH 6/6 v2] net: wireguard: rename 'mod_init' & 'mod_exit' functions to be module-specific
+
+ arch/arm/crypto/curve25519-glue.c  |    8 ++++----
  drivers/char/hw_random/amd-rng.c   |    8 ++++----
  drivers/char/hw_random/geode-rng.c |    8 ++++----
  drivers/char/hw_random/intel-rng.c |    8 ++++----
  drivers/char/hw_random/via-rng.c   |    8 ++++----
- 4 files changed, 16 insertions(+), 16 deletions(-)
-
---- linux-next-20210708.orig/drivers/char/hw_random/amd-rng.c
-+++ linux-next-20210708/drivers/char/hw_random/amd-rng.c
-@@ -124,7 +124,7 @@ static struct hwrng amd_rng = {
- 	.read		= amd_rng_read,
- };
- 
--static int __init mod_init(void)
-+static int __init amd_rng_mod_init(void)
- {
- 	int err;
- 	struct pci_dev *pdev = NULL;
-@@ -188,7 +188,7 @@ out:
- 	return err;
- }
- 
--static void __exit mod_exit(void)
-+static void __exit amd_rng_mod_exit(void)
- {
- 	struct amd768_priv *priv;
- 
-@@ -203,8 +203,8 @@ static void __exit mod_exit(void)
- 	kfree(priv);
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(amd_rng_mod_init);
-+module_exit(amd_rng_mod_exit);
- 
- MODULE_AUTHOR("The Linux Kernel team");
- MODULE_DESCRIPTION("H/W RNG driver for AMD chipsets");
---- linux-next-20210708.orig/drivers/char/hw_random/geode-rng.c
-+++ linux-next-20210708/drivers/char/hw_random/geode-rng.c
-@@ -83,7 +83,7 @@ static struct hwrng geode_rng = {
- };
- 
- 
--static int __init mod_init(void)
-+static int __init geode_rng_init(void)
- {
- 	int err = -ENODEV;
- 	struct pci_dev *pdev = NULL;
-@@ -124,7 +124,7 @@ err_unmap:
- 	goto out;
- }
- 
--static void __exit mod_exit(void)
-+static void __exit geode_rng_exit(void)
- {
- 	void __iomem *mem = (void __iomem *)geode_rng.priv;
- 
-@@ -132,8 +132,8 @@ static void __exit mod_exit(void)
- 	iounmap(mem);
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(geode_rng_init);
-+module_exit(geode_rng_exit);
- 
- MODULE_DESCRIPTION("H/W RNG driver for AMD Geode LX CPUs");
- MODULE_LICENSE("GPL");
---- linux-next-20210708.orig/drivers/char/hw_random/intel-rng.c
-+++ linux-next-20210708/drivers/char/hw_random/intel-rng.c
-@@ -325,7 +325,7 @@ PFX "RNG, try using the 'no_fwh_detect'
- }
- 
- 
--static int __init mod_init(void)
-+static int __init intel_rng_mod_init(void)
- {
- 	int err = -ENODEV;
- 	int i;
-@@ -403,7 +403,7 @@ out:
- 
- }
- 
--static void __exit mod_exit(void)
-+static void __exit intel_rng_mod_exit(void)
- {
- 	void __iomem *mem = (void __iomem *)intel_rng.priv;
- 
-@@ -411,8 +411,8 @@ static void __exit mod_exit(void)
- 	iounmap(mem);
- }
- 
--module_init(mod_init);
--module_exit(mod_exit);
-+module_init(intel_rng_mod_init);
-+module_exit(intel_rng_mod_exit);
- 
- MODULE_DESCRIPTION("H/W RNG driver for Intel chipsets");
- MODULE_LICENSE("GPL");
---- linux-next-20210708.orig/drivers/char/hw_random/via-rng.c
-+++ linux-next-20210708/drivers/char/hw_random/via-rng.c
-@@ -192,7 +192,7 @@ static struct hwrng via_rng = {
- };
- 
- 
--static int __init mod_init(void)
-+static int __init via_rng_mod_init(void)
- {
- 	int err;
- 
-@@ -209,13 +209,13 @@ static int __init mod_init(void)
- out:
- 	return err;
- }
--module_init(mod_init);
-+module_init(via_rng_mod_init);
- 
--static void __exit mod_exit(void)
-+static void __exit via_rng_mod_exit(void)
- {
- 	hwrng_unregister(&via_rng);
- }
--module_exit(mod_exit);
-+module_exit(via_rng_mod_exit);
- 
- static struct x86_cpu_id __maybe_unused via_rng_cpu_id[] = {
- 	X86_MATCH_FEATURE(X86_FEATURE_XSTORE, NULL),
+ drivers/most/most_cdev.c           |    8 ++++----
+ drivers/net/wan/hdlc_cisco.c       |    8 ++++----
+ drivers/net/wan/hdlc_fr.c          |    8 ++++----
+ drivers/net/wan/hdlc_ppp.c         |    8 ++++----
+ drivers/net/wan/hdlc_raw.c         |    8 ++++----
+ drivers/net/wan/hdlc_raw_eth.c     |    8 ++++----
+ drivers/net/wan/hdlc_x25.c         |    8 ++++----
+ drivers/net/wireguard/main.c       |    8 ++++----
+ lib/crypto/blake2s.c               |    8 ++++----
+ lib/crypto/chacha20poly1305.c      |    8 ++++----
+ lib/crypto/curve25519.c            |    8 ++++----
+ 16 files changed, 64 insertions(+), 64 deletions(-)
