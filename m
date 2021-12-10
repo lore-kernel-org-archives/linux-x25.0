@@ -1,41 +1,49 @@
-From: Martin Schiller <ms@dev.tdt.de>
+From: patchwork-bot+netdevbpf@kernel.org
 Subject: Re: [PATCH net-next] net: x25: drop harmless check of !more
-Date: Wed, 08 Dec 2021 08:51:17 +0100
-Message-ID: <591bfc0470ca596995e13337460f99d0@dev.tdt.de>
+Date: Fri, 10 Dec 2021 03:20:09 +0000
+Message-ID: <163910640934.13476.8421043107129227133.git-patchwork-notify@kernel.org>
 References: <20211208024732.142541-5-sakiwit@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639106409;
+        bh=uBG2Sn7JzS43WffLO6b1Tg2/7OY8U5FlKnHBjN0YOBM=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ESQpxcwCEK0l04NBxk8OedN7fkrkcyFOFS9s03nKseUiV6R0KqXQSPsIEr0wlftmX
+         nZ8xt8FtEFPF53i4ajvR59nHj0WYac2/hZzDCnB6bTiA1AFfRuAhhKkXc+SHEOb1Cn
+         JwbPhfPIPgDbkV8TQ2CJFICDzzjWXmKo7dgfDVjn1FTmDUXch0qqiJv3gf+grrbzg0
+         aooTVwD+0pqFcVPyaKHRclFZdAwAqc3maqg1HyC8lFhU/NiPTkK4RN9XHofgw7NWL5
+         R4AWt3cLGWGK6hcXSWZQGrYfrSoWChtFQgiIVQ3E+vQZZsdHN0B7E4gvQSr/VzeM06
+         998RNb58v/esg==
 In-Reply-To: <20211208024732.142541-5-sakiwit@gmail.com>
 List-ID: <linux-x25.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-To: =?UTF-8?Q?J=CE=B5an_Sacren?= <sakiwit@gmail.com>
-Cc: davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: =?utf-8?q?J=CE=B5an_Sacren_=3Csakiwit=40gmail=2Ecom=3E?=@ci.codeaurora.org
+Cc: ms@dev.tdt.de, davem@davemloft.net, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
-On 2021-12-08 08:20, J=CE=B5an Sacren wrote:
+Hello:
+
+This patch was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed,  8 Dec 2021 00:20:25 -0700 you wrote:
 > From: Jean Sacren <sakiwit@gmail.com>
->=20
+> 
 > 'more' is checked first.  When !more is checked immediately after that,
 > it is always true.  We should drop this check.
->=20
+> 
 > Signed-off-by: Jean Sacren <sakiwit@gmail.com>
-> ---
->  net/x25/x25_in.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
-> index e1c4197af468..b981a4828d08 100644
-> --- a/net/x25/x25_in.c
-> +++ b/net/x25/x25_in.c
-> @@ -41,7 +41,7 @@ static int x25_queue_rx_frame(struct sock *sk,
-> struct sk_buff *skb, int more)
->  		return 0;
->  	}
->=20
-> -	if (!more && x25->fraglen > 0) {	/* End of fragment */
-> +	if (x25->fraglen > 0) {	/* End of fragment */
->  		int len =3D x25->fraglen + skb->len;
->=20
->  		if ((skbn =3D alloc_skb(len, GFP_ATOMIC)) =3D=3D NULL){
+> 
+> [...]
 
-Acked-by: Martin Schiller <ms@dev.tdt.de>
+Here is the summary with links:
+  - [net-next] net: x25: drop harmless check of !more
+    https://git.kernel.org/netdev/net-next/c/9745177c9489
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
