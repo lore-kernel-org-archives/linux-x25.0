@@ -1,97 +1,61 @@
-From: Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH net-next 6/6] net: wan: switch to netif_napi_add_weight()
-Date: Fri,  6 May 2022 10:07:51 -0700
-Message-ID: <20220506170751.822862-7-kuba@kernel.org>
-References: <20220506170751.822862-1-kuba@kernel.org>
+From: Colin Ian King <colin.i.king@gmail.com>
+Subject: [PATCH] x25: remove redundant pointer dev
+Date: Sun,  8 May 2022 22:45:00 +0100
+Message-ID: <20220508214500.60446-1-colin.i.king@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651856881;
-        bh=S2T+9Y6sl30nIpo8x3GVqzVKOXcUQSwRlOt6wQSeijw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCHLpI/HNWsKKkKAkHDcq/gsdg8FVt13ED0xc2YEjMbBmqbLlaOTGp3H7mXAyYXZM
-         wce0IxFX6wB5+PmqSphf7WNGNAUFz6m1dmbhdCJv4EX34Yr8rzaBslFUl3mPGqGUvU
-         NOlyIlRfpnl87BSV2ERv0dGqz0EIgoO/iuAASl0oPMark/dY7pxNSvvNgur7nyM/FC
-         QkIyktDpQvXj7iyHlp2+/Bq9I7wxWxG/WirBeSC3peCgyltveo2UBrmQtEQQP+XcVk
-         DivkCltAealVLCW5lCFVg3CwgrBDUfaBgly4Bd8fKUMctN16HA7DEswnEaMs5hsovu
-         HOVpdY/mKwqgA==
-In-Reply-To: <20220506170751.822862-1-kuba@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sz9yDMbWolCR5CSm2J/3vC7zIKazVJISgiLAk/Sxmjk=;
+        b=odEgRES1w3ohIoQJFJMZIgwiqx0w9ikZ5ahO6mKSOCp5MV2nmKdXmMa7ejQCzBEk4V
+         6R1CSUB6tZptfCRhrKnB1vNWbOLi64YT2Hi+c0HL9+oYjINMASi5tDhYdw1fCJODPbC0
+         10rOjcK0UOKfoJ9Xc2hOCRXvC4k93g2wuIfbmyvn8OAYISHIKxVyzlFQ6Z5BC1EeRkS8
+         TNbylN5WqYiOAPbiz7hubby5HgaJazQtdpHYw8dsoEzhyXIqBJQyR2QLMLXiSuU4ogmj
+         mHCIC/h9Ee/4LheQ8KaApm5E5dDQkinwP02y2XvlLjowe5BZWJZSU3awpGaNzlP1y1Or
+         98Hw==
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, pabeni@redhat.com, edumazet@google.com, Jakub Kicinski <kuba@kernel.org>, qiang.zhao@nxp.com, khc@pm.waw.pl, ms@dev.tdt.de, linuxppc-dev@lists.ozlabs.org, linux-x25@vger.kernel.org
+To: Martin Schiller <ms@dev.tdt.de>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-A handful of WAN drivers use custom napi weights,
-switch them to the new API.
+Pointer dev is being assigned a value that is never used, the assignment
+and the variable are redundant and can be removed. Also replace null check
+with the preferred !ptr idiom.
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cleans up clang scan warning:
+net/x25/x25_proc.c:94:26: warning: Although the value stored to 'dev' is
+used in the enclosing expression, the value is never actually read
+from 'dev' [deadcode.DeadStores]
+
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
 ---
-CC: qiang.zhao@nxp.com
-CC: khc@pm.waw.pl
-CC: ms@dev.tdt.de
-CC: linuxppc-dev@lists.ozlabs.org
-CC: linux-x25@vger.kernel.org
----
- drivers/net/wan/fsl_ucc_hdlc.c | 2 +-
- drivers/net/wan/hd64572.c      | 3 ++-
- drivers/net/wan/ixp4xx_hss.c   | 2 +-
- drivers/net/wan/lapbether.c    | 2 +-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ net/x25/x25_proc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
-index 5ae2d27b5da9..22edea6ca4b8 100644
---- a/drivers/net/wan/fsl_ucc_hdlc.c
-+++ b/drivers/net/wan/fsl_ucc_hdlc.c
-@@ -1231,7 +1231,7 @@ static int ucc_hdlc_probe(struct platform_device *pdev)
- 	dev->watchdog_timeo = 2 * HZ;
- 	hdlc->attach = ucc_hdlc_attach;
- 	hdlc->xmit = ucc_hdlc_tx;
--	netif_napi_add(dev, &uhdlc_priv->napi, ucc_hdlc_poll, 32);
-+	netif_napi_add_weight(dev, &uhdlc_priv->napi, ucc_hdlc_poll, 32);
- 	if (register_hdlc_device(dev)) {
- 		ret = -ENOBUFS;
- 		pr_err("ucc_hdlc: unable to register hdlc device\n");
-diff --git a/drivers/net/wan/hd64572.c b/drivers/net/wan/hd64572.c
-index b89b03a6aba7..534369ffe5de 100644
---- a/drivers/net/wan/hd64572.c
-+++ b/drivers/net/wan/hd64572.c
-@@ -173,7 +173,8 @@ static void sca_init_port(port_t *port)
- 	sca_out(DIR_EOME, DIR_TX(port->chan), card); /* enable interrupts */
+diff --git a/net/x25/x25_proc.c b/net/x25/x25_proc.c
+index 3bddcbdf2e40..91a2aade3960 100644
+--- a/net/x25/x25_proc.c
++++ b/net/x25/x25_proc.c
+@@ -79,7 +79,6 @@ static int x25_seq_socket_show(struct seq_file *seq, void *v)
+ {
+ 	struct sock *s;
+ 	struct x25_sock *x25;
+-	struct net_device *dev;
+ 	const char *devname;
  
- 	sca_set_carrier(port);
--	netif_napi_add(port->netdev, &port->napi, sca_poll, NAPI_WEIGHT);
-+	netif_napi_add_weight(port->netdev, &port->napi, sca_poll,
-+			      NAPI_WEIGHT);
- }
+ 	if (v == SEQ_START_TOKEN) {
+@@ -91,7 +90,7 @@ static int x25_seq_socket_show(struct seq_file *seq, void *v)
+ 	s = sk_entry(v);
+ 	x25 = x25_sk(s);
  
- /* MSCI interrupt service */
-diff --git a/drivers/net/wan/ixp4xx_hss.c b/drivers/net/wan/ixp4xx_hss.c
-index 863c3e34e136..e46b7f5ee49e 100644
---- a/drivers/net/wan/ixp4xx_hss.c
-+++ b/drivers/net/wan/ixp4xx_hss.c
-@@ -1504,7 +1504,7 @@ static int ixp4xx_hss_probe(struct platform_device *pdev)
- 	port->clock_reg = CLK42X_SPEED_2048KHZ;
- 	port->id = pdev->id;
- 	port->dev = &pdev->dev;
--	netif_napi_add(ndev, &port->napi, hss_hdlc_poll, NAPI_WEIGHT);
-+	netif_napi_add_weight(ndev, &port->napi, hss_hdlc_poll, NAPI_WEIGHT);
- 
- 	err = register_hdlc_device(ndev);
- 	if (err)
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 282192b82404..960f1393595c 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -408,7 +408,7 @@ static int lapbeth_new_device(struct net_device *dev)
- 	spin_lock_init(&lapbeth->up_lock);
- 
- 	skb_queue_head_init(&lapbeth->rx_queue);
--	netif_napi_add(ndev, &lapbeth->napi, lapbeth_napi_poll, 16);
-+	netif_napi_add_weight(ndev, &lapbeth->napi, lapbeth_napi_poll, 16);
- 
- 	rc = -EIO;
- 	if (register_netdevice(ndev))
+-	if (!x25->neighbour || (dev = x25->neighbour->dev) == NULL)
++	if (!x25->neighbour || !x25->neighbour->dev)
+ 		devname = "???";
+ 	else
+ 		devname = x25->neighbour->dev->name;
 -- 
-2.34.1
+2.35.1
 
