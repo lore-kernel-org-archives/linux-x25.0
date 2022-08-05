@@ -1,51 +1,55 @@
-From: patchwork-bot+netdevbpf@kernel.org
-Subject: Re: [PATCH] x25: remove redundant pointer dev
-Date: Tue, 10 May 2022 10:10:12 +0000
-Message-ID: <165217741218.27960.5224636019366457113.git-patchwork-notify@kernel.org>
-References: <20220508214500.60446-1-colin.i.king@gmail.com>
+From: Martin Schiller <ms@dev.tdt.de>
+Subject: [PATCH net] net/x25: fix call timeouts in blocking connects
+Date: Fri,  5 Aug 2022 08:18:10 +0200
+Message-ID: <20220805061810.10824-1-ms@dev.tdt.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652177412;
-        bh=MnaoeGPz7Fq2odEZkhukT5d1h8HFw1tYwdSDDAv0T7s=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=OMouXlySYEfnIqHyGLcom88RQP+8TUtqR3KeltArziPJPFhn7guAdtq+JU/7XzFfc
-         d4r6WdYrY3h0cvh2ZDMT6a019xEo+SuN/TwyJG6zV6Cd1N4RFQ7alqi0xiOA203SqA
-         RxYg7pVRJ6GzgbfzuNmgGPMhcLCXcG+nZHsHkWvCNWP7umVUvzMYbZp2F6CARH7llH
-         YbHlsTy7JVOExCJ9RwWon9TaO/aYqnJJ0O5GOKovvn1lhAtLosyU0ZnhbQWCe5F2A5
-         q66VsG+0VqFlhLx875Gy58+1J7KJBxgUZJdzpOoH7X352mI32ahDWCyfHjCiYeODhf
-         sPJ+vkBNZFdBA==
-In-Reply-To: <20220508214500.60446-1-colin.i.king@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Colin Ian King <colin.i.king@gmail.com>
-Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org
+Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>
 
-Hello:
+When a userspace application starts a blocking connect(), a CALL REQUEST
+is sent, the t21 timer is started and the connect is waiting in
+x25_wait_for_connection_establishment(). If then for some reason the t21
+timer expires before any reaction on the assigned logical channel (e.g.
+CALL ACCEPT, CLEAR REQUEST), there is sent a CLEAR REQUEST and timer
+t23 is started waiting for a CLEAR confirmation. If we now receive a
+CLEAR CONFIRMATION from the peer, x25_disconnect() is called in
+x25_state2_machine() with reason "0", which means "normal" call
+clearing. This is ok, but the parameter "reason" is used as sk->sk_err
+in x25_disconnect() and sock_error(sk) is evaluated in
+x25_wait_for_connection_establishment() to check if the call is still
+pending. As "0" is not rated as an error, the connect will stuck here
+forever.
 
-This patch was applied to netdev/net-next.git (master)
-by Paolo Abeni <pabeni@redhat.com>:
+To fix this situation, also check if the sk->sk_state changed form
+TCP_SYN_SENT to TCP_CLOSE in the meantime, which is also done by
+x25_disconnect().
 
-On Sun,  8 May 2022 22:45:00 +0100 you wrote:
-> Pointer dev is being assigned a value that is never used, the assignment
-> and the variable are redundant and can be removed. Also replace null check
-> with the preferred !ptr idiom.
-> 
-> Cleans up clang scan warning:
-> net/x25/x25_proc.c:94:26: warning: Although the value stored to 'dev' is
-> used in the enclosing expression, the value is never actually read
-> from 'dev' [deadcode.DeadStores]
-> 
-> [...]
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+ net/x25/af_x25.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Here is the summary with links:
-  - x25: remove redundant pointer dev
-    https://git.kernel.org/netdev/net-next/c/ecd17a87eb78
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 6bc2ac8d8146..3b55502b2965 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -719,6 +719,11 @@ static int x25_wait_for_connection_establishment(str=
+uct sock *sk)
+ 			sk->sk_socket->state =3D SS_UNCONNECTED;
+ 			break;
+ 		}
++		rc =3D -ENOTCONN;
++		if (sk->sk_state =3D=3D TCP_CLOSE) {
++			sk->sk_socket->state =3D SS_UNCONNECTED;
++			break;
++		}
+ 		rc =3D 0;
+ 		if (sk->sk_state !=3D TCP_ESTABLISHED) {
+ 			release_sock(sk);
+--=20
+2.20.1
 
