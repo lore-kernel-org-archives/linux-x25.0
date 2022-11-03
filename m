@@ -1,56 +1,49 @@
-From: patchwork-bot+netdevbpf@kernel.org
-Subject: Re: [PATCH net] net/x25: fix call timeouts in blocking connects
-Date: Tue, 09 Aug 2022 04:00:14 +0000
-Message-ID: <166001761447.6286.4599664715576942070.git-patchwork-notify@kernel.org>
-References: <20220805061810.10824-1-ms@dev.tdt.de>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
+Subject: [PATCH net] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
+Date: Thu, 3 Nov 2022 17:05:37 +0800
+Message-ID: <20221103090537.282969-1-shaozhengchao@huawei.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660017614;
-        bh=0uHjm+KGcXAlJ7V6LXwNtiG4SVeDoNJSDLlk7EbtmWI=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=h9pGFWPb+hUeNR7eRF3hmP03hcVneB+7HEaCkkxDhbfCeWuxgUPDoIOs9xJ8ANI6t
-         Uc0O3YbWZz9vT1PzadqJCQZp4UG3qu+iqHI3mCDLigXh+nIOa9ZlsUBzeWn2gIqDjz
-         CrZ/qsd28oJGfzAZJNv+MuxS6xvauIeTtLM7AJHjSBfykx8JSudfZiXP8sSCKW5bQW
-         f6pbwKZOhPWd2GlleTMcR9fwKx4CW//+/PocSzinSIkyi5TBuFcxLQlvSZcyaxfJVL
-         cvkDJ5uCKKFBgzzLT791fOpp3hDG/qiAOBWCTA8PbrO3jGXltAOqu9YeescmAv6prH
-         P5LEv0PVhg4KQ==
-In-Reply-To: <20220805061810.10824-1-ms@dev.tdt.de>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, linux-x25@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: linux-x25@vger.kernel.org, netdev@vger.kernel.org, ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: weiyongjun1@huawei.com, yuehaibing@huawei.com, shaozhengchao@huawei.com
 
-Hello:
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, lapbeth_device_event() receives the
+message and creates a new lapbeth device. In this case, the reference
+count value of dev is hold once. But after "ifenslave -f bond2 rose1"
+command is executed, the type of the bond device is changed to rose. When
+the bond device is unregistered, lapbeth_device_event() will not put the
+dev reference count.
 
-On Fri,  5 Aug 2022 08:18:10 +0200 you wrote:
-> When a userspace application starts a blocking connect(), a CALL REQUEST
-> is sent, the t21 timer is started and the connect is waiting in
-> x25_wait_for_connection_establishment(). If then for some reason the t21
-> timer expires before any reaction on the assigned logical channel (e.g.
-> CALL ACCEPT, CLEAR REQUEST), there is sent a CLEAR REQUEST and timer
-> t23 is started waiting for a CLEAR confirmation. If we now receive a
-> CLEAR CONFIRMATION from the peer, x25_disconnect() is called in
-> x25_state2_machine() with reason "0", which means "normal" call
-> clearing. This is ok, but the parameter "reason" is used as sk->sk_err
-> in x25_disconnect() and sock_error(sk) is evaluated in
-> x25_wait_for_connection_establishment() to check if the call is still
-> pending. As "0" is not rated as an error, the connect will stuck here
-> forever.
-> 
-> [...]
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+---
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Here is the summary with links:
-  - [net] net/x25: fix call timeouts in blocking connects
-    https://git.kernel.org/netdev/net/c/944e594cfa84
-
-You are awesome, thank you!
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 960f1393595c..cb360dca3250 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -446,7 +446,7 @@ static int lapbeth_device_event(struct notifier_block *this,
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
+ 
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
+ 		return NOTIFY_DONE;
+ 
+ 	switch (event) {
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.17.1
 
