@@ -1,17 +1,17 @@
 From: Hyunwoo Kim <v4bel@theori.io>
-Subject: [PATCH] net/x25: Fix to not accept on connected socket
-Date: Sun, 22 Jan 2023 09:09:25 -0800
-Message-ID: <20230122170925.GA98061@ubuntu>
+Subject: [PATCH v2] net/x25: Fix to not accept on connected socket
+Date: Mon, 23 Jan 2023 11:43:23 -0800
+Message-ID: <20230123194323.GA116515@ubuntu>
 Mime-Version: 1.0
 Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=theori.io; s=google;
         h=content-disposition:mime-version:message-id:subject:cc:to:from:date
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=9q3bR3q+jWpwQUPs7WwVJoC9NtlmUNwWWj9tISIL2ek=;
-        b=ATAdwDoDC7PqzkIZxzVrLoyWt+CINbQhif10ufrC4VDHtyOzZUf/K01MYx+ZlN9FF7
-         ztVrJSFVSJesS+G/Mc5Zm7fDaaDKSQJ5pUMn/MtGZ8TMdRNMTgaR5zgUpd5QmQDNxctf
-         m0q+nAk7B0GqRhpOQBc7+Owh1ktZKg7vz5QUY=
+        bh=zNk47sVvopA8jolI6ev1FyVna1awVNacTBUWQUXG894=;
+        b=Dt95o176ZUHFDD2KI5sxqakI2dsdPzkYBhx+O5Vn2QwZywfEdwe7J1Ip2/dD8yxDD7
+         Vhu2pfJS7mli+sYSbm094NZYnXUScznqDhiC8ArtxOl/uQwJRM8TVCgqLMUWnX+6BGyp
+         UmhOYvCHDPPARRSoQhltwATxFEuDjHo6wzdEs=
 Content-Disposition: inline
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -36,14 +36,14 @@ Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
  1 file changed, 6 insertions(+)
 
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 3b55502b2965..4407a625daa6 100644
+index 3b55502b2965..5c7ad301d742 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
 @@ -482,6 +482,12 @@ static int x25_listen(struct socket *sock, int backlog)
  	int rc = -EOPNOTSUPP;
  
  	lock_sock(sk);
-+	if (sock->state == SS_CONNECTED) {
++	if (sock->state != SS_UNCONNECTED) {
 +		rc = -EINVAL;
 +		release_sock(sk);
 +		return rc;
