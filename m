@@ -1,49 +1,66 @@
-From: patchwork-bot+netdevbpf@kernel.org
-Subject: Re: [PATCH v3] net/x25: Fix to not accept on connected socket
-Date: Sat, 28 Jan 2023 07:20:34 +0000
-Message-ID: <167489043455.16992.12517633627951269745.git-patchwork-notify@kernel.org>
-References: <20230125110514.GA134174@ubuntu>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 17/20] net/x25: Fix to not accept on connected socket
+Date: Tue, 31 Jan 2023 09:59:43 -0500
+Message-ID: <20230131145946.1249850-17-sashal@kernel.org>
+References: <20230131145946.1249850-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-x25-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674890434;
-        bh=MeyRTq/arodCF8K5T7IZpkPAOx4UAPBza5Pct0eGIjI=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=FDCdhCzLMvi+7ovTVkyKQFAYh5K740tEV1O/iDNCTjEN5w6tjO5fFG0pLWPx1uyby
-         vTy839buesfXbrUiRHPSSnDFn7oyPUbXsDHXenEWIMfB3i3GevzxQBYyGWUNDChJuN
-         dgcl7FyMMEVyz0kYZHecmaG2OBHdmVWR6q95P72QDQqRdm/2AnojhafuosjXKK1HaH
-         Kd/HwtTTtZi4A9yVho8adWOPmWGTvNh8fmmfVU2kTL/o08tPFC7eYziARBQr3JZtcd
-         4541dsQ2bsQSLxZEr+zKTyTzqffTdeaUegGLs2mhiyZ60u+RegdQZpNNFauIZ25VwB
-         +bNKaz9KdcGVg==
-In-Reply-To: <20230125110514.GA134174@ubuntu>
+        s=k20201202; t=1675177218;
+        bh=ck5tqw9FEbpJWj1+WLah6xnAqqZGfcEuwF/xC2J1Jhg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eu4jMPvd42+wq0Lby1ybUhzVpthIsngykDa69JWCbQ0yA+5mrZDlaVPhqA6RCRovG
+         o+Ecwnq5sQ37E+O0qGMJM+un17/o7rRFsIj7I4kGZM2E6g8Wlovh35ZU582Yel7ybw
+         pJbD0dK5gTQ6cafQqErNAA7D+9GumaPKCPcVjy8nwAYgVMcr6/2YAHjvOanNbQsf7e
+         DwR0IdVb1crPeCPa7Z9zy7Tm4rqixXskK1rGngFo49usizvz1PzhVk2i6K3tR274Fa
+         InePjKrssCr21xvxyS5oAD0dnHUecUG4OFxyMqVRSGK9vkD00E9FjrrR5VT6JfcEuV
+         YKzZfwLYX1mrQ==
+In-Reply-To: <20230131145946.1249850-1-sashal@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Hyunwoo Kim <v4bel@theori.io>
-Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, kuniyu@amazon.com, imv4bel@gmail.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Hyunwoo Kim <v4bel@theori.io>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, ms@dev.tdt.de, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org
 
-Hello:
+From: Hyunwoo Kim <v4bel@theori.io>
 
-This patch was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
+[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
 
-On Wed, 25 Jan 2023 03:05:14 -0800 you wrote:
-> If you call listen() and accept() on an already connect()ed
-> x25 socket, accept() can successfully connect.
-> This is because when the peer socket sends data to sendmsg,
-> the skb with its own sk stored in the connected socket's
-> sk->sk_receive_queue is connected, and x25_accept() dequeues
-> the skb waiting in the sk->sk_receive_queue.
-> 
-> [...]
+When listen() and accept() are called on an x25 socket
+that connect() succeeds, accept() succeeds immediately.
+This is because x25_connect() queues the skb to
+sk->sk_receive_queue, and x25_accept() dequeues it.
 
-Here is the summary with links:
-  - [v3] net/x25: Fix to not accept on connected socket
-    https://git.kernel.org/netdev/net-next/c/f2b0b5210f67
+This creates a child socket with the sk of the parent
+x25 socket, which can cause confusion.
 
-You are awesome, thank you!
+Fix x25_listen() to return -EINVAL if the socket has
+already been successfully connect()ed to avoid this issue.
+
+Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/x25/af_x25.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 3b55502b2965..5c7ad301d742 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -482,6 +482,12 @@ static int x25_listen(struct socket *sock, int backlog)
+ 	int rc = -EOPNOTSUPP;
+ 
+ 	lock_sock(sk);
++	if (sock->state != SS_UNCONNECTED) {
++		rc = -EINVAL;
++		release_sock(sk);
++		return rc;
++	}
++
+ 	if (sk->sk_state != TCP_LISTEN) {
+ 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
+ 		sk->sk_max_ack_backlog = backlog;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.39.0
 
