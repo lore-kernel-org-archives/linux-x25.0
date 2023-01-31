@@ -1,22 +1,22 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 4/4] net/x25: Fix to not accept on connected socket
-Date: Tue, 31 Jan 2023 10:01:18 -0500
-Message-ID: <20230131150118.1250409-4-sashal@kernel.org>
-References: <20230131150118.1250409-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 4/4] net/x25: Fix to not accept on connected socket
+Date: Tue, 31 Jan 2023 10:01:10 -0500
+Message-ID: <20230131150110.1250351-4-sashal@kernel.org>
+References: <20230131150110.1250351-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-x25-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177285;
-        bh=EPTn8O+W9FKdSwBQm8cf1uuYZqyWDXkvTKEHGB5MubY=;
+        s=k20201202; t=1675177277;
+        bh=6VKAMSdr/DhUSnG9Acgn9sE28QRU3PIVm0AUGcBbDjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQwLAKlo0JdHyrHikqBtKP8HqlDlitZpD0FRSoR4VurlkmQWScvdFa5OEVsUSc+Y4
-         BHzteNCUMh5kfFgYCFOx9rYCIhWDdFPadA4iedSnc0ZAuSJ/YnmWzzyL8lMSrRbt4q
-         PwQisnX2VZAF9eCdbgqEe2yFQVP3QngD0dnF4V6tpnoD/RRPEFSGwvMQzE+BB/9xaX
-         RZ+Y4DjiqWOKclvHoUGsQMV4VSN9gDL2CBp1peW6S0pe3xWMEwoa86L8367MZntHmi
-         aumkNhw4BhS/wCEyUtLWCPp3OJXRtPcLaeUXCUopj4xNrWcssNLIZuyt1uXn/C5cws
-         IUNYVqac+n8tA==
-In-Reply-To: <20230131150118.1250409-1-sashal@kernel.org>
+        b=RPL3wLafx8vRmPS6mUTMTyjAPDEVzL/0Avf1df53dYgdC4ks+jK9IPtw+4h6WYx3D
+         lBGklI7Jk8AoTpRVWBR7Qhhi1fB9w4xGvdEUL3ZdIiYjcXQB2RJ7GcZQu16sMXYzbv
+         odWqrTutiNLIo35dd6X589shem1BXSk5VQNfX/eXO1rfkZ0LpXkUl2esDs0bgRtJiT
+         ItdHl32NpOAjW1/26hwhuKkNBMnUG218/L8fAdd7iqMnd1gT6KPbvZ7h541BLLg9q9
+         S4JboLKFrKDmoiTkgnKXZiGkJQM/rUzcVlIItYNJz7pTGgTvEjF8s6a9GHO2O7e23Z
+         mYOfRqEorobQw==
+In-Reply-To: <20230131150110.1250351-1-sashal@kernel.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -45,10 +45,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 77d8adb27ec7..9d0328bb30ca 100644
+index c94aa587e0c9..43dd489ad6db 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
-@@ -497,6 +497,12 @@ static int x25_listen(struct socket *sock, int backlog)
+@@ -492,6 +492,12 @@ static int x25_listen(struct socket *sock, int backlog)
  	int rc = -EOPNOTSUPP;
  
  	lock_sock(sk);
