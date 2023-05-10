@@ -1,41 +1,49 @@
-From: Bagas Sanjaya <bagasdotme@gmail.com>
+From: patchwork-bot+netdevbpf@kernel.org
 Subject: Re: [PATCH] docs: networking: fix x25-iface.rst heading & index order
-Date: Wed, 10 May 2023 15:29:03 +0700
-Message-ID: <334e9041-5121-3dc7-9ddd-4ce33585fec6@gmail.com>
+Date: Wed, 10 May 2023 09:40:21 +0000
+Message-ID: <168371162174.29703.9835991823894241053.git-patchwork-notify@kernel.org>
 References: <20230510022914.2230-1-rdunlap@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-doc-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683707347; x=1686299347;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=z8RwRIsfRADOKmrmxPkNV2fLHwpgOdBlB311q+5skVQ=;
-        b=jEOcMdkwiWfkDoBrNqA4na8Gdr2MZN3tgMBfXMcXf010KyfCNmgKjfaOebiEpVClxJ
-         ujbM3w3bQhCMdH6HnyPlpireLhs+egi5d1aPTyne0LPbHzbhAIziblvsuCdBpHq7B/j3
-         BOK3w+nFqnN4tQXBJbDR6VvFpCRf+wEECIkI0OnkkDBOpzacpqfZA8qkIMawg3nOl+1/
-         1txIGxtAxFPKqUOWQSH+GVdTSQRC49wUczjaKcjQHrIcoBJDjrMEFDCtlIj8lhyNSQ1o
-         iXh5LBk7b7nvIh5kZICoHkjHIFAY9ApCJhj8yNBkewT/zREhY2lIrSTXeXezTce48sIi
-         VJ/g==
-Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1683711621;
+        bh=i813gVwW0eh94Hd0e9c4CgUV/9xwc/BrxxEBD+CKKdA=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=NBgL9grkPb/ZTnmxNLJb31JSvXfjPp4ctudvrekaFEBvtxWCLCP6YqU+GsqCTjd9O
+         1XvRJAYv+wSdTN1r5tLgLCK7oiHjlRpVyNFcXkvl6q7kRROhS6TtLHheVYyaZvu3Gx
+         6PFRYzYfRO5cIuAtO8TCKKXjBSYV/XeV8xItUZvfwNQAB65V96tslV+l4pP/UgPoDq
+         yMojXDyz2FbD6+1CTzBnsNWsGYAu4yJiWJFy8N1t6cv4XZIzTMzoMsl2WmXbMm04NT
+         I21opM3P420uSBoiEqa2u2Swg2F3tG928pWZeOPSqmHod1RAe92RjswM/S2e2iFyYP
+         93Y+lWJeX11GA==
 In-Reply-To: <20230510022914.2230-1-rdunlap@infradead.org>
 List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Randy Dunlap <rdunlap@infradead.org>, netdev@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: netdev@vger.kernel.org, mchehab@kernel.org, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, corbet@lwn.net, linux-doc@vger.kernel.org, ms@dev.tdt.de, linux-x25@vger.kernel.org
 
-On 5/10/23 09:29, Randy Dunlap wrote:
-> -============================-
->  X.25 Device Driver Interface
-> -============================-
-> +============================
->  
+Hello:
 
-LGTM, thanks!
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
+On Tue,  9 May 2023 19:29:14 -0700 you wrote:
+> Fix the chapter heading for "X.25 Device Driver Interface" so that it
+> does not contain a trailing '-' character, which makes Sphinx
+> omit this heading from the contents.
+> 
+> Reverse the order of the x25.rst and x25-iface.rst files in the index
+> so that the project introduction (x25.rst) comes first.
+> 
+> [...]
 
+Here is the summary with links:
+  - docs: networking: fix x25-iface.rst heading & index order
+    https://git.kernel.org/netdev/net/c/77c964dad99a
+
+You are awesome, thank you!
 -- 
-An old man doll... just what I always wanted! - Clara
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
