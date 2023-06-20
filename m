@@ -1,74 +1,169 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next v2 17/17] net: Kill MSG_SENDPAGE_NOTLAST
-Date: Tue, 20 Jun 2023 08:59:18 -0400
-Message-ID: <6491a2a6f1488_3bcfec294d7@willemb.c.googlers.com.notmuch>
-References: <648f36d02fe6e_33cfbc2944f@willemb.c.googlers.com.notmuch>
- <20230617121146.716077-1-dhowells@redhat.com>
- <20230617121146.716077-18-dhowells@redhat.com>
- <784658.1687176327@warthog.procyon.org.uk>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH net-next v3 18/18] net: Kill MSG_SENDPAGE_NOTLAST
+Date: Tue, 20 Jun 2023 15:53:37 +0100
+Message-ID: <20230620145338.1300897-19-dhowells@redhat.com>
+References: <20230620145338.1300897-1-dhowells@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687265960; x=1689857960;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4RvNVFujZzQ9FH/nRDQhxgK8HOnuVe0ilksjI7/FigQ=;
-        b=V7CBqsvwa7HO9941Gx9rU48fbSNnkTARJq3hU0s4FJKqNq7uyQJvuWMi48BFYirjd9
-         Z+CSYTenkWtjPExrbuK55Lr4LajYIvMVcZS1i2H4hkmnnVf92/3eU5+256AdSIU7TTh1
-         xwVepNxy0+wSCXEIn2FLnq5fwolgWObqyrXGJD4a4dArZIDrRTCCQbOXeliLMdRNukOE
-         bfBqEL3D5v18ty2Fda4DTUDINVko/+/f9bRuKWlc9As/MXSXKCsqRSAvjLHgGSN+PYBz
-         OhKP930iRzIK8HICV0ZdtEG/GKM89Wb5av0m6K808diQPwrVMMP/ZUSrK2PjzRbzzuKs
-         Xiqw==
-In-Reply-To: <784658.1687176327@warthog.procyon.org.uk>
-List-ID: <linux-x25.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: dhowells@redhat.com, netdev@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, David Ahern <dsahern@kernel.org>, Matthew Wilcox <willy@infradead.org>, Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, dccp@vger.kernel.org, linux-afs@lists.infradead.org, linux-arm-msm@vger.kernel.org, linux-can@vger.kernel.org, linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org, linux-hams@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-rdma@vger.kernel.org, linux-sctp@vger.kernel.org, linux-wpan@vger.kernel.org, linux-x25@vger.kernel.org, mptcp@lists.linux.de
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 520D841701
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C2291402F4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 743BC401F3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 45EB94015E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687273090;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=096kfvQCNbO3jjvPJlb61wpL4gpNse4m8jbz5dQcH+U=;
+ b=G3DILaIjYHb+Tnc5Pca2c9IlkoHV8B1zEu8QpK4LfclT2xdQPXqm6hdGjz5/GmSibD2HbD
+ Cj5GDXG/eecoNv6SIOBebvbJk6T1JrsDXo3P51VgWtySfFRNJlTcNdEHnF3+tIF1Nntx9C
+ 9TvgL6NI4HtEzL6gvpoiORQA79lXOII=
+In-Reply-To: <20230620145338.1300897-1-dhowells@redhat.com>
+List-Id: <linux-x25.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: netdev@vger.kernel.org
+Cc: linux-doc@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, Eric Dumazet <edumazet@google.com>, linux-afs@lists.infradead.org, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-arm-msm@vger.kernel.org, rds-devel@oss.oracle.com, linux-can@vger.kernel.org, linux-hams@vger.kernel.org, mptcp@lists.linux.dev, Jens Axboe <axboe@kernel.dk>, David Ahern <dsahern@kernel.org>, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org
 
-David Howells wrote:
-> Willem de Bruijn <willemdebruijn.kernel@gmail.com> wrote:
-> 
-> > Is it intentional to add MSG_MORE here in this patch?
-> > 
-> > I do see that patch 3 removes this branch:
-> 
-> Yeah.  I think I may have tcp_bpf a bit wrong with regard to handling
-> MSG_MORE.
-> 
-> How about the attached version of tcp_bpf_push()?
-> 
-> I wonder if it's save to move the setting of MSG_SENDPAGE_NOPOLICY out of the
-> loop as I've done here.  The caller holds the socket lock.
-> 
-> Also, I'm not sure whether to take account of apply/apply_bytes when setting
-> MSG_MORE mid-message, or whether to just go on whether we've reached
-> sge->length yet.  (I'm not sure exactly how tcp_bpf works).
+Now that ->sendpage() has been removed, MSG_SENDPAGE_NOTLAST can be cleaned
+up.  Things were converted to use MSG_MORE instead, but the protocol
+sendpage stubs still convert MSG_SENDPAGE_NOTLAST to MSG_MORE, which is now
+unnecessary.
 
-I'm not very familiar with it either.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: bpf@vger.kernel.org
+cc: dccp@vger.kernel.org
+cc: linux-afs@lists.infradead.org
+cc: linux-arm-msm@vger.kernel.org
+cc: linux-can@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: linux-doc@vger.kernel.org
+cc: linux-hams@vger.kernel.org
+cc: linux-perf-users@vger.kernel.org
+cc: linux-rdma@vger.kernel.org
+cc: linux-sctp@vger.kernel.org
+cc: linux-wpan@vger.kernel.org
+cc: linux-x25@vger.kernel.org
+cc: mptcp@lists.linux.dev
+cc: netdev@vger.kernel.org
+cc: rds-devel@oss.oracle.com
+cc: tipc-discussion@lists.sourceforge.net
+cc: virtualization@lists.linux-foundation.org
+---
 
-Instead of inferring whether MSG_MORE is safe to set, as below, sufficient to
-rely on the caller to pass it when appropriate?
+Notes:
+    ver #3)
+     - tcp_bpf is now handled by an earlier patch.
 
-size = min(apply_bytes, sge->length). I doubt that size < apply_bytes is
-ever intended.
+ include/linux/socket.h                         | 4 +---
+ net/tls/tls_device.c                           | 3 +--
+ net/tls/tls_main.c                             | 2 +-
+ net/tls/tls_sw.c                               | 2 +-
+ tools/perf/trace/beauty/include/linux/socket.h | 1 -
+ tools/perf/trace/beauty/msg_flags.c            | 3 ---
+ 6 files changed, 4 insertions(+), 11 deletions(-)
 
-And instead of this former branch
-
-                if (flags & MSG_SENDPAGE_NOTLAST)
-                        msghdr.msg_flags |= MSG_MORE;
-
-update any caller to pass MSG_MORE instead of MSG_SENDPAGE_NOTLAST, if not yet
-done so.
-
-> 		msghdr.msg_flags = flags;
-> 
-> 		/* Determine if we need to set MSG_MORE. */
-> 		if (!(msghdr.msg_flags & MSG_MORE)) {
-> 			if (apply && size < apply_bytes)
-> 				msghdr.msg_flags |= MSG_MORE;
-> 			else if (!apply && size < sge->length &&
-> 				 msg->sg.start != msg->sg.end)
-> 				msghdr.msg_flags |= MSG_MORE;
-> 		}
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 58204700018a..39b74d83c7c4 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -319,7 +319,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+@@ -341,8 +340,7 @@ struct ucred {
+ 
+ /* Flags to be cleared on entry by sendmsg and sendmmsg syscalls */
+ #define MSG_INTERNAL_SENDMSG_FLAGS \
+-	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_NOTLAST | \
+-	 MSG_SENDPAGE_DECRYPTED)
++	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_DECRYPTED)
+ 
+ /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
+ #define SOL_IP		0
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 840ee06f1708..2021fe557e50 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -441,8 +441,7 @@ static int tls_push_data(struct sock *sk,
+ 	long timeo;
+ 
+ 	if (flags &
+-	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SENDPAGE_NOTLAST |
+-	      MSG_SPLICE_PAGES))
++	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SPLICE_PAGES))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (unlikely(sk->sk_err))
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index d5ed4d47b16e..b6896126bb92 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -127,7 +127,7 @@ int tls_push_sg(struct sock *sk,
+ {
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = MSG_SENDPAGE_NOTLAST | MSG_SPLICE_PAGES | flags,
++		.msg_flags = MSG_SPLICE_PAGES | flags,
+ 	};
+ 	int ret = 0;
+ 	struct page *p;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 9b3aa89a4292..53f944e6d8ef 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1194,7 +1194,7 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL |
+ 			       MSG_CMSG_COMPAT | MSG_SPLICE_PAGES |
+-			       MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
++			       MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+ 	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
+diff --git a/tools/perf/trace/beauty/include/linux/socket.h b/tools/perf/trace/beauty/include/linux/socket.h
+index 13c3a237b9c9..3bef212a24d7 100644
+--- a/tools/perf/trace/beauty/include/linux/socket.h
++++ b/tools/perf/trace/beauty/include/linux/socket.h
+@@ -318,7 +318,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+diff --git a/tools/perf/trace/beauty/msg_flags.c b/tools/perf/trace/beauty/msg_flags.c
+index ea68db08b8e7..b5b580e5a77e 100644
+--- a/tools/perf/trace/beauty/msg_flags.c
++++ b/tools/perf/trace/beauty/msg_flags.c
+@@ -8,9 +8,6 @@
+ #ifndef MSG_WAITFORONE
+ #define MSG_WAITFORONE		   0x10000
+ #endif
+-#ifndef MSG_SENDPAGE_NOTLAST
+-#define MSG_SENDPAGE_NOTLAST	   0x20000
+-#endif
+ #ifndef MSG_FASTOPEN
+ #define MSG_FASTOPEN		0x20000000
+ #endif
