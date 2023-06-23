@@ -1,234 +1,178 @@
-From: Joel Granados <j.granados@samsung.com>
-Subject: Re: [PATCH 09/11] sysctl: Remove the end
- element in sysctl table arrays
-Date: Wed, 21 Jun 2023 15:43:48 +0200
-Message-ID: <20230621134348.rcdzl7fi7yq2uj6h@localhost>
-References: <20230621091000.424843-1-j.granados@samsung.com>
- <CGME20230621094824eucas1p2b6adfbd3f15ff3665674917f419b25d3@eucas1p2.samsung.com>
- <20230621094817.433842-1-j.granados@samsung.com> <87o7l92hg8.fsf@intel.com>
- <20230621130614.s36w4u7dzmb5d5p3@localhost> <878rcd2by5.fsf@intel.com>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH net-next v4 15/15] net: Kill MSG_SENDPAGE_NOTLAST
+Date: Fri, 23 Jun 2023 12:44:25 +0100
+Message-ID: <20230623114425.2150536-16-dhowells@redhat.com>
+References: <20230623114425.2150536-1-dhowells@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1903914140375033651=="
-Return-path: <openipmi-developer-bounces@lists.sourceforge.net>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=sourceforge.net; s=x; h=References:In-Reply-To:Content-Type:MIME-Version:
- Message-ID:Subject:CC:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:
- Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
- Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
- List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=SetH/myydi6dk+ldkx72EVQztsegim0VSf5FSMMJW28=; b=WblWLZiNAWpKf9FPCqwi5bMnBT
- /o68FUkhHUXrZDblDzHQswOXGhn9IQY2sYgUO1m3FDLFn5mhv8YusBhSVprXaCVE7buDIm7AU0j3x
- 8VJEI1TAHaVhIgc+Xpq8BHP1g2J9Bpnlby1OF/G4YELH68VLLl/QLDO9C6sPyOKI5Q2w=;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sf.net; s=x
- ;
- h=References:In-Reply-To:Content-Type:MIME-Version:Message-ID:Subject:CC:To
- :From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=SetH/myydi6dk+ldkx72EVQztsegim0VSf5FSMMJW28=; b=haswjyJTMFtVPMTGayxuNW+x0O
- xDTi6ukfWWXJUPY5AFb2kuiGpf3hOrYTDNmUZyoWKdP1xaSTx2Yun96kMnsy/GwxQseezV4B4sfWS
- VVKiYjjIb5k5BNGGhKA3EUC6YlapuQG4rfj4EUrqXCZ9oy1ImOpHMIBa1wKC94mYvUts=;
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com
- 20230621134353euoutp02d57583f1260e1c228507969bf2dd64df~qsHaHGgl22310523105euoutp02y
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
- s=mail20170921; t=1687355033;
- bh=SetH/myydi6dk+ldkx72EVQztsegim0VSf5FSMMJW28=;
- h=Date:From:To:CC:Subject:In-Reply-To:References:From;
- b=PTZBv1Kz5BEVObNa7leJ/yxGfQakTivesF5jb6tBj4a7mw0z2DwCV8KG/lz6Htp2A
- zjthU/P8T1sIWZ42nVHC5ArvGqiQK48scKj0Re/P/DwFQFC0M/FPQnfLTFYC/Ucswv
- L2oK3I/5AOGeZQ+wBCu+TIiCshDxA9TJNwfHFkfQ=
-In-Reply-To: <878rcd2by5.fsf@intel.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D6A2404F8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B74754035D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 411304035D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3D19400FE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687520729;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=xQVg0pnXVfTxPUpA8yd29SmocczyZN6S+xS0BIA8ljI=;
+ b=VdG8ckHvYVwC2JEh+I5lL61ZpOyYQ8bfsuZouP5H5UQViHN/l/5PZaCzXBpAvtHyeRarU8
+ H83PjEcKOGlU/MZTmDncsR7xb5/s1O8Xsg3Ob7+A+CWztyd/Woqd298rNqZF5Y/Y/xzjWH
+ pa2+tu3tp5VYxh7rKMTp3xaVpu2tfG0=
+In-Reply-To: <20230623114425.2150536-1-dhowells@redhat.com>
 List-Id: <linux-x25.vger.kernel.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/options/openipmi-developer>, 
- <mailto:openipmi-developer-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=openipmi-developer>
-List-Post: <mailto:openipmi-developer@lists.sourceforge.net>
-List-Help: <mailto:openipmi-developer-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/openipmi-developer>, 
- <mailto:openipmi-developer-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: openipmi-developer-bounces@lists.sourceforge.net
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Miaohe Lin <linmiaohe@huawei.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-sctp@vger.kernel.org, ocfs2-devel@oss.oracle.com, Miquel Raynal <miquel.raynal@bootlin.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Wei Liu <wei.liu@kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, Michael Ellerman <mpe@ellerman.id.au>, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Jozsef Kadlecsik <kadlec@netfilter.org>, Eric Biggers <ebiggers@kernel.org>, linux-cachefs@redhat.com, Mel Gorman <mgorman@suse.de>, "Darrick J.
- Wong" <djwong@kernel.org>, Waiman Long <longman@redhat.co>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: netdev@vger.kernel.org
+Cc: linux-doc@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, Eric Dumazet <edumazet@google.com>, linux-afs@lists.infradead.org, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-arm-msm@vger.kernel.org, rds-devel@oss.oracle.com, linux-can@vger.kernel.org, linux-hams@vger.kernel.org, mptcp@lists.linux.dev, Jens Axboe <axboe@kernel.dk>, David Ahern <dsahern@kernel.org>, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org
 
---===============1903914140375033651==
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="nwcq3i6cyedok5cv"
-Content-Disposition: inline
+Now that ->sendpage() has been removed, MSG_SENDPAGE_NOTLAST can be cleaned
+up.  Things were converted to use MSG_MORE instead, but the protocol
+sendpage stubs still convert MSG_SENDPAGE_NOTLAST to MSG_MORE, which is now
+unnecessary.
 
---nwcq3i6cyedok5cv
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: bpf@vger.kernel.org
+cc: dccp@vger.kernel.org
+cc: linux-afs@lists.infradead.org
+cc: linux-arm-msm@vger.kernel.org
+cc: linux-can@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: linux-doc@vger.kernel.org
+cc: linux-hams@vger.kernel.org
+cc: linux-perf-users@vger.kernel.org
+cc: linux-rdma@vger.kernel.org
+cc: linux-sctp@vger.kernel.org
+cc: linux-wpan@vger.kernel.org
+cc: linux-x25@vger.kernel.org
+cc: mptcp@lists.linux.dev
+cc: netdev@vger.kernel.org
+cc: rds-devel@oss.oracle.com
+cc: tipc-discussion@lists.sourceforge.net
+cc: virtualization@lists.linux-foundation.org
+---
 
-On Wed, Jun 21, 2023 at 04:15:46PM +0300, Jani Nikula wrote:
-> On Wed, 21 Jun 2023, Joel Granados <j.granados@samsung.com> wrote:
-> > On Wed, Jun 21, 2023 at 02:16:55PM +0300, Jani Nikula wrote:
-> >> On Wed, 21 Jun 2023, Joel Granados <j.granados@samsung.com> wrote:
-> >> > Remove the empty end element from all the arrays that are passed to =
-the
-> >> > register sysctl calls. In some files this means reducing the explicit
-> >> > array size by one. Also make sure that we are using the size in
-> >> > ctl_table_header instead of evaluating the .procname element.
-> >>=20
-> >> Where's the harm in removing the end elements driver by driver? This is
-> >> an unwieldy patch to handle.
-> >
-> > I totally agree. Its a big one!!! but I'm concerned of breaking bisecti=
-bility:
-> > * I could for example separate all the removes into separate commits and
-> >   then have a final commit that removes the check for the empty element.
-> >   But this will leave the tree in a state where the for loop will have
-> >   undefined behavior when it looks for the empty end element. It might
-> >   or might not work (probably not :) until the final commit where I fix
-> >   that.
-> >
-> > * I could also change the logic that looks for the final element,
-> >   commit that first and then remove the empty element one commit per
-> >   driver after that. But then for all the arrays that still have an
-> >   empty element, there would again be undefined behavior as it would
-> >   think that the last element is valid (when it is really the sentinel).
-> >
-> > Any ideas on how to get around these?
->=20
-> First add size to the register calls, and allow the last one to be
-> sentinel but do not require the sentinel.
->=20
-> Start removing sentinels, adjusting the size passed in.
-This is a great idea! and I think I don't even have to adjust the size
-because if I change the logic to stop on the sentinel or the size; so when
-the sentinel is there, it will stop before the size. And when the
-sentinel is not there, it will stop on the correct size.
+Notes:
+    ver #3)
+     - tcp_bpf is now handled by an earlier patch.
 
-There might be issues with indirection calls. And there might also be
-lots of places where I need to adjust a for loop (as dan has pointed
-out) but its worth a try for V2.
+ include/linux/socket.h                         | 4 +---
+ net/tls/tls_device.c                           | 3 +--
+ net/tls/tls_main.c                             | 2 +-
+ net/tls/tls_sw.c                               | 2 +-
+ tools/perf/trace/beauty/include/linux/socket.h | 1 -
+ tools/perf/trace/beauty/msg_flags.c            | 5 +----
+ 6 files changed, 5 insertions(+), 12 deletions(-)
 
-Best
->=20
-> Once enough sentinels have been removed, add warning if the final entry
-> is a sentinel.
->=20
-> Never really remove the check? (But surely you can rework the logic to
-> not count the number of elements up front, only while iterating.)
->=20
->=20
-> BR,
-> Jani.
->=20
-> >>=20
-> >> > diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915=
-/i915_perf.c
-> >> > index f43950219ffc..e4d7372afb10 100644
-> >> > --- a/drivers/gpu/drm/i915/i915_perf.c
-> >> > +++ b/drivers/gpu/drm/i915/i915_perf.c
-> >> > @@ -4884,24 +4884,23 @@ int i915_perf_remove_config_ioctl(struct drm=
-_device *dev, void *data,
-> >> > =20
-> >> >  static struct ctl_table oa_table[] =3D {
-> >> >  	{
-> >> > -	 .procname =3D "perf_stream_paranoid",
-> >> > -	 .data =3D &i915_perf_stream_paranoid,
-> >> > -	 .maxlen =3D sizeof(i915_perf_stream_paranoid),
-> >> > -	 .mode =3D 0644,
-> >> > -	 .proc_handler =3D proc_dointvec_minmax,
-> >> > -	 .extra1 =3D SYSCTL_ZERO,
-> >> > -	 .extra2 =3D SYSCTL_ONE,
-> >> > -	 },
-> >> > +		.procname =3D "perf_stream_paranoid",
-> >> > +		.data =3D &i915_perf_stream_paranoid,
-> >> > +		.maxlen =3D sizeof(i915_perf_stream_paranoid),
-> >> > +		.mode =3D 0644,
-> >> > +		.proc_handler =3D proc_dointvec_minmax,
-> >> > +		.extra1 =3D SYSCTL_ZERO,
-> >> > +		.extra2 =3D SYSCTL_ONE,
-> >> > +	},
-> >> >  	{
-> >> > -	 .procname =3D "oa_max_sample_rate",
-> >> > -	 .data =3D &i915_oa_max_sample_rate,
-> >> > -	 .maxlen =3D sizeof(i915_oa_max_sample_rate),
-> >> > -	 .mode =3D 0644,
-> >> > -	 .proc_handler =3D proc_dointvec_minmax,
-> >> > -	 .extra1 =3D SYSCTL_ZERO,
-> >> > -	 .extra2 =3D &oa_sample_rate_hard_limit,
-> >> > -	 },
-> >> > -	{}
-> >> > +		.procname =3D "oa_max_sample_rate",
-> >> > +		.data =3D &i915_oa_max_sample_rate,
-> >> > +		.maxlen =3D sizeof(i915_oa_max_sample_rate),
-> >> > +		.mode =3D 0644,
-> >> > +		.proc_handler =3D proc_dointvec_minmax,
-> >> > +		.extra1 =3D SYSCTL_ZERO,
-> >> > +		.extra2 =3D &oa_sample_rate_hard_limit,
-> >> > +	}
-> >> >  };
-> >>=20
-> >> The existing indentation is off, but fixing it doesn't really belong in
-> >> this patch.
-> >
-> > Agreed. But I actually was trying to fix something that checkpatch
-> > flagged. I'll change these back (which will cause this patch to be
-> > flagged).
-> >
-> > An alternative solution would be to fix the indentation as part of the
-> > preparation patches. Tell me what you think.
-> >
-> > Thx
-> >
-> >>=20
-> >> BR,
-> >> Jani.
-> >>=20
-> >>=20
-> >> --=20
-> >> Jani Nikula, Intel Open Source Graphics Center
->=20
-> --=20
-> Jani Nikula, Intel Open Source Graphics Center
-
---=20
-
-Joel Granados
-
---nwcq3i6cyedok5cv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmSS/pIACgkQupfNUreW
-QU8FZgv+NJjIGObr29DU3w9gC84AcnW6dJTp9wHS00NxSXpo+c714JQ2xV0z8i/m
-wZbyBR21D/CkjJCTL0pwjCh1xi+PdMHmpB9mDlQSxEg6i+fJXBb7GvWvkOfNagP8
-Z2t/NzP/RPP+/BjBP3QOGNyQWgZ4Jl6lMvzlt0aJlHMx7/QD7PRgnNN3KYiFzB+I
-FTf5QLbTT85TSPPoGBQCzF6Ych5vKNmIzRZxD2o1zPJFftGIcYOfYOC7vX/1tuOa
-1l2+maHSi22uTAHFL3XKvcQBxuLeBCoAIgYOGeO0B+wApLgDVUdHb3PPMw74sOuD
-RtgKG6gEgO937g+zKo5xP6M5iLH8xYavJRYPNGH5FBfL7DDROXI6t9tjBpvpUbPS
-VQDducT3r8p7hbIhb+3MnRgJri1yF7SjRZF6iewJ9G3Rd7o8PlcLC3aTZLvilO9j
-4YYKID1bOqsI9tcLY5oeM6HROqdmLhzFQQlzZCCz4Y/1XVO7ZKpJHP97wqBETkbq
-DRVhBHDj
-=lxdq
------END PGP SIGNATURE-----
-
---nwcq3i6cyedok5cv--
-
-
---===============1903914140375033651==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
---===============1903914140375033651==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Openipmi-developer mailing list
-Openipmi-developer@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/openipmi-developer
-
---===============1903914140375033651==--
-
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 58204700018a..39b74d83c7c4 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -319,7 +319,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+@@ -341,8 +340,7 @@ struct ucred {
+ 
+ /* Flags to be cleared on entry by sendmsg and sendmmsg syscalls */
+ #define MSG_INTERNAL_SENDMSG_FLAGS \
+-	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_NOTLAST | \
+-	 MSG_SENDPAGE_DECRYPTED)
++	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_DECRYPTED)
+ 
+ /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
+ #define SOL_IP		0
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 840ee06f1708..2021fe557e50 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -441,8 +441,7 @@ static int tls_push_data(struct sock *sk,
+ 	long timeo;
+ 
+ 	if (flags &
+-	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SENDPAGE_NOTLAST |
+-	      MSG_SPLICE_PAGES))
++	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SPLICE_PAGES))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (unlikely(sk->sk_err))
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index d5ed4d47b16e..b6896126bb92 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -127,7 +127,7 @@ int tls_push_sg(struct sock *sk,
+ {
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = MSG_SENDPAGE_NOTLAST | MSG_SPLICE_PAGES | flags,
++		.msg_flags = MSG_SPLICE_PAGES | flags,
+ 	};
+ 	int ret = 0;
+ 	struct page *p;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 9b3aa89a4292..53f944e6d8ef 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1194,7 +1194,7 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL |
+ 			       MSG_CMSG_COMPAT | MSG_SPLICE_PAGES |
+-			       MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
++			       MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+ 	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
+diff --git a/tools/perf/trace/beauty/include/linux/socket.h b/tools/perf/trace/beauty/include/linux/socket.h
+index 13c3a237b9c9..3bef212a24d7 100644
+--- a/tools/perf/trace/beauty/include/linux/socket.h
++++ b/tools/perf/trace/beauty/include/linux/socket.h
+@@ -318,7 +318,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+diff --git a/tools/perf/trace/beauty/msg_flags.c b/tools/perf/trace/beauty/msg_flags.c
+index ea68db08b8e7..5cdebd7ece7e 100644
+--- a/tools/perf/trace/beauty/msg_flags.c
++++ b/tools/perf/trace/beauty/msg_flags.c
+@@ -8,9 +8,6 @@
+ #ifndef MSG_WAITFORONE
+ #define MSG_WAITFORONE		   0x10000
+ #endif
+-#ifndef MSG_SENDPAGE_NOTLAST
+-#define MSG_SENDPAGE_NOTLAST	   0x20000
+-#endif
+ #ifndef MSG_FASTOPEN
+ #define MSG_FASTOPEN		0x20000000
+ #endif
+@@ -50,7 +47,7 @@ static size_t syscall_arg__scnprintf_msg_flags(char *bf, size_t size,
+ 	P_MSG_FLAG(NOSIGNAL);
+ 	P_MSG_FLAG(MORE);
+ 	P_MSG_FLAG(WAITFORONE);
+-	P_MSG_FLAG(SENDPAGE_NOTLAST);
++	P_MSG_FLAG(SPLICE_PAGES);
+ 	P_MSG_FLAG(FASTOPEN);
+ 	P_MSG_FLAG(CMSG_CLOEXEC);
+ #undef P_MSG_FLAG
