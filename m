@@ -1,52 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=venturelinkbiz.com header.i=@venturelinkbiz.com header.b="imNtfXVA"
-Received: from mail.venturelinkbiz.com (mail.venturelinkbiz.com [51.195.119.142])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7313126
-	for <linux-x25@vger.kernel.org>; Thu,  7 Dec 2023 00:50:34 -0800 (PST)
-Received: by mail.venturelinkbiz.com (Postfix, from userid 1002)
-	id 8813B471EE; Thu,  7 Dec 2023 08:50:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=venturelinkbiz.com;
-	s=mail; t=1701939032;
-	bh=Mjfq+hZZ0+rPTC06HjjASvlnsTMgj1yAndWxi/OAu2M=;
-	h=Date:From:To:Subject:From;
-	b=imNtfXVA+luVacXu4qx1pwwVvVgvPKOVoN8V6E5fZjI1+u4U2UXfo3VQX112QJRyp
-	 245PsravjRr9UBO4xkCTA2eI63M8wyqPfI5BYUoTOU38BRcyqSBb3yhhXxvkKgQqpN
-	 MZwtQJGaG0MJZ3PP69lbJ19Q0e4Dt7MsBGF1OJn7E7JyklWc+hOSCxWbYgSnZKfu9D
-	 qANrlIh29CppWHEBN3J6fGppmRBcCh6Mz4e+M2h++M776eZ66mQWh0ecJNitCKmo93
-	 fYZ9GYgYy8q69bqf6tCpLmU2pbSAO9yCGBD1dOn+49dB/QrVy9ZMP7XuaojM6P7khR
-	 HXwVBRRLC7bQQ==
-Received: by mail.venturelinkbiz.com for <linux-x25@vger.kernel.org>; Thu,  7 Dec 2023 08:50:26 GMT
-Message-ID: <20231207074500-0.1.41.bzti.0.118ge9hdb8@venturelinkbiz.com>
-Date: Thu,  7 Dec 2023 08:50:26 GMT
-From: "Michal Rmoutil" <michal.rmoutil@venturelinkbiz.com>
-To: <linux-x25@vger.kernel.org>
-Subject: =?UTF-8?Q?Bezplatn=C3=A1_60denn=C3=AD_zku=C5=A1ebn=C3=AD_verze:_Vylep=C5=A1ete_sv=C3=A9_v=C3=BDrobn=C3=AD_procesy?=
-X-Mailer: mail.venturelinkbiz.com
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B9DCD2F0
+	for <linux-x25@vger.kernel.org>; Sun, 25 Feb 2024 07:28:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.197
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708846085; cv=none; b=uVnDnOW14eyVkJmgS/KM8XHFVpnldcC10uyvqaoo9d35TT0snv2RKImWMSsJI9UxBSj5W7Q80aaxwevtg81TBZmgwoiKGrRQ5cv9T3ZX935V18Wq1hAj+UaFf9KDDQiQoeYWXfjZL3Q9jjk8Zo5OaXh9v6YvLC//Vk+KTZHNLvU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708846085; c=relaxed/simple;
+	bh=unoUZHnNLWo85kVwRNGfukzNpxB9UQvc6x3BLRWDZdI=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=hX2I3fP2pUB7exXtahiEjnjUx2uXvrjXFuwTFvuBYphSLzJ/T18aOtgZC/umKeDBcuajG9nzmB/84qoUad8SO7OOcruJ0A7+qjwXntbr23wdvnTq9XuAr/GLQXpuC/U5B2dGDtTpFUwnQC11O7mrnwDvFlSCgFAXB+n3pJ2uT8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3657dff68d6so23144545ab.0
+        for <linux-x25@vger.kernel.org>; Sat, 24 Feb 2024 23:28:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708846083; x=1709450883;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TzsFQMYU8YtNGOBZjM6fd0mO1h4UtTBUtieIA5+iT0w=;
+        b=eQ57MkS6GBBwRUs8ASvcB4Sdmfr7/zyI7guaYXM6P80llmyFMO2VpRqHt+a/5SVNe3
+         yDePO4/KQV/Q63g3GKLjJE6ZVUGK37zdU9bIPyldyNL5zO7eoa2v+rhC3R+mO5Bq1qsf
+         UZDCjMW3Gq2WHTN6tIbtrvwnnduWW6eTk7GA1nnltdbxDdbTlmTD5+q9MODGXEbDYUn4
+         7VFMCpCa3mF8PQAR9LzHtGzLVhfXGmi+d/2CllzaDm5aUsil2EuBnZacV8DCfM+Eho7R
+         5YArqXf2S7SJnl9dZDRvpop6n40Tlg3LxYt6kuRo9XYTbC6i8wwSkIPAptRsPYh8NQyk
+         BXFw==
+X-Forwarded-Encrypted: i=1; AJvYcCU0MBZ6lY09COEHo7vC3PlnzAotS4TISz9kKg0Ger/TYnVdUi9gTkocwlOXY4o4FuwugPQ/GVQ3jJm/PwLx9psQHTCfOW/me+HK
+X-Gm-Message-State: AOJu0YwTysD+2jxoA3qVoZpkdaXTXcAJ9ts8x3m055vRHu/auwJcUmkc
+	nOAPaOPemuZCidl8NSyLKHgH90WQDTzmoGaZF5W1WxjOWqL8ytDyNK/QACJjjqSGBrQMiIgTbgg
+	Dp2SDyvql5P1QQeyZx7QpuYois7m19dpcqZWfcDwRSUInsRWI6ZS56Ds=
+X-Google-Smtp-Source: AGHT+IHMzsSTbqyGkWMdz6rESKzE7k0hvpJkoDrMjtx+4rAEl5iPtoYZeEnv9sgMQieN4CN0vwu7qeu/Lc7SMTpoBQs9YEgIvxul
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Received: by 2002:a05:6e02:1d0a:b0:365:4d61:fe6 with SMTP id
+ i10-20020a056e021d0a00b003654d610fe6mr251453ila.1.1708846082942; Sat, 24 Feb
+ 2024 23:28:02 -0800 (PST)
+Date: Sat, 24 Feb 2024 23:28:02 -0800
+In-Reply-To: <0000000000006c9d500608b2c62b@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000bfed0206122fbb7c@google.com>
+Subject: Re: [syzbot] [x25?] [reiserfs?] general protection fault in lapbeth_data_transmit
+From: syzbot <syzbot+6062afbf92a14f75d88b@syzkaller.appspotmail.com>
+To: axboe@kernel.dk, brauner@kernel.org, davem@davemloft.net, 
+	edumazet@google.com, jack@suse.cz, kuba@kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, 
+	pabeni@redhat.com, reiserfs-devel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Dobr=C3=A9 r=C3=A1no
+syzbot suspects this issue was fixed by commit:
 
-Zn=C3=A1te syst=C3=A9m, kter=C3=BD nejen hl=C3=ADd=C3=A1, ale i optimaliz=
-uje v=C3=BDrobu a p=C5=99in=C3=A1=C5=A1=C3=AD st=C3=A1l=C3=BD p=C5=99=C3=AD=
-jem?
+commit 6f861765464f43a71462d52026fbddfc858239a5
+Author: Jan Kara <jack@suse.cz>
+Date:   Wed Nov 1 17:43:10 2023 +0000
 
-D=C3=ADky nejnov=C4=9Bj=C5=A1=C3=ADm technologi=C3=ADm a anal=C3=BDze dat=
- na=C5=A1e =C5=99e=C5=A1en=C3=AD identifikuje oblasti optimalizace, zv=C3=
-=BD=C5=A1en=C3=AD efektivity a sn=C3=AD=C5=BEen=C3=AD n=C3=A1klad=C5=AF. =
-Na=C5=A1i klienti zaznamenali n=C3=A1r=C5=AFst p=C5=99=C3=ADjm=C5=AF v pr=
-=C5=AFm=C4=9Bru o 20 % a dnes si to m=C5=AF=C5=BEete vyzkou=C5=A1et na 60=
- dn=C3=AD zdarma.
+    fs: Block writes to mounted block devices
 
-Pokud chcete dal=C5=A1=C3=AD podrobnosti, odpov=C4=9Bzte pros=C3=ADm na k=
-ontaktn=C3=AD =C4=8D=C3=ADslo.
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=12dcaac4180000
+start commit:   1b29d271614a Merge tag 'staging-6.4-rc7' of git://git.kern..
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=ac246111fb601aec
+dashboard link: https://syzkaller.appspot.com/bug?extid=6062afbf92a14f75d88b
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=150a0f73280000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=107fcaff280000
 
+If the result looks correct, please mark the issue as fixed by replying with:
 
-Pozdravy
-Michal Rmoutil
+#syz fix: fs: Block writes to mounted block devices
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
