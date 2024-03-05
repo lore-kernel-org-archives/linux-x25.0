@@ -1,79 +1,120 @@
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from outgoing1.flk.host-h.net (outgoing1.flk.host-h.net [188.40.0.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B9DCD2F0
-	for <linux-x25@vger.kernel.org>; Sun, 25 Feb 2024 07:28:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB0145466D;
+	Tue,  5 Mar 2024 14:48:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.40.0.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708846085; cv=none; b=uVnDnOW14eyVkJmgS/KM8XHFVpnldcC10uyvqaoo9d35TT0snv2RKImWMSsJI9UxBSj5W7Q80aaxwevtg81TBZmgwoiKGrRQ5cv9T3ZX935V18Wq1hAj+UaFf9KDDQiQoeYWXfjZL3Q9jjk8Zo5OaXh9v6YvLC//Vk+KTZHNLvU=
+	t=1709650112; cv=none; b=QtnNqb3XskYGhgXKY3DQx1DZhjE+u9G6Br9vzHreDhyCTResqKAFoXXqnOEmhTGe4k/Ll0pZsYtSH/Wuy+wX6eEEYe328N1BIwK419c1fsQWYjLwVzx21R2IXa07b5mSo2O6x+A6UhEbZonUwXvFpftmFGvl8/jcdLvbMqgX/XI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708846085; c=relaxed/simple;
-	bh=unoUZHnNLWo85kVwRNGfukzNpxB9UQvc6x3BLRWDZdI=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=hX2I3fP2pUB7exXtahiEjnjUx2uXvrjXFuwTFvuBYphSLzJ/T18aOtgZC/umKeDBcuajG9nzmB/84qoUad8SO7OOcruJ0A7+qjwXntbr23wdvnTq9XuAr/GLQXpuC/U5B2dGDtTpFUwnQC11O7mrnwDvFlSCgFAXB+n3pJ2uT8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3657dff68d6so23144545ab.0
-        for <linux-x25@vger.kernel.org>; Sat, 24 Feb 2024 23:28:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708846083; x=1709450883;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=TzsFQMYU8YtNGOBZjM6fd0mO1h4UtTBUtieIA5+iT0w=;
-        b=eQ57MkS6GBBwRUs8ASvcB4Sdmfr7/zyI7guaYXM6P80llmyFMO2VpRqHt+a/5SVNe3
-         yDePO4/KQV/Q63g3GKLjJE6ZVUGK37zdU9bIPyldyNL5zO7eoa2v+rhC3R+mO5Bq1qsf
-         UZDCjMW3Gq2WHTN6tIbtrvwnnduWW6eTk7GA1nnltdbxDdbTlmTD5+q9MODGXEbDYUn4
-         7VFMCpCa3mF8PQAR9LzHtGzLVhfXGmi+d/2CllzaDm5aUsil2EuBnZacV8DCfM+Eho7R
-         5YArqXf2S7SJnl9dZDRvpop6n40Tlg3LxYt6kuRo9XYTbC6i8wwSkIPAptRsPYh8NQyk
-         BXFw==
-X-Forwarded-Encrypted: i=1; AJvYcCU0MBZ6lY09COEHo7vC3PlnzAotS4TISz9kKg0Ger/TYnVdUi9gTkocwlOXY4o4FuwugPQ/GVQ3jJm/PwLx9psQHTCfOW/me+HK
-X-Gm-Message-State: AOJu0YwTysD+2jxoA3qVoZpkdaXTXcAJ9ts8x3m055vRHu/auwJcUmkc
-	nOAPaOPemuZCidl8NSyLKHgH90WQDTzmoGaZF5W1WxjOWqL8ytDyNK/QACJjjqSGBrQMiIgTbgg
-	Dp2SDyvql5P1QQeyZx7QpuYois7m19dpcqZWfcDwRSUInsRWI6ZS56Ds=
-X-Google-Smtp-Source: AGHT+IHMzsSTbqyGkWMdz6rESKzE7k0hvpJkoDrMjtx+4rAEl5iPtoYZeEnv9sgMQieN4CN0vwu7qeu/Lc7SMTpoBQs9YEgIvxul
+	s=arc-20240116; t=1709650112; c=relaxed/simple;
+	bh=Z3KeHrQdpDSjg4cSnq8q0J2g7aKe+CAohyZ4YRaIpFM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hrifF6dqIMoF7duSqTpQ4EXJzxWzFfqKRPFHkKCf3u7DmIV2MHRy5/PBbl4yK75Uhd+2FX0lhwrmGrq4t2/Tcy7OlwiTYlx6qfNAMGPtCpkBa4rogrWxpvMqPGhEWorIbgbnUCxSJYR4nE7KFUQPgbqwQoAdnTMRnRiDJSrGW+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=risingedge.co.za; spf=pass smtp.mailfrom=risingedge.co.za; dkim=pass (2048-bit key) header.d=risingedge.co.za header.i=@risingedge.co.za header.b=sMf2jkiF; arc=none smtp.client-ip=188.40.0.86
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=risingedge.co.za
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=risingedge.co.za
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=risingedge.co.za header.i=@risingedge.co.za header.b="sMf2jkiF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=risingedge.co.za; s=xneelo; h=Content-Transfer-Encoding:MIME-Version:
+	Message-Id:Date:Subject:Cc:To:From:reply-to:sender:bcc:in-reply-to:references
+	:content-type; bh=Dix/pO2x7DYEXmcTYo5nW1d9BD0ZpWAC6dST2GHD2vA=; b=sMf2jkiFLDV
+	2aUBCtSm0UvGXw7xCQg9J4zkfGQvrVt5bQ2fKfJMILEcduJ4tBG0x8eoEDld9l2ruVSZ+z2kbGgC1
+	OR8LwhZpljYY32pTkLFwwZtJAz5T5HLRGPKo+jze5sVfitEAmvH8Y4OriH8Lqsqx51jlr3I6A4Ztq
+	GOHST0BmA6aIU4zDv8b8J3en2NBUD5nLvwKLWztyyzV/q8cVG1UUBCsAvv6u7uPdNlh4ji8Q1eb8C
+	MkSFoo8DX+vbF0/V6MZULxFcbSB36s5SiLga5n+GKytlmM88VwQ0FP2HYB8ma3M993Mx6ug337oeM
+	A5JTQznhXRrKwQzBwKUOYYA==;
+Received: from www31.flk1.host-h.net ([188.40.1.173])
+	by antispam3-flk1.host-h.net with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <justin.swartz@risingedge.co.za>)
+	id 1rhUuA-001apX-Hc; Tue, 05 Mar 2024 15:32:38 +0200
+Received: from [41.144.0.96] (helo=localhost.localdomain)
+	by www31.flk1.host-h.net with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <justin.swartz@risingedge.co.za>)
+	id 1rhUu8-0005sb-D1; Tue, 05 Mar 2024 15:32:24 +0200
+From: Justin Swartz <justin.swartz@risingedge.co.za>
+To: Martin Schiller <ms@dev.tdt.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Justin Swartz <justin.swartz@risingedge.co.za>,
+	linux-x25@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] net: x25: remove dead links from Kconfig
+Date: Tue,  5 Mar 2024 15:31:38 +0200
+Message-Id: <20240305133139.29236-1-justin.swartz@risingedge.co.za>
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1d0a:b0:365:4d61:fe6 with SMTP id
- i10-20020a056e021d0a00b003654d610fe6mr251453ila.1.1708846082942; Sat, 24 Feb
- 2024 23:28:02 -0800 (PST)
-Date: Sat, 24 Feb 2024 23:28:02 -0800
-In-Reply-To: <0000000000006c9d500608b2c62b@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000bfed0206122fbb7c@google.com>
-Subject: Re: [syzbot] [x25?] [reiserfs?] general protection fault in lapbeth_data_transmit
-From: syzbot <syzbot+6062afbf92a14f75d88b@syzkaller.appspotmail.com>
-To: axboe@kernel.dk, brauner@kernel.org, davem@davemloft.net, 
-	edumazet@google.com, jack@suse.cz, kuba@kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, 
-	pabeni@redhat.com, reiserfs-devel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Authenticated-Sender: justin.swartz@risingedge.co.za
+X-Virus-Scanned: Clear
+X-SpamExperts-Domain: risingedge.co.za
+X-SpamExperts-Username: 
+Authentication-Results: host-h.net; auth=pass (login) smtp.auth=@risingedge.co.za
+X-SpamExperts-Outgoing-Class: ham
+X-SpamExperts-Outgoing-Evidence: Combined (0.03)
+X-Recommended-Action: accept
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT9BFpSshgZdgMLpZ1/ftQ8uPUtbdvnXkggZ
+ 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5w1OL79HMxE022P+rQy8YAdcSeERs4TOTnIH1kc1IWc5QvZ
+ FNshWKOptDHV4rDuRrwD+zBJgS5HrOaXNfwbIcOpslpzQZPofqiTKbbOumrM1Ahcg0OQCe1UFSTL
+ VX1PEI9kcFJ7mC+M3fkSvxOXcnIOjhh9biKiQoANZ/M+dhYIXxdYA5DCYv6MMCKeadXRzZkEvAAo
+ NnFXprYbAz6gPUYKNm1gRFF2i3O7cygKtabI1caTYyXVRVReaTKIqXapBXQ6SEDiG08q6BgvyDW7
+ 3UBJwzTEhgTtU7qydsRfxICAtI37lJC8G4ef8lY22yNyhLy8ZNBDpxcCl9WvEtu4BGz6+JKO/vS7
+ EG2gDc+C8niViTuAVoxNXxfObDHTY9R9kOMB03AEjHq2zzYAxIiW6tWKEwBJ0Y5r/Ifw7gpxllqW
+ qh1hAHI3nwCbzMT4k0hu17rkR2VEZyK4VXrfqC5ENAfcWEKt0SZ8melITUergkwVPYHrfa8GVwpl
+ 6YSPTJ8WKUKinFA3k5Tcj/1EShAL4PF2W+n8Hj6CJNEWfIqe3AMrex08L8pZyQFEYMQabfOl4Iov
+ Pg1PsShbZub3egBhMSkddtGkzDoCDN7V/f3066scTAKJY9yeQo6mFj+oBoJpRlWX4vjTQlD7O6wn
+ npQLJZtbVa3xvGXfp826J8a7DErOLhdzJn/v5xKkWSd0caeqJ/t2+3veilCAGrFXkXD4oI+vIK/1
+ NH5THMtlYvyHAYGOGpsHxDkFVDWJ1kN9NA6enCQxN+y/AP7Hwkn5qe9DeggJMKBj3vp74dfVTxFt
+ 5O5oiyLWM/ONOO3o7I7qeta3MwLZGabXcnV552oMbtHJ3ZcnMZRQaOrn9BCbSjGUFnHQEHYOP+pS
+ yxpciHfO4+QS8IwE7z4kCK74eEzERj8DODlNdNTe/+4bG5GHvx8kXQZ6KkM6Oo8fr3pIQE+Tur0x
+ NxCuL8HoZUszBrq3huV3gkB+2Ty5zdX2+UhwtcDzp3q0CFHeRkIRCAe1wI3mSezkL0Odgl2TNyIR
+ 4pSaiLxpHpeYfKG7Yu4jBlczMx1L5jSK60OT80m7/tzraDBlV1d5K5bY3LlRuQAi2Cph2PK+Rfkf
+ SFXnDC0qBXDCRyMmNkwa//frYBrnXOB0PHbQD6cgMnC5M1rshWxsw1/gXTMtnmqhmzF4KZUIm82X
+ davERDHbcD5xFI4Tc4UvrRQcxVnmH7g=
+X-Report-Abuse-To: spam@antispamquarantine.host-h.net
 
-syzbot suspects this issue was fixed by commit:
+Remove the "You can read more about X.25 at" links provided in
+Kconfig as they have not pointed at any relevant pages for quite
+a while.
 
-commit 6f861765464f43a71462d52026fbddfc858239a5
-Author: Jan Kara <jack@suse.cz>
-Date:   Wed Nov 1 17:43:10 2023 +0000
+An old copy of https://www.sangoma.com/tutorials/x25/ can be
+retrieved via https://archive.org/web/ but nothing useful seems
+to have been preserved for http://docwiki.cisco.com/wiki/X.25
 
-    fs: Block writes to mounted block devices
+For the sake of necromancy and those who really did want to
+read more about X.25, a previous incarnation of Kconfig included
+a link to:
+http://www.cisco.com/univercd/cc/td/doc/product/software/ios11/cbook/cx25.htm
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=12dcaac4180000
-start commit:   1b29d271614a Merge tag 'staging-6.4-rc7' of git://git.kern..
-git tree:       upstream
-kernel config:  https://syzkaller.appspot.com/x/.config?x=ac246111fb601aec
-dashboard link: https://syzkaller.appspot.com/bug?extid=6062afbf92a14f75d88b
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=150a0f73280000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=107fcaff280000
+Which can still be read at:
+https://web.archive.org/web/20071013101232/http://cisco.com/en/US/docs/ios/11_0/router/configuration/guide/cx25.html
 
-If the result looks correct, please mark the issue as fixed by replying with:
+Signed-off-by: Justin Swartz <justin.swartz@risingedge.co.za>
+---
+ net/x25/Kconfig | 2 --
+ 1 file changed, 2 deletions(-)
 
-#syz fix: fs: Block writes to mounted block devices
+diff --git a/net/x25/Kconfig b/net/x25/Kconfig
+index 68729aa3a..dc72302cb 100644
+--- a/net/x25/Kconfig
++++ b/net/x25/Kconfig
+@@ -17,8 +17,6 @@ config X25
+ 	  if you want that) and the lower level data link layer protocol LAPB
+ 	  (say Y to "LAPB Data Link Driver" below if you want that).
+ 
+-	  You can read more about X.25 at <https://www.sangoma.com/tutorials/x25/> and
+-	  <http://docwiki.cisco.com/wiki/X.25>.
+ 	  Information about X.25 for Linux is contained in the files
+ 	  <file:Documentation/networking/x25.rst> and
+ 	  <file:Documentation/networking/x25-iface.rst>.
+-- 
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
