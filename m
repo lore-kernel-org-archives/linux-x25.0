@@ -1,100 +1,105 @@
-Received: from mxout70.expurgate.net (mxout70.expurgate.net [194.37.255.70])
+Received: from mx0.infotecs.ru (mx0.infotecs.ru [91.244.183.115])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B2D1CD2D;
-	Thu,  7 Mar 2024 06:58:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.37.255.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18F412F398;
+	Thu,  7 Mar 2024 14:23:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.244.183.115
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709794713; cv=none; b=UJE7dTOvCS4cGJnct66WPFu5HEBQUecQ1gD/WFbFZ/zmvVSXZv6BloGmRhV5MMSb0PsX8JoK48CNbak9Z4Hepy/EmpncmJghW8YuEBhIiPluReaB1eOiPYpwYqS42Ia4YVwZ0J2y1X+D/Wdq2q1mmgaVs6NH64W056Sky+bv4MM=
+	t=1709821437; cv=none; b=WJzlJUUEl/OH+mHmMmZ/vAplUwQvv3TlSmTceJTlqViv3VPpFXwSSlCvHetjdy0Ck69iiEaLdxnaf908+C7aDpoQhgDo9Psf6+4BbBm+xvW+9V3qT0WmbHvtVPhRt0szabn015U5QvjsnrcQbkLlUrVvYh6TrCIuAw9bh50DThg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709794713; c=relaxed/simple;
-	bh=Wt7lhglpodByb4CJI8Cl6YkErPTUMOpVoSpfMcFq5RM=;
-	h=MIME-Version:Content-Type:Date:From:To:Cc:Subject:In-Reply-To:
-	 References:Message-ID; b=RPoTGlOS//Pn3gx69+TTYjXmH3i/y/gmvnKGs3sBxxFEKTLgK//4YbOtukziGMZRZdO9XUT0oaaeESb0SAKym+4civhLYAQxfTs63PTWKxk9eJofioXuQI59k2xLnby8pQ1tNIc/LybDJRkitPczk4rR+4wFYzKarAEsPERxGyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dev.tdt.de; spf=pass smtp.mailfrom=dev.tdt.de; arc=none smtp.client-ip=194.37.255.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dev.tdt.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
-Received: from [127.0.0.1] (helo=localhost)
-	by relay.expurgate.net with smtp (Exim 4.92)
-	(envelope-from <prvs=5810c20468=ms@dev.tdt.de>)
-	id 1ri7hj-000o8L-6v; Thu, 07 Mar 2024 07:58:11 +0100
-Received: from [195.243.126.94] (helo=securemail.tdt.de)
-	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ms@dev.tdt.de>)
-	id 1ri7hh-00AuCb-V3; Thu, 07 Mar 2024 07:58:09 +0100
-Received: from securemail.tdt.de (localhost [127.0.0.1])
-	by securemail.tdt.de (Postfix) with ESMTP id 7D5BF240049;
-	Thu,  7 Mar 2024 07:58:09 +0100 (CET)
-Received: from mail.dev.tdt.de (unknown [10.2.4.42])
-	by securemail.tdt.de (Postfix) with ESMTP id E6FB1240040;
-	Thu,  7 Mar 2024 07:58:08 +0100 (CET)
-Received: from mail.dev.tdt.de (localhost [IPv6:::1])
-	by mail.dev.tdt.de (Postfix) with ESMTP id 2DE01361C1;
-	Thu,  7 Mar 2024 07:58:08 +0100 (CET)
+	s=arc-20240116; t=1709821437; c=relaxed/simple;
+	bh=vtO1NLo5DUmetb6YbznmKN592S3ILscEX8TxvmHk+mM=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=JhoV89O2m5DPjF2IyHNii1qKoTKDe3DX4Shy+lBv2g2MvJ40qvXWAOblkBRZAGVeSH0a7/uwrBMBkHDG6dpFxgnzt9eY2M9gMf54WRruOg8Z4SiDKBkvcDhr55aumHBPB01tKEZjYYRJODR5AZEZtKLWBTubLs8E/mCjkB47bbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru; spf=pass smtp.mailfrom=infotecs.ru; dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b=CSKC6bon; arc=none smtp.client-ip=91.244.183.115
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infotecs.ru
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b="CSKC6bon"
+Received: from mx0.infotecs-nt (localhost [127.0.0.1])
+	by mx0.infotecs.ru (Postfix) with ESMTP id 645FA14CD2C1;
+	Thu,  7 Mar 2024 17:23:51 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx0.infotecs.ru 645FA14CD2C1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infotecs.ru; s=mx;
+	t=1709821431; bh=TH5DEcHLIXFsRrfmZsIlzESb7JbDicH3qRJLGnlj6io=;
+	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+	b=CSKC6bonPljDwT3yx3aRwX2VOnIFebvFMfc8W3Je1y75GndH5uCu9+Qm5tULHif98
+	 ExnPzMWxYYjLPEmSQoo6dgI5+fwQSyGVs4XIJ+wuVLyob84qrQZOuCh6ysmRF50htN
+	 zM/YIQMiAvcFzinAbhKliDCNSXfMk2LeMLlf3INw=
+Received: from msk-exch-02.infotecs-nt (msk-exch-02.infotecs-nt [10.0.7.192])
+	by mx0.infotecs-nt (Postfix) with ESMTP id 60E2231923B0;
+	Thu,  7 Mar 2024 17:23:51 +0300 (MSK)
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+To: Martin Schiller <ms@dev.tdt.de>
+CC: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+	"linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
+Subject: [PATCH net-next v2 6/6] net/x25: fix incorrect parameter validation
+ in the x25_getsockopt() function
+Thread-Topic: [PATCH net-next v2 6/6] net/x25: fix incorrect parameter
+ validation in the x25_getsockopt() function
+Thread-Index: AQHacJsTcTQB2aBL6kWXuOtcpnTzVg==
+Date: Thu, 7 Mar 2024 14:23:50 +0000
+Message-ID: <20240307142030.2708698-7-Ilia.Gavrilov@infotecs.ru>
+References: <20240307142030.2708698-1-Ilia.Gavrilov@infotecs.ru>
+In-Reply-To: <20240307142030.2708698-1-Ilia.Gavrilov@infotecs.ru>
+Accept-Language: ru-RU, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-exclaimer-md-config: 208ac3cd-1ed4-4982-a353-bdefac89ac0a
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Mar 2024 07:58:08 +0100
-From: Martin Schiller <ms@dev.tdt.de>
-To: Justin Swartz <justin.swartz@risingedge.co.za>
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>, linux-x25@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: x25: remove dead links from Kconfig
-Organization: TDT AG
-In-Reply-To: <20240306112659.25375-1-justin.swartz@risingedge.co.za>
-References: <20240305193024.6bcfa98f@kernel.org>
- <20240306112659.25375-1-justin.swartz@risingedge.co.za>
-Message-ID: <345ce600c11ab1eb7618fd4c7fcd268d@dev.tdt.de>
-X-Sender: ms@dev.tdt.de
-User-Agent: Roundcube Webmail/1.3.17
-X-purgate-ID: 151534::1709794690-1BF9DB6F-6A7F1771/0/0
-X-purgate: clean
-X-purgate-type: clean
+X-KLMS-Rule-ID: 5
+X-KLMS-Message-Action: clean
+X-KLMS-AntiSpam-Status: not scanned, disabled by settings
+X-KLMS-AntiSpam-Interceptor-Info: not scanned
+X-KLMS-AntiPhishing: Clean, bases: 2024/03/07 13:22:00
+X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2024/03/07 10:14:00 #24028863
+X-KLMS-AntiVirus-Status: Clean, skipped
 
-On 2024-03-06 12:26, Justin Swartz wrote:
-> Remove the "You can read more about X.25 at" links provided in
-> Kconfig as they have not pointed at any relevant pages for quite
-> a while.
-> 
-> An old copy of https://www.sangoma.com/tutorials/x25/ can be
-> retrieved via https://archive.org/web/ but nothing useful seems
-> to have been preserved for http://docwiki.cisco.com/wiki/X.25
-> 
-> For the sake of necromancy and those who really did want to
-> read more about X.25, a previous incarnation of Kconfig included
-> a link to:
-> http://www.cisco.com/univercd/cc/td/doc/product/software/ios11/cbook/cx25.htm
-> 
-> Which can still be read at:
-> https://web.archive.org/web/20071013101232/http://cisco.com/en/US/docs/ios/11_0/router/configuration/guide/cx25.html
-> 
-> Signed-off-by: Justin Swartz <justin.swartz@risingedge.co.za>
-> ---
->  net/x25/Kconfig | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/net/x25/Kconfig b/net/x25/Kconfig
-> index 68729aa3a..dc72302cb 100644
-> --- a/net/x25/Kconfig
-> +++ b/net/x25/Kconfig
-> @@ -17,8 +17,6 @@ config X25
->  	  if you want that) and the lower level data link layer protocol LAPB
->  	  (say Y to "LAPB Data Link Driver" below if you want that).
-> 
-> -	  You can read more about X.25 at 
-> <https://www.sangoma.com/tutorials/x25/> and
-> -	  <http://docwiki.cisco.com/wiki/X.25>.
->  	  Information about X.25 for Linux is contained in the files
->  	  <file:Documentation/networking/x25.rst> and
->  	  <file:Documentation/networking/x25-iface.rst>.
+The 'len' variable can't be negative when assigned the result of
+'min_t' because all 'min_t' parameters are cast to unsigned int,
+and then the minimum one is chosen.
 
-Acked-by: Martin Schiller <ms@dev.tdt.de>
+To fix the logic, check 'len' as read from 'optlen',
+where the types of relevant variables are (signed) int.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+---
+ net/x25/af_x25.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index f7a7c7798c3b..d18d51412cc0 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -460,12 +460,12 @@ static int x25_getsockopt(struct socket *sock, int le=
+vel, int optname,
+ 	if (get_user(len, optlen))
+ 		goto out;
+=20
+-	len =3D min_t(unsigned int, len, sizeof(int));
+-
+ 	rc =3D -EINVAL;
+ 	if (len < 0)
+ 		goto out;
+=20
++	len =3D min_t(unsigned int, len, sizeof(int));
++
+ 	rc =3D -EFAULT;
+ 	if (put_user(len, optlen))
+ 		goto out;
+--=20
+2.39.2
