@@ -1,105 +1,77 @@
-Received: from mx0.infotecs.ru (mx0.infotecs.ru [91.244.183.115])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18F412F398;
-	Thu,  7 Mar 2024 14:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.244.183.115
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B88A02134B;
+	Fri,  8 Mar 2024 04:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709821437; cv=none; b=WJzlJUUEl/OH+mHmMmZ/vAplUwQvv3TlSmTceJTlqViv3VPpFXwSSlCvHetjdy0Ck69iiEaLdxnaf908+C7aDpoQhgDo9Psf6+4BbBm+xvW+9V3qT0WmbHvtVPhRt0szabn015U5QvjsnrcQbkLlUrVvYh6TrCIuAw9bh50DThg=
+	t=1709872229; cv=none; b=Du2pyxoBH1So4I4PjNE0SmLJQFiD7hSUE87XX6aEbxsluwF298Au7NcwYMcvoU97NvIOw0TMiGzHG55IH05Q7tH8m2hPSgCtpuvGwU8zNJ9M6j8qLxlZoELuCUbCHRA3gP79Y3wC5HGgJYGtrh1jezxxN8MbQPS2JqlQFZl67qw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709821437; c=relaxed/simple;
-	bh=vtO1NLo5DUmetb6YbznmKN592S3ILscEX8TxvmHk+mM=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=JhoV89O2m5DPjF2IyHNii1qKoTKDe3DX4Shy+lBv2g2MvJ40qvXWAOblkBRZAGVeSH0a7/uwrBMBkHDG6dpFxgnzt9eY2M9gMf54WRruOg8Z4SiDKBkvcDhr55aumHBPB01tKEZjYYRJODR5AZEZtKLWBTubLs8E/mCjkB47bbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru; spf=pass smtp.mailfrom=infotecs.ru; dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b=CSKC6bon; arc=none smtp.client-ip=91.244.183.115
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infotecs.ru
+	s=arc-20240116; t=1709872229; c=relaxed/simple;
+	bh=Bhr4Dtpl623FH4HAMUZOgSXCCm8xgmxDleW5A1X397Q=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=BB1/oa8Cny2GL0+PzMGrUH+8XhJw5tE9XEDqvxTCTzXq/aA62O3KKomQ0/ARMUswRpcjRTyKypLJB9N1OP4K8SRUOCt3EpCdWhTintiaug+PzWmr1d6ySDR7aJyDbEh6auuXnzJzGr/xl+C5UXi84oS+iZSW3fFptLhIkAfG6Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uCULTRvG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b="CSKC6bon"
-Received: from mx0.infotecs-nt (localhost [127.0.0.1])
-	by mx0.infotecs.ru (Postfix) with ESMTP id 645FA14CD2C1;
-	Thu,  7 Mar 2024 17:23:51 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx0.infotecs.ru 645FA14CD2C1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infotecs.ru; s=mx;
-	t=1709821431; bh=TH5DEcHLIXFsRrfmZsIlzESb7JbDicH3qRJLGnlj6io=;
-	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-	b=CSKC6bonPljDwT3yx3aRwX2VOnIFebvFMfc8W3Je1y75GndH5uCu9+Qm5tULHif98
-	 ExnPzMWxYYjLPEmSQoo6dgI5+fwQSyGVs4XIJ+wuVLyob84qrQZOuCh6ysmRF50htN
-	 zM/YIQMiAvcFzinAbhKliDCNSXfMk2LeMLlf3INw=
-Received: from msk-exch-02.infotecs-nt (msk-exch-02.infotecs-nt [10.0.7.192])
-	by mx0.infotecs-nt (Postfix) with ESMTP id 60E2231923B0;
-	Thu,  7 Mar 2024 17:23:51 +0300 (MSK)
-From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
-To: Martin Schiller <ms@dev.tdt.de>
-CC: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-	"linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
-Subject: [PATCH net-next v2 6/6] net/x25: fix incorrect parameter validation
- in the x25_getsockopt() function
-Thread-Topic: [PATCH net-next v2 6/6] net/x25: fix incorrect parameter
- validation in the x25_getsockopt() function
-Thread-Index: AQHacJsTcTQB2aBL6kWXuOtcpnTzVg==
-Date: Thu, 7 Mar 2024 14:23:50 +0000
-Message-ID: <20240307142030.2708698-7-Ilia.Gavrilov@infotecs.ru>
-References: <20240307142030.2708698-1-Ilia.Gavrilov@infotecs.ru>
-In-Reply-To: <20240307142030.2708698-1-Ilia.Gavrilov@infotecs.ru>
-Accept-Language: ru-RU, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-exclaimer-md-config: 208ac3cd-1ed4-4982-a353-bdefac89ac0a
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uCULTRvG"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4C10BC43394;
+	Fri,  8 Mar 2024 04:30:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1709872229;
+	bh=Bhr4Dtpl623FH4HAMUZOgSXCCm8xgmxDleW5A1X397Q=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=uCULTRvGMHIapWzkUMeWz+mn1kZZKPuDWSz2n/Dji1x/ucOz9rKUVl+PiRZx83xRw
+	 R4cJP0u5JMiSYiXdVRjsY+YSxlwCUpREVp6vPE7oddTHDmpA+JITtuAQTmh93RcoLF
+	 f1+AhINduqEIkNUPiN/S51QqRH8mqcOTkmWWxjnsg2rC5yenJvj68G+6p7fSR2ptUK
+	 XgA4uisaDVpePuirTEAq4v3RsJe84EVLHmjRRVf/g5fJRzHfbdpvJoTEQlkDdy0UeR
+	 MsuRIixPXmeleCLcX14vKiC2huG+dTzlO3smGVivZ5AO3ZiAUd4vGU+PxCcNFUQShC
+	 H1KScnrQ5uawA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 30FD8D84BC1;
+	Fri,  8 Mar 2024 04:30:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-KLMS-Rule-ID: 5
-X-KLMS-Message-Action: clean
-X-KLMS-AntiSpam-Status: not scanned, disabled by settings
-X-KLMS-AntiSpam-Interceptor-Info: not scanned
-X-KLMS-AntiPhishing: Clean, bases: 2024/03/07 13:22:00
-X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2024/03/07 10:14:00 #24028863
-X-KLMS-AntiVirus-Status: Clean, skipped
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] net: x25: remove dead links from Kconfig
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170987222919.2034.12421653557670790951.git-patchwork-notify@kernel.org>
+Date: Fri, 08 Mar 2024 04:30:29 +0000
+References: <20240306112659.25375-1-justin.swartz@risingedge.co.za>
+In-Reply-To: <20240306112659.25375-1-justin.swartz@risingedge.co.za>
+To: Justin Swartz <justin.swartz@risingedge.co.za>
+Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
-The 'len' variable can't be negative when assigned the result of
-'min_t' because all 'min_t' parameters are cast to unsigned int,
-and then the minimum one is chosen.
+Hello:
 
-To fix the logic, check 'len' as read from 'optlen',
-where the types of relevant variables are (signed) int.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
----
- net/x25/af_x25.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Wed,  6 Mar 2024 13:26:59 +0200 you wrote:
+> Remove the "You can read more about X.25 at" links provided in
+> Kconfig as they have not pointed at any relevant pages for quite
+> a while.
+> 
+> An old copy of https://www.sangoma.com/tutorials/x25/ can be
+> retrieved via https://archive.org/web/ but nothing useful seems
+> to have been preserved for http://docwiki.cisco.com/wiki/X.25
+> 
+> [...]
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index f7a7c7798c3b..d18d51412cc0 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -460,12 +460,12 @@ static int x25_getsockopt(struct socket *sock, int le=
-vel, int optname,
- 	if (get_user(len, optlen))
- 		goto out;
-=20
--	len =3D min_t(unsigned int, len, sizeof(int));
--
- 	rc =3D -EINVAL;
- 	if (len < 0)
- 		goto out;
-=20
-+	len =3D min_t(unsigned int, len, sizeof(int));
-+
- 	rc =3D -EFAULT;
- 	if (put_user(len, optlen))
- 		goto out;
---=20
-2.39.2
+Here is the summary with links:
+  - net: x25: remove dead links from Kconfig
+    https://git.kernel.org/netdev/net-next/c/7a04ff127786
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
