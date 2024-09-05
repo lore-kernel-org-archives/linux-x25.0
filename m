@@ -1,97 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF85155CA5;
-	Tue, 27 Aug 2024 08:25:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B51F61CFBC;
+	Thu,  5 Sep 2024 13:12:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724747151; cv=none; b=QDJI8lR+Gz5X/zXbi/erICzCRW5TgzzKWE0T/LoLlIyRfnDBxgnEGAy4XW3Zz3ygpXJmsvqAwLzccYmSPE8USu6QYKiC/ndhhlFtmaCMeNsHVGaZseRrFefJJgD2plkOHs18Lt4xfK8kwXOjgaRkEpjEoAcMYrd2yQvUOPoiL/4=
+	t=1725541971; cv=none; b=cTn8HVq8ykQMFYkTq2B56FJZOVLclZqGzQr4LKHW/zerrCmdk7rQH7ZUJFEOgwi91d3TSdVzGsue34XaWNkohVFfCMGQQ4vOVgRi61pMLRqWn4Cne4XgabRLFdqDIOfO6eCDah/sLUFaP0+2UoeLQkPqv63mMbHtOd0VYT1v7vE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724747151; c=relaxed/simple;
-	bh=cSgYL2C+Be6PlHsZrQwwp0Z58ST9hJrstxvB+ojHAsw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aFk+ubBDuAFXCIpJObles+k8ld5s/WxCkKm5dpy8ML7KUk6iD0GsXo2iWR14IrZ1GP3W0P/EmOgIh8htToJFc4xV8y0RXShlEyFKPtpQt7du740ee2foixnlwEUseAfjHp3Cg9AX35qKmnemIFxSaVSlWT2iHlF9nlxMXvI2mwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LD4sljTP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725541971; c=relaxed/simple;
+	bh=I02uF2EzqpWyIfum1tsxP20QjcYiXAczbcVcgpUb0jE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=W917tintCbKyDkfWvDARrnQ0dUT+HINVcXTG/Glin4yWNFoydLx01gBeoSRuW/fSDmLeHZVYzeAkR5gTST4huFHB88lQ1FeD4xl8D55nPJAixtHnJloBOMBKM3NdKnog8Vim9upfSjKUQXyKCdurMEZxhBMihnG1lb9l9mk3888=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lIlJGI4I; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LD4sljTP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC324C8B7A9;
-	Tue, 27 Aug 2024 08:25:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724747150;
-	bh=cSgYL2C+Be6PlHsZrQwwp0Z58ST9hJrstxvB+ojHAsw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LD4sljTPGqGm2NtQDVttali8km+cie9dqvFExpWAy8iF+Mhzvo3EztFLufpDsDyV/
-	 OwNsTyZxk+tAwAS7aMd9m55V/n7NE3YEFGGDvsZbRGlQspylHIaOOq7vjilYRxKP16
-	 nCPx87hXOuC3AIH76iFmpILMP8VT3eixvT+wt2AdLajD3lTMGV4e4sAnD1y35a4a88
-	 bNejLV/L3CY9v3cTKJAuvyCtn8vDwwJM8rt6S5No0xY/QDhQxHIuG/4fFVyT1u5OQW
-	 P1XB/J7rCu+fsAMrrRGrbeiIj9Hqm/T9W+g3eX/S/r9HqEq7pVYrjYGl4IKIU7yZFF
-	 AeIuPUsm38GaA==
-Date: Tue, 27 Aug 2024 09:25:43 +0100
-From: Simon Horman <horms@kernel.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	David Ahern <dsahern@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>,
-	Andy Gospodarek <andy@greyhouse.net>,
-	Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>,
-	Sean Tranchetti <quic_stranche@quicinc.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Jamal Hadi Salim <jhs@mojatatu.com>,
-	Cong Wang <xiyou.wangcong@gmail.com>, Jiri Pirko <jiri@resnulli.us>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-x25@vger.kernel.org
-Subject: Re: [PATCH net-next 12/13] net: Correct spelling in headers
-Message-ID: <20240827082543.GA1368797@kernel.org>
-References: <20240822-net-spell-v1-0-3a98971ce2d2@kernel.org>
- <20240822-net-spell-v1-12-3a98971ce2d2@kernel.org>
- <20240826094507.4b5798ef@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lIlJGI4I"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7179802b91fso120977b3a.3;
+        Thu, 05 Sep 2024 06:12:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1725541969; x=1726146769; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mf1hn6rFJNXfTXIyUkUoh/2ZaZwDqRlw4GMc6mm/SWo=;
+        b=lIlJGI4IwdxdqZnVmqbZeKVCpeK+CP9EW4BiG8xA64V2jcK176wXSzjuhic/4tX0jE
+         D6qJlEnKuPiHrJ6WQ6JItxAJoBrUPG0C6CEyW50Enqh9ZQVj1Vk9lv6/pCA4MAQriiZ4
+         t2N66pc08eC4mnLOkQEq+ySCJqGzOviqUfwgZ1/owPdG0gBOaVTwgcYdr/X9saNCq8B3
+         j9cFHjwgYsAvADDQtxGUfHwPI1L12SrHMAf6EDnev60Mt8mC5MVbquDk3CZYQhzPzkQS
+         kj9DbO+hkdAslVjedMq5Nigo6IFfbcjuSxCDQ+CbMA+kV0RF+TyY89x1hEN0neKJ8suI
+         Ugwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725541969; x=1726146769;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mf1hn6rFJNXfTXIyUkUoh/2ZaZwDqRlw4GMc6mm/SWo=;
+        b=FoTL+Lsb8R6G5GfLPnuex4LkrpZ0WqBPpcXbt1iiBcYsdoQEcNSbTsrnERP0aEJ7Vp
+         OfLD17d9rUHnm4xi+QBq53Vf5ysu1dmaPBZ2pFVb3iiJmSI3GuzzDFm9z2jFgkws9cjR
+         ES1Plenz85sZtLUS2+56RzPxG/gDor/n3S7YUaiCuZj4SBDQm6kH2tPmGt7m/bct4wyH
+         KZnrRC5ZeJEC6P/FSJio/I/zGO0AEwXKsNnwUyz7uw7cMHeLSAu7PkoD8S9lK6/8GPUB
+         mEmufS3rKSiknTtHjn6KSGCZpF8GKN2httuS0KmYTpNanmoQqyRnk5JRTS/z3LnvDnpT
+         Sl5w==
+X-Forwarded-Encrypted: i=1; AJvYcCUZgKUYqJnHWLkE2reBcuKX/21LlR/55wgKB+cTIoPfwrf2P6Qq74wrXplhhn3hklV2eoxIy4PR@vger.kernel.org, AJvYcCVvvNVwUr+2cvyy+TISpnVwneZ1ToT/G4gNHZhaojFs86pFVGWXD1hSv6nsgM7AVzJrC9I3dGDNriWx/M4=@vger.kernel.org, AJvYcCXssFYsXJStu5uG0EgoIMr9uQDWimIf73fuROBSvf9XBw+fl6IIYBMAqPm4sgqE5aMW4qYvQrwJL64D@vger.kernel.org
+X-Gm-Message-State: AOJu0YzNZDMZ/MNZ+df21YsuoWkjoQaETBO/1tsFwo7BgHvzi1WBS+2f
+	eOeb4NAIHwl6fNh6xGnZkXDNRRCvAsi+b9FxFyGxUaPPjAGmMnP9
+X-Google-Smtp-Source: AGHT+IGI2z/Ccf1knMniW6K77uvNMqimo5zis8Ibm3akGlG52VO3uqRa+VPrVB4nVjc7WTbayCRWfg==
+X-Received: by 2002:a05:6a20:c6ce:b0:1cf:12ab:320c with SMTP id adf61e73a8af0-1cf12ab346bmr2729200637.37.1725541968828;
+        Thu, 05 Sep 2024 06:12:48 -0700 (PDT)
+Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7d4fbda7b5csm3313782a12.70.2024.09.05.06.12.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Sep 2024 06:12:48 -0700 (PDT)
+From: Jeongjun Park <aha310510@gmail.com>
+To: ms@dev.tdt.de
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	linux-x25@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jeongjun Park <aha310510@gmail.com>
+Subject: [PATCH net-next] x25: specifying bcast_addr array size using macro
+Date: Thu,  5 Sep 2024 22:12:41 +0900
+Message-Id: <20240905131241.327300-1-aha310510@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240826094507.4b5798ef@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 26, 2024 at 09:45:07AM -0700, Jakub Kicinski wrote:
-> On Thu, 22 Aug 2024 13:57:33 +0100 Simon Horman wrote:
-> > diff --git a/include/net/dropreason-core.h b/include/net/dropreason-core.h
-> > index 9707ab54fdd5..4748680e8c88 100644
-> > --- a/include/net/dropreason-core.h
-> > +++ b/include/net/dropreason-core.h
-> > @@ -155,8 +155,8 @@ enum skb_drop_reason {
-> >  	/** @SKB_DROP_REASON_SOCKET_RCVBUFF: socket receive buff is full */
-> >  	SKB_DROP_REASON_SOCKET_RCVBUFF,
-> >  	/**
-> > -	 * @SKB_DROP_REASON_PROTO_MEM: proto memory limition, such as udp packet
-> > -	 * drop out of udp_memory_allocated.
-> > +	 * @SKB_DROP_REASON_PROTO_MEM: proto memory limitation, such as
-> > +	 * udp packet drop out of udp_memory_allocated.
-> >  	 */
-> >  	SKB_DROP_REASON_PROTO_MEM,
-> >  	/**
-> > @@ -217,7 +217,7 @@ enum skb_drop_reason {
-> >  	 */
-> >  	SKB_DROP_REASON_TCP_ZEROWINDOW,
-> >  	/**
-> > -	 * @SKB_DROP_REASON_TCP_OLD_DATA: the TCP data reveived is already
-> > +	 * @SKB_DROP_REASON_TCP_OLD_DATA: the TCP data received is already
-> >  	 * received before (spurious retrans may happened), see
-> >  	 * LINUX_MIB_DELAYEDACKLOST
-> >  	 */
-> 
-> I'd have been tempted to improve the grammar of these while at it.
-> But I guess that'd make the patch more than a spelling fix.
+It is more appropriate to specify the size of the bcast_addr array using 
+ETH_ALEN macro.
 
-Thanks. I was trying to stick to strictly spelling fixes.
-I'll submit a follow-up for this to (hopefully) improve the grammar.
-You can take it or leave it :)
+Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+---
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 56326f38fe8a..15e4ca43e88b 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -41,7 +41,7 @@
+ 
+ #include <net/x25device.h>
+ 
+-static const u8 bcast_addr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
++static const u8 bcast_addr[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+ 
+ /* If this number is made larger, check that the temporary string buffer
+  * in lapbeth_new_device is large enough to store the probe device name.
+--
