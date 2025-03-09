@@ -1,176 +1,175 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f205.google.com (mail-il1-f205.google.com [209.85.166.205])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3868F142E83
-	for <linux-x25@vger.kernel.org>; Thu, 16 Jan 2025 07:55:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4AF01A840D
+	for <linux-x25@vger.kernel.org>; Sun,  9 Mar 2025 09:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737014109; cv=none; b=gI3aRWwicPuAV9zSc5Phwv6luwoeYF+RPcstFC7bkFQF1FqiL/u7z0GGNTa5Sw+oufxGK+UEvSbCycUOdAptvOxOZrOW7N+jJBnNkhgd0Hc0OTPqErLyNJoauH78QZSl6sDGvg4F1f6GSUjihWgUxKGBNVjGJb70oM+0fYgniNU=
+	t=1741512991; cv=none; b=VyBVXynQs6lS/LImkjealzQ8QLQOtQgv6gYHASbUjVbo09Ziyrbcumcl+YfIqE+7U19wsxEHVARYnqQgFuyL842lsuH2JtGY3lpBnPUjsOK+Vs+HuKmiwLFyzH69f83Kb87fJCL1Bw5XqqMiPD1rOMlLrM61M5iPe6I5yMNveU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737014109; c=relaxed/simple;
-	bh=7M65RmMX3Ry4OaGybSFFVt26wFFfaatRGurZ9wLro+M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LjzUYSLXgjG6rpTE4rYntlC/jU+IYc7EpzyMCYeSI+u78XTdthDsYBr3ZsImnF+/QruRIw6DkLfaYxtFdRziUFK3OBbfdaektBl4G0nuCGNXljoMwmdlCDv56p8QeCYfc8jFROEjPemBLSV6lZCFtoxw5lUhWlI5uYjFd69Aisg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1tYKhe-00075B-4S; Thu, 16 Jan 2025 08:54:10 +0100
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1tYKhT-000DS3-0I;
-	Thu, 16 Jan 2025 08:53:59 +0100
-Received: from pengutronix.de (pd9e59fec.dip0.t-ipconnect.de [217.229.159.236])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	(Authenticated sender: mkl-all@blackshift.org)
-	by smtp.blackshift.org (Postfix) with ESMTPSA id 165233A99BF;
-	Thu, 16 Jan 2025 07:53:43 +0000 (UTC)
-Date: Thu, 16 Jan 2025 08:53:42 +0100
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-To: Kees Cook <kees@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>, 
-	Cheng Xu <chengyou@linux.alibaba.com>, Kai Shen <kaishen@linux.alibaba.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Christian Benvenuti <benve@cisco.com>, Nelson Escobar <neescoba@cisco.com>, 
-	Bernard Metzler <bmt@zurich.ibm.com>, Karsten Keil <isdn@linux-pingi.de>, 
-	Michal Ostrowski <mostrows@earthlink.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Chaitanya Kulkarni <kch@nvidia.com>, Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>, 
-	Mike Christie <michael.christie@oracle.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Alexander Aring <aahringo@redhat.com>, 
-	David Teigland <teigland@redhat.com>, Trond Myklebust <trondmy@kernel.org>, 
-	Anna Schumaker <anna@kernel.org>, Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, 
-	Joseph Qi <joseph.qi@linux.alibaba.com>, Namjae Jeon <linkinjeon@kernel.org>, 
-	Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Tom Talpey <tom@talpey.com>, Simon Horman <horms@kernel.org>, 
-	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
-	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, David Ahern <dsahern@kernel.org>, 
-	Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>, 
-	Johan Hedberg <johan.hedberg@gmail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
-	Oliver Hartkopp <socketcan@hartkopp.net>, Robin van der Gracht <robin@protonic.nl>, 
-	Oleksij Rempel <o.rempel@pengutronix.de>, Alexandra Winter <wintera@linux.ibm.com>, 
-	Thorsten Winkler <twinkler@linux.ibm.com>, James Chapman <jchapman@katalix.com>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	Remi Denis-Courmont <courmisch@gmail.com>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, 
-	Allison Henderson <allison.henderson@oracle.com>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
-	Xin Long <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
-	Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, 
-	Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>, 
-	Ying Xue <ying.xue@windriver.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Martin Schiller <ms@dev.tdt.de>, Kentaro Takeda <takedakn@nttdata.co.jp>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Guillaume Nault <gnault@redhat.com>, 
-	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>, Andrew Morton <akpm@linux-foundation.org>, 
-	Wu Yunchuan <yunchuan@nfschina.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
-	Maurizio Lombardi <mlombard@redhat.com>, David Howells <dhowells@redhat.com>, 
-	Atte =?utf-8?B?SGVpa2tpbMOk?= <atteh.mailbox@gmail.com>, Vincent Duvert <vincent.ldev@duvert.net>, 
-	Denis Kirjanov <kirjanov@gmail.com>, Lukas Bulwahn <lukas.bulwahn@gmail.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Thomas Huth <thuth@redhat.com>, 
-	Andrew Waterman <waterman@eecs.berkeley.edu>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Andrej Shadura <andrew.shadura@collabora.co.uk>, Ying Hsu <yinghsu@chromium.org>, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Tom Parkin <tparkin@katalix.com>, 
-	Jason Xing <kernelxing@tencent.com>, Dan Carpenter <error27@gmail.com>, Hyunwoo Kim <v4bel@theori.io>, 
-	Bernard Pidoux <f6bvp@free.fr>, Sangsoo Lee <constant.lee@samsung.com>, 
-	Doug Brown <doug@schmorgal.com>, Ignat Korchagin <ignat@cloudflare.com>, 
-	Gou Hao <gouhao@uniontech.com>, Mina Almasry <almasrymina@google.com>, 
-	Abhishek Chauhan <quic_abchauha@quicinc.com>, Yajun Deng <yajun.deng@linux.dev>, Michal Luczaj <mhal@rbox.co>, 
-	Jiri Pirko <jiri@resnulli.us>, syzbot <syzkaller@googlegroups.com>, 
-	linux-kernel@vger.kernel.org, kernel@pengutronix.de, linux-rdma@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-nvme@lists.infradead.org, open-iscsi@googlegroups.com, 
-	linux-scsi@vger.kernel.org, linux-arm-msm@vger.kernel.org, target-devel@vger.kernel.org, 
-	gfs2@lists.linux.dev, linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, 
-	linux-cifs@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
-	linux-can@vger.kernel.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, 
-	linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	virtualization@lists.linux.dev, linux-x25@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	syzbot+d7ce59b06b3eb14fd218@syzkaller.appspotmail.com, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-Message-ID: <20250116-light-panda-of-reverence-2f5da8-mkl@pengutronix.de>
-References: <20241217023417.work.145-kees@kernel.org>
+	s=arc-20240116; t=1741512991; c=relaxed/simple;
+	bh=Us8rGbmPFV8r9kILQZkJiRMErAO862YWq8zDsrOKbkI=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=qqWuMHDGXd99S6rGHF1gMD6CwlJb1455Ky9ntgcsTOxgcUmR47pJiP4KWmKiiklq5wvFasKCM/QT8F0U/YdHR252esm1tbHqYq49typj6GS86C3KBAdjOR1q4f66sS9Cj+7Sz2WJxOtdoGwj7HfI8ZF6g66K3dy7qGwe/cMS5/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-3ce843b51c3so74162465ab.0
+        for <linux-x25@vger.kernel.org>; Sun, 09 Mar 2025 01:36:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741512989; x=1742117789;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VXiY6N7OSU76pQp1Pi3Phz+uoYFFIUVn9s/PtSgWyek=;
+        b=Uudbe6cjXL60HrT8E9fQ/szEW0KwNr1E8ywImtJga/5mYUXszIgjHRtLKdhwFxvRYS
+         rhQ/xq3E5IY790a6RAOvfL2ZGAP09YWYjUSlRftdDTkayqfrV7MgB9hrveeupgCS+RMI
+         fh9lHbjnjJ3n/p6QT9oM0g5tJHeoopWsffDhEuQyBrR4L4MotOBPo7tXvCKtE2fLmDdq
+         J7vy7uMDEdIO//4+TzA3wWdTZQslsTh+3/toaz4odXNNDUQCgY8Scx8hgXV95D0za0KH
+         TdjefH3Dfljn8jBBW137xkhtN7w+qThPs6vv6ZoLtmhm3a+jGpKXbqcSJ6UQyYUR9aih
+         2N9Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXODhxi2KIXdaz4tY4k9JUQYQKq+GTBo6zqtm7uacMM1LKzZC2ybmoXhWSF8EtdnYVOYjxfS5mIF5g=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXnjvl0wa/ivsiTkBy6j6gHDAdwJ0INIAv/XpkZOuPNUpPasm7
+	hA8z8IDhm8sjlCWtFF9jOhzOBHL4ZLBtJplas1N0badzlWrL2Ao6EQrmR6xrEHUY6Z5NNaryVz7
+	2syy40lxyAX118Wijb8kXjuhSQeHU83MoPmex954MYc0D5lDXfc57/Ek=
+X-Google-Smtp-Source: AGHT+IFV+ki/og+ynEYa3x+hrLV2cKzsvxHzX28vc/Gong4u9ZA9/KBYgHozqiuX5HtOfa7I7NHKPQUrWMhUoBdhCEKPTcWehmtm
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nbdyd5ky7ajuduf3"
-Content-Disposition: inline
-In-Reply-To: <20241217023417.work.145-kees@kernel.org>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-x25@vger.kernel.org
+X-Received: by 2002:a05:6e02:1c0b:b0:3d3:d4f0:271d with SMTP id
+ e9e14a558f8ab-3d44196ff85mr126243005ab.12.1741512988912; Sun, 09 Mar 2025
+ 01:36:28 -0800 (PST)
+Date: Sun, 09 Mar 2025 01:36:28 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67cd611c.050a0220.14db68.0073.GAE@google.com>
+Subject: [syzbot] [x25?] possible deadlock in lapbeth_device_event
+From: syzbot <syzbot+377b71db585c9c705f8e@syzkaller.appspotmail.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, 
+	ms@dev.tdt.de, netdev@vger.kernel.org, pabeni@redhat.com, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+syzbot found the following issue on:
+
+HEAD commit:    8ef890df4031 net: move misc netdev_lock flavors to a separ..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=149cd878580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=ca99d9d1f4a8ecfa
+dashboard link: https://syzkaller.appspot.com/bug?extid=377b71db585c9c705f8e
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1054d4b7980000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/ed25b0258c8e/disk-8ef890df.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/2989aa28823e/vmlinux-8ef890df.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/0e040be79a3d/bzImage-8ef890df.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+377b71db585c9c705f8e@syzkaller.appspotmail.com
+
+============================================
+WARNING: possible recursive locking detected
+6.14.0-rc5-syzkaller-01147-g8ef890df4031 #0 Not tainted
+--------------------------------------------
+dhcpcd/5500 is trying to acquire lock:
+ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
+ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: netif_napi_add_weight include/linux/netdevice.h:2763 [inline]
+ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_new_device drivers/net/wan/lapbether.c:415 [inline]
+ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_device_event+0x766/0xa20 drivers/net/wan/lapbether.c:460
+
+but task is already holding lock:
+ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
+ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:40 [inline]
+ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0x120/0x270 net/core/dev_api.c:67
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&dev->lock);
+  lock(&dev->lock);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+2 locks held by dhcpcd/5500:
+ #0: ffffffff8fed6908 (rtnl_mutex){+.+.}-{4:4}, at: rtnl_net_lock include/linux/rtnetlink.h:130 [inline]
+ #0: ffffffff8fed6908 (rtnl_mutex){+.+.}-{4:4}, at: devinet_ioctl+0x34c/0x1d80 net/ipv4/devinet.c:1121
+ #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
+ #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:40 [inline]
+ #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0x120/0x270 net/core/dev_api.c:67
+
+stack backtrace:
+CPU: 0 UID: 0 PID: 5500 Comm: dhcpcd Not tainted 6.14.0-rc5-syzkaller-01147-g8ef890df4031 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/12/2025
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
+ print_deadlock_bug+0x483/0x620 kernel/locking/lockdep.c:3039
+ check_deadlock kernel/locking/lockdep.c:3091 [inline]
+ validate_chain+0x15e2/0x5920 kernel/locking/lockdep.c:3893
+ __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5228
+ lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5851
+ __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+ __mutex_lock+0x19c/0x1010 kernel/locking/mutex.c:730
+ netdev_lock include/linux/netdevice.h:2731 [inline]
+ netif_napi_add_weight include/linux/netdevice.h:2763 [inline]
+ lapbeth_new_device drivers/net/wan/lapbether.c:415 [inline]
+ lapbeth_device_event+0x766/0xa20 drivers/net/wan/lapbether.c:460
+ notifier_call_chain+0x1a5/0x3f0 kernel/notifier.c:85
+ __dev_notify_flags+0x207/0x400
+ netif_change_flags+0xf0/0x1a0 net/core/dev.c:9443
+ dev_change_flags+0x146/0x270 net/core/dev_api.c:68
+ devinet_ioctl+0xea2/0x1d80 net/ipv4/devinet.c:1200
+ inet_ioctl+0x3d7/0x4f0 net/ipv4/af_inet.c:1001
+ sock_do_ioctl+0x158/0x460 net/socket.c:1190
+ sock_ioctl+0x626/0x8e0 net/socket.c:1309
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:906 [inline]
+ __se_sys_ioctl+0xf5/0x170 fs/ioctl.c:892
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fcdbbcb2d49
+Code: 5c c3 48 8d 44 24 08 48 89 54 24 e0 48 89 44 24 c0 48 8d 44 24 d0 48 89 44 24 c8 b8 10 00 00 00 c7 44 24 b8 10 00 00 00 0f 05 <41> 89 c0 3d 00 f0 ff ff 76 10 48 8b 15 ae 60 0d 00 f7 d8 41 83 c8
+RSP: 002b:00007ffecf47b768 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007fcdbbbe46c0 RCX: 00007fcdbbcb2d49
+RDX: 00007ffecf48b958 RSI: 0000000000008914 RDI: 000000000000000c
+RBP: 00007ffecf49bb18 R08: 00007ffecf48b918 R09: 00007ffecf48b8c8
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffecf48b958 R14: 0000000000000028 R15: 0000000000008914
+ </TASK>
 
 
---nbdyd5ky7ajuduf3
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-MIME-Version: 1.0
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-On 16.12.2024 18:34:28, Kees Cook wrote:
-> The proto_ops::getname callback was long ago backed by sockaddr_storage,
-> but the replacement of it for sockaddr was never done. Plumb it through
-> all the getname() callbacks, adjust prototypes, and fix casts.
->=20
-> There are a few cases where the backing object is _not_ a sockaddr_storage
-> and converting it looks painful. In those cases, they use a cast to
-> struct sockaddr_storage. They appear well bounds-checked, so the risk
-> is no worse that we have currently.
->=20
-> Other casts to sockaddr are removed, though to avoid spilling this
-> change into BPF (which becomes a much larger set of changes), cast the
-> sockaddr_storage instances there to sockaddr for the time being.
->=20
-> In theory this could be split up into per-caller patches that add more
-> casts that all later get removed, but it seemed like there are few
-> enough callers that it seems feasible to do this in a single patch. Most
-> conversions are mechanical, so review should be fairly easy. (Famous
-> last words.)
->=20
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->  net/can/isotp.c                               |  3 +-
->  net/can/j1939/socket.c                        |  2 +-
->  net/can/raw.c                                 |  2 +-
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for net/can
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-regards,
-Marc
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde          |
-Embedded Linux                   | https://www.pengutronix.de |
-Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
---nbdyd5ky7ajuduf3
-Content-Type: application/pgp-signature; name="signature.asc"
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEUEC6huC2BN0pvD5fKDiiPnotvG8FAmeIuv8ACgkQKDiiPnot
-vG/tCQgAnoYMQthE5qhN4islXZibYx3HOEVpQp20V/CdVVRH56MNpoQvsjN0F5I9
-Pe8FiGuyUR9fNqhHJPDV5qTZfzq6vRSoc7PpwLTwF9ReyzpbKcMrYcmv/Wkbso1k
-faQaG0U/F/5wp2/nsK1h/PUHRvlwFfLs41wCCmlXQDks5vvt1U+8F/0mUiM/L0yT
-SQG9iudLNDMEv22xlkR1e90s94ARgRIKcBcOZ9LudgYLwGmT8I3JAenyHET3Q8d2
-GWVaepqliLBxoq7pfWcJm1yFL8DFp2xSUy/gP7BqrfKIJoJhRqOR2EXGSgAZ6rek
-c/YmUBVaGDu2ZBkxhzlB6NKXFu9dBA==
-=LAEY
------END PGP SIGNATURE-----
-
---nbdyd5ky7ajuduf3--
+If you want to undo deduplication, reply with:
+#syz undup
