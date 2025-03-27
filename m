@@ -1,91 +1,95 @@
 Received: from mail-il1-f205.google.com (mail-il1-f205.google.com [209.85.166.205])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4AF01A840D
-	for <linux-x25@vger.kernel.org>; Sun,  9 Mar 2025 09:36:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB7D42163A4
+	for <linux-x25@vger.kernel.org>; Thu, 27 Mar 2025 14:09:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741512991; cv=none; b=VyBVXynQs6lS/LImkjealzQ8QLQOtQgv6gYHASbUjVbo09Ziyrbcumcl+YfIqE+7U19wsxEHVARYnqQgFuyL842lsuH2JtGY3lpBnPUjsOK+Vs+HuKmiwLFyzH69f83Kb87fJCL1Bw5XqqMiPD1rOMlLrM61M5iPe6I5yMNveU4=
+	t=1743084565; cv=none; b=CDH/Nz0mPlhd9FOqbG0UOTVVGho4O+6v+tIML28jq/FznSPq2QKaMXnB8tVDKu1zY9QBzyhuN+C1Sf0cjiyc531p14fsB1wwCOW4JABREeI7azbE/Wsg7BwA94j+om+B95o15BpVsKZz5dkgt0yvlI9zzXXZzdskY82n+EnFtmI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741512991; c=relaxed/simple;
-	bh=Us8rGbmPFV8r9kILQZkJiRMErAO862YWq8zDsrOKbkI=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=qqWuMHDGXd99S6rGHF1gMD6CwlJb1455Ky9ntgcsTOxgcUmR47pJiP4KWmKiiklq5wvFasKCM/QT8F0U/YdHR252esm1tbHqYq49typj6GS86C3KBAdjOR1q4f66sS9Cj+7Sz2WJxOtdoGwj7HfI8ZF6g66K3dy7qGwe/cMS5/U=
+	s=arc-20240116; t=1743084565; c=relaxed/simple;
+	bh=RWuDuE5fgIAuTD9uggQMYp2kkWjsc7bWPvIMH0cW1/k=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=hcwcZGGYM2qDvsLWTdEN1Uc81Bze/R6xHJqU9ej61Rdkoo5exeYxmjV81lk6cKqyMUNga6xI6GwoZScwcG830WIagMyoWExSdVJ88khl0H6520Q73R3eQ6zz+zab9hYeIi9ZqCuobCoYu0ChXQS1IJVRSK2PHJoA64BnOtHqJJ0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.205
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-3ce843b51c3so74162465ab.0
-        for <linux-x25@vger.kernel.org>; Sun, 09 Mar 2025 01:36:29 -0800 (PST)
+Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-3d43541a706so10048055ab.1
+        for <linux-x25@vger.kernel.org>; Thu, 27 Mar 2025 07:09:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741512989; x=1742117789;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=VXiY6N7OSU76pQp1Pi3Phz+uoYFFIUVn9s/PtSgWyek=;
-        b=Uudbe6cjXL60HrT8E9fQ/szEW0KwNr1E8ywImtJga/5mYUXszIgjHRtLKdhwFxvRYS
-         rhQ/xq3E5IY790a6RAOvfL2ZGAP09YWYjUSlRftdDTkayqfrV7MgB9hrveeupgCS+RMI
-         fh9lHbjnjJ3n/p6QT9oM0g5tJHeoopWsffDhEuQyBrR4L4MotOBPo7tXvCKtE2fLmDdq
-         J7vy7uMDEdIO//4+TzA3wWdTZQslsTh+3/toaz4odXNNDUQCgY8Scx8hgXV95D0za0KH
-         TdjefH3Dfljn8jBBW137xkhtN7w+qThPs6vv6ZoLtmhm3a+jGpKXbqcSJ6UQyYUR9aih
-         2N9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXODhxi2KIXdaz4tY4k9JUQYQKq+GTBo6zqtm7uacMM1LKzZC2ybmoXhWSF8EtdnYVOYjxfS5mIF5g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXnjvl0wa/ivsiTkBy6j6gHDAdwJ0INIAv/XpkZOuPNUpPasm7
-	hA8z8IDhm8sjlCWtFF9jOhzOBHL4ZLBtJplas1N0badzlWrL2Ao6EQrmR6xrEHUY6Z5NNaryVz7
-	2syy40lxyAX118Wijb8kXjuhSQeHU83MoPmex954MYc0D5lDXfc57/Ek=
-X-Google-Smtp-Source: AGHT+IFV+ki/og+ynEYa3x+hrLV2cKzsvxHzX28vc/Gong4u9ZA9/KBYgHozqiuX5HtOfa7I7NHKPQUrWMhUoBdhCEKPTcWehmtm
+        d=1e100.net; s=20230601; t=1743084563; x=1743689363;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4LZ7mfR7Lc9EP1nYqKnYAem0aGcyUg3E8Ey9SapUJck=;
+        b=IRw71pST/uQtQ1u4bxz/OAwxDy6a1WomKw0VZnP9S/qor5XbgeIOAjem/+iuVzs4Mz
+         JFPgBrN+XbiD32A2sZYlYN1PVI8j5NogGbBqB1l2q6fj4T7yaUGgRrSBqfPOPxj4YgbN
+         J7SiKLrENDP6VxlxZD+KYA+guIPk35G4cc45Fq699yCZwJ7qiwx+uKe6qMgIb57y6X87
+         BeJVi0YelOWh4CoMCaZ63ypYSBvzmeLDm73LnfZZgt5lmQkg1BJShri90ESmuaI92bRc
+         4dbOz55Z0I+ItCm0hjtYpp8XRyBu4kojPqD9q/muyzRzBvi6X6H3+5o+k/MgJOqUYpIc
+         ORow==
+X-Forwarded-Encrypted: i=1; AJvYcCXu7BZwlMqbhwMtbTt7pGZdFo30SXIRqx9+ASWN5tilLOjGoOyqW2KVW1Jvd3AjeGQQhHdVMgx6L0k=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxrv6grYebfxUpw+udhPDB4Srhhp+WZ+iy/6L4SnxcJqcB876h6
+	mgctviPpMn8nykRegTfZ3kjrzLf8H2JqPL4OfPRXddqTbPAhIyIVJVkHrKlAcbrfiYwE3sOXZ7d
+	9jm3OifjGA5gTy/tb0oE2DzNE8aTNxJJsWOO2iHHOZHbF46jBU+JFLDw=
+X-Google-Smtp-Source: AGHT+IHk7J352EBXlhx0rbPbcAamqA3iw7XusQRXczqxctlKg7CPQNrPQ3m6wWsEyeYOTpxlfwAuYIYSU7wU0NKSuIyavxDwU4Cs
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1c0b:b0:3d3:d4f0:271d with SMTP id
- e9e14a558f8ab-3d44196ff85mr126243005ab.12.1741512988912; Sun, 09 Mar 2025
- 01:36:28 -0800 (PST)
-Date: Sun, 09 Mar 2025 01:36:28 -0800
+X-Received: by 2002:a92:cd8e:0:b0:3d4:700f:67e2 with SMTP id
+ e9e14a558f8ab-3d5ccdc95camr40598995ab.10.1743084562801; Thu, 27 Mar 2025
+ 07:09:22 -0700 (PDT)
+Date: Thu, 27 Mar 2025 07:09:22 -0700
+In-Reply-To: <67cd611c.050a0220.14db68.0073.GAE@google.com>
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <67cd611c.050a0220.14db68.0073.GAE@google.com>
-Subject: [syzbot] [x25?] possible deadlock in lapbeth_device_event
+Message-ID: <67e55c12.050a0220.2f068f.002c.GAE@google.com>
+Subject: Re: [syzbot] [x25?] possible deadlock in lapbeth_device_event
 From: syzbot <syzbot+377b71db585c9c705f8e@syzkaller.appspotmail.com>
-To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
+To: andrew+netdev@lunn.ch, andrew@lunn.ch, davem@davemloft.net, 
+	edumazet@google.com, eric.dumazet@gmail.com, horms@kernel.org, 
 	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org, 
-	ms@dev.tdt.de, netdev@vger.kernel.org, pabeni@redhat.com, 
-	syzkaller-bugs@googlegroups.com
+	lkp@intel.com, llvm@lists.linux.dev, ms@dev.tdt.de, netdev@vger.kernel.org, 
+	oe-kbuild-all@lists.linux.dev, pabeni@redhat.com, sdf@fomichev.me, 
+	stfomichev@gmail.com, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+syzbot has found a reproducer for the following issue on:
 
-syzbot found the following issue on:
-
-HEAD commit:    8ef890df4031 net: move misc netdev_lock flavors to a separ..
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=149cd878580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=ca99d9d1f4a8ecfa
+HEAD commit:    1a9239bb4253 Merge tag 'net-next-6.15' of git://git.kernel..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=15503804580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=95c3bbe7ce8436a7
 dashboard link: https://syzkaller.appspot.com/bug?extid=377b71db585c9c705f8e
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1054d4b7980000
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=139a6bb0580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16974a4c580000
 
 Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/ed25b0258c8e/disk-8ef890df.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/2989aa28823e/vmlinux-8ef890df.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/0e040be79a3d/bzImage-8ef890df.xz
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7feb34a89c2a/non_bootable_disk-1a9239bb.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/bd56e2f824c3/vmlinux-1a9239bb.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/19172b7f9497/bzImage-1a9239bb.xz
 
 IMPORTANT: if you fix the issue, please add the following tag to the commit:
 Reported-by: syzbot+377b71db585c9c705f8e@syzkaller.appspotmail.com
 
 ============================================
 WARNING: possible recursive locking detected
-6.14.0-rc5-syzkaller-01147-g8ef890df4031 #0 Not tainted
+6.14.0-syzkaller-05877-g1a9239bb4253 #0 Not tainted
 --------------------------------------------
-dhcpcd/5500 is trying to acquire lock:
-ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
-ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: netif_napi_add_weight include/linux/netdevice.h:2763 [inline]
-ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_new_device drivers/net/wan/lapbether.c:415 [inline]
-ffff888031330d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_device_event+0x766/0xa20 drivers/net/wan/lapbether.c:460
+dhcpcd/5649 is trying to acquire lock:
+ffff888023ad4d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2751 [inline]
+ffff888023ad4d28 (&dev->lock){+.+.}-{4:4}, at: netif_napi_add_weight include/linux/netdevice.h:2783 [inline]
+ffff888023ad4d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_new_device drivers/net/wan/lapbether.c:415 [inline]
+ffff888023ad4d28 (&dev->lock){+.+.}-{4:4}, at: lapbeth_device_event+0x586/0xbe0 drivers/net/wan/lapbether.c:460
 
 but task is already holding lock:
-ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
-ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:40 [inline]
-ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0x120/0x270 net/core/dev_api.c:67
+ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2751 [inline]
+ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:42 [inline]
+ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:39 [inline]
+ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0xa7/0x250 net/core/dev_api.c:67
 
 other info that might help us debug this:
  Possible unsafe locking scenario:
@@ -99,77 +103,63 @@ other info that might help us debug this:
 
  May be due to missing lock nesting notation
 
-2 locks held by dhcpcd/5500:
- #0: ffffffff8fed6908 (rtnl_mutex){+.+.}-{4:4}, at: rtnl_net_lock include/linux/rtnetlink.h:130 [inline]
- #0: ffffffff8fed6908 (rtnl_mutex){+.+.}-{4:4}, at: devinet_ioctl+0x34c/0x1d80 net/ipv4/devinet.c:1121
- #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2731 [inline]
- #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:40 [inline]
- #1: ffff88806408cd28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0x120/0x270 net/core/dev_api.c:67
+2 locks held by dhcpcd/5649:
+ #0: ffffffff900fb268 (rtnl_mutex){+.+.}-{4:4}, at: rtnl_net_lock include/linux/rtnetlink.h:130 [inline]
+ #0: ffffffff900fb268 (rtnl_mutex){+.+.}-{4:4}, at: devinet_ioctl+0x26d/0x1f50 net/ipv4/devinet.c:1121
+ #1: ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock include/linux/netdevice.h:2751 [inline]
+ #1: ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:42 [inline]
+ #1: ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: netdev_lock_ops include/net/netdev_lock.h:39 [inline]
+ #1: ffff888029940d28 (&dev->lock){+.+.}-{4:4}, at: dev_change_flags+0xa7/0x250 net/core/dev_api.c:67
 
 stack backtrace:
-CPU: 0 UID: 0 PID: 5500 Comm: dhcpcd Not tainted 6.14.0-rc5-syzkaller-01147-g8ef890df4031 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/12/2025
+CPU: 1 UID: 0 PID: 5649 Comm: dhcpcd Not tainted 6.14.0-syzkaller-05877-g1a9239bb4253 #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
 Call Trace:
  <TASK>
  __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
- print_deadlock_bug+0x483/0x620 kernel/locking/lockdep.c:3039
- check_deadlock kernel/locking/lockdep.c:3091 [inline]
- validate_chain+0x15e2/0x5920 kernel/locking/lockdep.c:3893
- __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5228
- lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5851
- __mutex_lock_common kernel/locking/mutex.c:585 [inline]
- __mutex_lock+0x19c/0x1010 kernel/locking/mutex.c:730
- netdev_lock include/linux/netdevice.h:2731 [inline]
- netif_napi_add_weight include/linux/netdevice.h:2763 [inline]
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ print_deadlock_bug+0x1e9/0x240 kernel/locking/lockdep.c:3042
+ check_deadlock kernel/locking/lockdep.c:3094 [inline]
+ validate_chain kernel/locking/lockdep.c:3896 [inline]
+ __lock_acquire+0xff7/0x1ba0 kernel/locking/lockdep.c:5235
+ lock_acquire kernel/locking/lockdep.c:5866 [inline]
+ lock_acquire+0x179/0x350 kernel/locking/lockdep.c:5823
+ __mutex_lock_common kernel/locking/mutex.c:587 [inline]
+ __mutex_lock+0x19a/0xb00 kernel/locking/mutex.c:732
+ netdev_lock include/linux/netdevice.h:2751 [inline]
+ netif_napi_add_weight include/linux/netdevice.h:2783 [inline]
  lapbeth_new_device drivers/net/wan/lapbether.c:415 [inline]
- lapbeth_device_event+0x766/0xa20 drivers/net/wan/lapbether.c:460
- notifier_call_chain+0x1a5/0x3f0 kernel/notifier.c:85
- __dev_notify_flags+0x207/0x400
- netif_change_flags+0xf0/0x1a0 net/core/dev.c:9443
- dev_change_flags+0x146/0x270 net/core/dev_api.c:68
- devinet_ioctl+0xea2/0x1d80 net/ipv4/devinet.c:1200
- inet_ioctl+0x3d7/0x4f0 net/ipv4/af_inet.c:1001
- sock_do_ioctl+0x158/0x460 net/socket.c:1190
- sock_ioctl+0x626/0x8e0 net/socket.c:1309
+ lapbeth_device_event+0x586/0xbe0 drivers/net/wan/lapbether.c:460
+ notifier_call_chain+0xb9/0x410 kernel/notifier.c:85
+ call_netdevice_notifiers_info+0xbe/0x140 net/core/dev.c:2180
+ call_netdevice_notifiers_extack net/core/dev.c:2218 [inline]
+ call_netdevice_notifiers net/core/dev.c:2232 [inline]
+ __dev_notify_flags+0x12c/0x2e0 net/core/dev.c:9409
+ netif_change_flags+0x108/0x160 net/core/dev.c:9438
+ dev_change_flags+0xba/0x250 net/core/dev_api.c:68
+ devinet_ioctl+0x11d5/0x1f50 net/ipv4/devinet.c:1200
+ inet_ioctl+0x3a7/0x3f0 net/ipv4/af_inet.c:1001
+ sock_do_ioctl+0x115/0x280 net/socket.c:1190
+ sock_ioctl+0x227/0x6b0 net/socket.c:1311
  vfs_ioctl fs/ioctl.c:51 [inline]
  __do_sys_ioctl fs/ioctl.c:906 [inline]
- __se_sys_ioctl+0xf5/0x170 fs/ioctl.c:892
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ __se_sys_ioctl fs/ioctl.c:892 [inline]
+ __x64_sys_ioctl+0x190/0x200 fs/ioctl.c:892
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xcd/0x260 arch/x86/entry/syscall_64.c:94
  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fcdbbcb2d49
+RIP: 0033:0x7effd384cd49
 Code: 5c c3 48 8d 44 24 08 48 89 54 24 e0 48 89 44 24 c0 48 8d 44 24 d0 48 89 44 24 c8 b8 10 00 00 00 c7 44 24 b8 10 00 00 00 0f 05 <41> 89 c0 3d 00 f0 ff ff 76 10 48 8b 15 ae 60 0d 00 f7 d8 41 83 c8
-RSP: 002b:00007ffecf47b768 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007fcdbbbe46c0 RCX: 00007fcdbbcb2d49
-RDX: 00007ffecf48b958 RSI: 0000000000008914 RDI: 000000000000000c
-RBP: 00007ffecf49bb18 R08: 00007ffecf48b918 R09: 00007ffecf48b8c8
+RSP: 002b:00007ffedd440088 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007effd377e6c0 RCX: 00007effd384cd49
+RDX: 00007ffedd450278 RSI: 0000000000008914 RDI: 000000000000001a
+RBP: 00007ffedd460438 R08: 00007ffedd450238 R09: 00007ffedd4501e8
 R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffecf48b958 R14: 0000000000000028 R15: 0000000000008914
+R13: 00007ffedd450278 R14: 0000000000000028 R15: 0000000000008914
  </TASK>
 
 
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
 If you want syzbot to run the reproducer, reply with:
 #syz test: git://repo/address.git branch-or-commit-hash
 If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
