@@ -1,76 +1,60 @@
-Received: from mxout70.expurgate.net (mxout70.expurgate.net [91.198.224.70])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 811D421858E;
-	Mon, 14 Jul 2025 06:27:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.198.224.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA1835975;
+	Tue, 15 Jul 2025 00:30:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752474468; cv=none; b=MWOnXUla8NMvbdxd9hBKYg5CYl3BRgMiUoTsMPyn55hIhzq0zqS7xix4DcR3qzz9noZKNPXUqt6ac3j7udoZ0kHN50TnsdLUwhrjM4iir0aJyH3OEw4CpHOOTznhx7hnkery7NAWpqn6XdviBbGVAzusUU47MQdCMWsZ8m8W8NM=
+	t=1752539404; cv=none; b=q6nbNFCmv7zgfAoCW9g8C9xFKj1v2U90drTKrWmDDU4amlvfL92QiYrQG7dik3tAYBG1G0zEkLdrIQ2zqYo+LCIFyOlL4XCHNENeY3qQH5vEBe/36n+Tu3COEClxXXg+0zVrS+KDAYqCD3y65iJP5IV33ZdbrTzMFcSeInITd8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752474468; c=relaxed/simple;
-	bh=FokIb/jsQEmBa3MveOcLQeQ5FcS9JKxSSYV1cXqWoyI=;
-	h=MIME-Version:Content-Type:Date:From:To:Cc:Subject:In-Reply-To:
-	 References:Message-ID; b=U8VFd2GVH5Mir0S5tpJkhzJAbBM7PMS8hVm8eqcVVUU0gNCW///IAezRVSHZo6FJVbFEt4pxj4g0oJt+F0tTlEtQ9yJo2f+A67TShVZ9G+uH5zNbT1Ka/QFOhxBrlakULRXmKFCRpannrhomPqGl3SH8lmNSXWnJGSCEUgdOK7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de; spf=pass smtp.mailfrom=dev.tdt.de; dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b=SonpvYYC; arc=none smtp.client-ip=91.198.224.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
+	s=arc-20240116; t=1752539404; c=relaxed/simple;
+	bh=lcF2G8iCOcu9fTmUjDPhHnqA3nglgQrLc/WE8LvvmjA=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=L3bTR+o6pX9Btq98PPAsrVKEsOJg93ni+Ad4paFmKrZkgbJ8QpMPmVvAww3XL/5T5aqli7FfsERz+yi9Oiwzus2qhhedFdhWX6CYT+86o3Ry4Cs3VdaxjcLUKM+Q4JKG1K9kxw/hcr8Q+x2BFIuoLfj0BqQglnqtpTiFX+gpm7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CiLw0qbd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b="SonpvYYC"
-Received: from [194.37.255.9] (helo=mxout.expurgate.net)
-	by relay.expurgate.net with smtp (Exim 4.92)
-	(envelope-from <prvs=5304a106dc=ms@dev.tdt.de>)
-	id 1ubCPo-008vkV-Br; Mon, 14 Jul 2025 08:11:52 +0200
-Received: from [195.243.126.94] (helo=securemail.tdt.de)
-	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ms@dev.tdt.de>)
-	id 1ubCPn-003z0h-4E; Mon, 14 Jul 2025 08:11:51 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
-	s=z1-selector1; t=1752473510;
-	bh=0+9k2CPi1wzcWs6e7GPr7hixdhS1n+Z8U0EKokBj2LU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=SonpvYYC2v4hw3y55rz75vTgWjRVNDCVoag/JL2Pfgdk83IuTLgR6oDkbDcSfEQ8p
-	 QCbV/Kx+krEYGvSF0l6yLyB7cV4h7gFH/SdiECkhpSwxspORDO5DJ58jRCQ8GGrRVS
-	 Qe5Kl/ldjT0qLU3kKBIcqibpDHb4SsWmx+kxv9cFVaoXpnLRLsW7YcjSzAqFwTX/Mv
-	 gTvK1bjU7USyv/a8fKNI0hHlb8zhHVdCoE1ERDhxvTRM6r5gf00QMu8y3hyhI9KiEI
-	 J57OUy0bF52g8DRheDcZhVGwv+42EaPmj4prpxZ+B0iX5FBIOVEVOcJvIO8cytVtSL
-	 971g8LZecMN6A==
-Received: from securemail.tdt.de (localhost [127.0.0.1])
-	by securemail.tdt.de (Postfix) with ESMTP id 9859F240040;
-	Mon, 14 Jul 2025 08:11:50 +0200 (CEST)
-Received: from mail.dev.tdt.de (unknown [10.2.4.42])
-	by securemail.tdt.de (Postfix) with ESMTP id 88C61240036;
-	Mon, 14 Jul 2025 08:11:50 +0200 (CEST)
-Received: from mail.dev.tdt.de (localhost [IPv6:::1])
-	by mail.dev.tdt.de (Postfix) with ESMTP id BCF7E214EB;
-	Mon, 14 Jul 2025 08:11:49 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CiLw0qbd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB64C4CEED;
+	Tue, 15 Jul 2025 00:30:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1752539404;
+	bh=lcF2G8iCOcu9fTmUjDPhHnqA3nglgQrLc/WE8LvvmjA=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=CiLw0qbd6s6aDGlnKRbCYPwh5yaczjnYdHFnfnUO5SKBcVBYWjZPBIVWd1xvCNLTc
+	 oWfWYogGovVMA2OK2eGE8s+PR/xBPDGyDgqaQy7rL9sQ+v2Fkk4D7JO/w3C1Mr/rx6
+	 TTm9+Z6BVhkGoVxpFc4xWt4OALr9k2qHYct7ycal/1D7ktKD3A2Bp9VvFslXRnHu0w
+	 k14jG9JSGDrZfh8fmwEu4v0MzttJGmj7tnilKsoQx0VTPvqNn9W5K1SfTZIfveZHWC
+	 +bGxpdMMf8hHizSW1j/RB1VK1lFPnIpIrOu3WmBkRJwnFz0SCdOCoG64EpG9db7f/B
+	 kPWhYp6c5y00w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33AD4383B276;
+	Tue, 15 Jul 2025 00:30:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Mon, 14 Jul 2025 08:11:49 +0200
-From: Martin Schiller <ms@dev.tdt.de>
-To: linux@treblig.org
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org, linux-x25@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 Subject: Re: [PATCH net-next] net/x25: Remove unused x25_terminate_link()
-Organization: TDT AG
-In-Reply-To: <20250712205759.278777-1-linux@treblig.org>
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175253942475.4037397.690068649003103114.git-patchwork-notify@kernel.org>
+Date: Tue, 15 Jul 2025 00:30:24 +0000
 References: <20250712205759.278777-1-linux@treblig.org>
-Message-ID: <6c677b5f49f57abdaaf499db719131f8@dev.tdt.de>
-X-Sender: ms@dev.tdt.de
-User-Agent: Roundcube Webmail/1.3.17
-X-purgate: clean
-X-purgate-type: clean
-X-purgate-ID: 151534::1752473511-AE7FA327-B4D8B24F/0/0
+In-Reply-To: <20250712205759.278777-1-linux@treblig.org>
+To: Dr. David Alan Gilbert <linux@treblig.org>
+Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, linux-x25@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2025-07-12 22:57, linux@treblig.org wrote:
+Hello:
+
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Sat, 12 Jul 2025 21:57:59 +0100 you wrote:
 > From: "Dr. David Alan Gilbert" <linux@treblig.org>
 > 
 > x25_terminate_link() has been unused since the last use was removed
@@ -79,57 +63,15 @@ On 2025-07-12 22:57, linux@treblig.org wrote:
 > 
 > Remove it.
 > 
-> Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
-> ---
->  include/net/x25.h |  1 -
->  net/x25/x25_dev.c | 22 ----------------------
->  2 files changed, 23 deletions(-)
-> 
-> diff --git a/include/net/x25.h b/include/net/x25.h
-> index 5e833cfc864e..414f3fd99345 100644
-> --- a/include/net/x25.h
-> +++ b/include/net/x25.h
-> @@ -203,7 +203,6 @@ void x25_send_frame(struct sk_buff *, struct 
-> x25_neigh *);
->  int x25_lapb_receive_frame(struct sk_buff *, struct net_device *,
->  			   struct packet_type *, struct net_device *);
->  void x25_establish_link(struct x25_neigh *);
-> -void x25_terminate_link(struct x25_neigh *);
-> 
->  /* x25_facilities.c */
->  int x25_parse_facilities(struct sk_buff *, struct x25_facilities *,
-> diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
-> index 748d8630ab58..fb8ac1aa5826 100644
-> --- a/net/x25/x25_dev.c
-> +++ b/net/x25/x25_dev.c
-> @@ -170,28 +170,6 @@ void x25_establish_link(struct x25_neigh *nb)
->  	dev_queue_xmit(skb);
->  }
-> 
-> -void x25_terminate_link(struct x25_neigh *nb)
-> -{
-> -	struct sk_buff *skb;
-> -	unsigned char *ptr;
-> -
-> -	if (nb->dev->type != ARPHRD_X25)
-> -		return;
-> -
-> -	skb = alloc_skb(1, GFP_ATOMIC);
-> -	if (!skb) {
-> -		pr_err("x25_dev: out of memory\n");
-> -		return;
-> -	}
-> -
-> -	ptr  = skb_put(skb, 1);
-> -	*ptr = X25_IFACE_DISCONNECT;
-> -
-> -	skb->protocol = htons(ETH_P_X25);
-> -	skb->dev      = nb->dev;
-> -	dev_queue_xmit(skb);
-> -}
-> -
->  void x25_send_frame(struct sk_buff *skb, struct x25_neigh *nb)
->  {
->  	unsigned char *dptr;
+> [...]
 
-Acked-by: Martin Schiller <ms@dev.tdt.de>
+Here is the summary with links:
+  - [net-next] net/x25: Remove unused x25_terminate_link()
+    https://git.kernel.org/netdev/net-next/c/08a305b2a5b8
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
