@@ -1,35 +1,70 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA1835975;
-	Tue, 15 Jul 2025 00:30:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A1721FF33;
+	Wed,  6 Aug 2025 21:37:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752539404; cv=none; b=q6nbNFCmv7zgfAoCW9g8C9xFKj1v2U90drTKrWmDDU4amlvfL92QiYrQG7dik3tAYBG1G0zEkLdrIQ2zqYo+LCIFyOlL4XCHNENeY3qQH5vEBe/36n+Tu3COEClxXXg+0zVrS+KDAYqCD3y65iJP5IV33ZdbrTzMFcSeInITd8k=
+	t=1754516250; cv=none; b=mMnOTQkosvd82xV+EDLeLwK5mVoXjWXHE75Rgo8fRP1rpOy0SOTl9hpEXiGElmA0z3bhlostCBTbGRerp1SZ8RuJ/LzeMXlb4HDCzC9/l6YqkfNPg9x7fjOFn8OEhctX49HGMhobwnbTDhXpg7yWd2oofBkLKSPfGwXZM7moaC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752539404; c=relaxed/simple;
-	bh=lcF2G8iCOcu9fTmUjDPhHnqA3nglgQrLc/WE8LvvmjA=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=L3bTR+o6pX9Btq98PPAsrVKEsOJg93ni+Ad4paFmKrZkgbJ8QpMPmVvAww3XL/5T5aqli7FfsERz+yi9Oiwzus2qhhedFdhWX6CYT+86o3Ry4Cs3VdaxjcLUKM+Q4JKG1K9kxw/hcr8Q+x2BFIuoLfj0BqQglnqtpTiFX+gpm7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CiLw0qbd; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CiLw0qbd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB64C4CEED;
-	Tue, 15 Jul 2025 00:30:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752539404;
-	bh=lcF2G8iCOcu9fTmUjDPhHnqA3nglgQrLc/WE8LvvmjA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=CiLw0qbd6s6aDGlnKRbCYPwh5yaczjnYdHFnfnUO5SKBcVBYWjZPBIVWd1xvCNLTc
-	 oWfWYogGovVMA2OK2eGE8s+PR/xBPDGyDgqaQy7rL9sQ+v2Fkk4D7JO/w3C1Mr/rx6
-	 TTm9+Z6BVhkGoVxpFc4xWt4OALr9k2qHYct7ycal/1D7ktKD3A2Bp9VvFslXRnHu0w
-	 k14jG9JSGDrZfh8fmwEu4v0MzttJGmj7tnilKsoQx0VTPvqNn9W5K1SfTZIfveZHWC
-	 +bGxpdMMf8hHizSW1j/RB1VK1lFPnIpIrOu3WmBkRJwnFz0SCdOCoG64EpG9db7f/B
-	 kPWhYp6c5y00w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33AD4383B276;
-	Tue, 15 Jul 2025 00:30:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1754516250; c=relaxed/simple;
+	bh=d08/BzmEk7xsPuga/+Y6sgHIvvOsUVxfjOjKWswdj7c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=m/DbpiY8wAzj1jqag/UQ5z+QrdWDnfUZPGRIUmVwH+go5IgFFfsvM0ct2Hy9jN0o9zWHR9u0AyD5mA9pWRRYqqZ+tg7IPizKYSyEJlVkwT1QLikjURdT+jXndRDAsW5njpgidVPRzPKpkhD/Am6AR1OYZAcRptTa8BZj4r53iuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fomichev.me; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fomichev.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-31efc10bb03so350243a91.0;
+        Wed, 06 Aug 2025 14:37:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754516247; x=1755121047;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3qCIvuNBq4ySoSBRMy/pjsnvmjDJSZDTcQbr0YEK14M=;
+        b=i6mtMgnr86o35F8FK5BtyodcWqDD9htO2ZmHSaPeWSkSYSyKxWzatML9LWMZYkq8Jp
+         UkoDVC+awtyh1Xs2jICYEJRhntXNa2bRNGcfFBIkZdjzuYSSjkX86ScV/ePezQHcvr4a
+         eb+vCaY8+kRJgijEmJ6ZzTlSCgJGtvsDeo7TqUA6EhndJULY6UFrWwaE9y9ewYVyX0GN
+         WZrQITlNUopkAcAz2YPN5TVM8e9x7Go5jSw1AvyNwYgsad+HUx6xivfW0Ekp1G+NVI8x
+         FYlzsDf473TX0jGUokHF3eY9oEjSK+wJ6J5oNDMkxek0XZ/XV0KWbfB/zgrx7SVgStY9
+         IdAg==
+X-Forwarded-Encrypted: i=1; AJvYcCVP9lovGFK90NUSS8ezJM1Caihip+8PFolDQ2bLv7mpEQt3WwFlrtkea850tWxgGNilTn/J86acV+2W@vger.kernel.org, AJvYcCWZLT69SMwV3uZtFBXXruyLNHGI9o1Z6sKYi0CsoX29mlrX1gSpaJ7f4SB+/x69MW9Ln3E=@vger.kernel.org, AJvYcCXd4API2ZyRPv2SbGq81RHWBOOkGv25q6U/bi4Wv3vh082JWlvN5GZAKoiPLHXZJ7/1eFlJgnrEgrjXn+dU@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxv5sNgG215oefLQnIs5LHCq9OFmpQEeshhnnafR/04GbYUQqGi
+	nO4EIvm3YoyxnOYPfurM0he/bFvyFwNH1dE+ioNCAJQ8kr7LZMrY3ty0FRpe
+X-Gm-Gg: ASbGncttDbBgl6Y3t+05hP7lc07k2LLF4/hRpd4smqM45CB8FKtk0mfUHaSv0PtKWIQ
+	3H+vYL+0XyEQ94Led96QudMsAlAe6ayZl5mMOAlmwqpJWWwWOFO0SZ/YqSyLWBEUYp8H/av0p+5
+	gnJ2BkUHzJADjP66mmQU1OeRa4hvloY9x4lS31Lv3HsXMpulA2+bELIs9pzWb12a31/zOnSwo+H
+	DQ7HMeYzkfX6/Vq6Huu8mRs6oXY3wkB7ZqWmU19TojJxqyVwEXFp4uWroBlIOliKyZA9ANRvF4U
+	RHwa2B3TnAGesDuezZgEvJKf3a56uevd3i/s8nuyGGvf6qH9J8zWt9yUBAHk3cLpJIIpO4Q+ckx
+	YjLwK0irE1RBpJT/OU9HOz5IEoDjy20onls1N6DtpBUl8LfMiOcXxm4zk+0VZN+Qmdf1eLQ==
+X-Google-Smtp-Source: AGHT+IEpjgR8dCl+AsMMIzBN0nJK2Y2HHQAWkN21Tc/AXTNfQ2pmiR1UrsO/vIBdCRNy0+nydvsumw==
+X-Received: by 2002:a17:90b:524f:b0:312:e8ed:758 with SMTP id 98e67ed59e1d1-32166c20054mr5946894a91.13.1754516247331;
+        Wed, 06 Aug 2025 14:37:27 -0700 (PDT)
+Received: from localhost (c-73-158-218-242.hsd1.ca.comcast.net. [73.158.218.242])
+        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-3216126c98fsm3664945a91.21.2025.08.06.14.37.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Aug 2025 14:37:26 -0700 (PDT)
+From: Stanislav Fomichev <sdf@fomichev.me>
+To: netdev@vger.kernel.org
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	andrew+netdev@lunn.ch,
+	ms@dev.tdt.de,
+	ast@kernel.org,
+	daniel@iogearbox.net,
+	hawk@kernel.org,
+	john.fastabend@gmail.com,
+	sdf@fomichev.me,
+	aleksander.lobakin@intel.com,
+	linux-kernel@vger.kernel.org,
+	linux-x25@vger.kernel.org,
+	bpf@vger.kernel.org,
+	syzbot+e67ea9c235b13b4f0020@syzkaller.appspotmail.com
+Subject: [PATCH net 1/2] net: lapbether: ignore ops-locked netdevs
+Date: Wed,  6 Aug 2025 14:37:25 -0700
+Message-ID: <20250806213726.1383379-1-sdf@fomichev.me>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
@@ -37,41 +72,56 @@ List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/x25: Remove unused x25_terminate_link()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175253942475.4037397.690068649003103114.git-patchwork-notify@kernel.org>
-Date: Tue, 15 Jul 2025 00:30:24 +0000
-References: <20250712205759.278777-1-linux@treblig.org>
-In-Reply-To: <20250712205759.278777-1-linux@treblig.org>
-To: Dr. David Alan Gilbert <linux@treblig.org>
-Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, linux-x25@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello:
+Syzkaller managed to trigger lock dependency in xsk_notify via
+register_netdevice. As discussed in [0], using register_netdevice
+in the notifiers is problematic so skip adding lapbeth for ops-locked
+devices.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+       xsk_notifier+0xa4/0x280 net/xdp/xsk.c:1645
+       notifier_call_chain+0xbc/0x410 kernel/notifier.c:85
+       call_netdevice_notifiers_info+0xbe/0x140 net/core/dev.c:2230
+       call_netdevice_notifiers_extack net/core/dev.c:2268 [inline]
+       call_netdevice_notifiers net/core/dev.c:2282 [inline]
+       unregister_netdevice_many_notify+0xf9d/0x2700 net/core/dev.c:12077
+       unregister_netdevice_many net/core/dev.c:12140 [inline]
+       unregister_netdevice_queue+0x305/0x3f0 net/core/dev.c:11984
+       register_netdevice+0x18f1/0x2270 net/core/dev.c:11149
+       lapbeth_new_device drivers/net/wan/lapbether.c:420 [inline]
+       lapbeth_device_event+0x5b1/0xbe0 drivers/net/wan/lapbether.c:462
+       notifier_call_chain+0xbc/0x410 kernel/notifier.c:85
+       call_netdevice_notifiers_info+0xbe/0x140 net/core/dev.c:2230
+       call_netdevice_notifiers_extack net/core/dev.c:2268 [inline]
+       call_netdevice_notifiers net/core/dev.c:2282 [inline]
+       __dev_notify_flags+0x12c/0x2e0 net/core/dev.c:9497
+       netif_change_flags+0x108/0x160 net/core/dev.c:9526
+       dev_change_flags+0xba/0x250 net/core/dev_api.c:68
+       devinet_ioctl+0x11d5/0x1f50 net/ipv4/devinet.c:1200
+       inet_ioctl+0x3a7/0x3f0 net/ipv4/af_inet.c:1001
 
-On Sat, 12 Jul 2025 21:57:59 +0100 you wrote:
-> From: "Dr. David Alan Gilbert" <linux@treblig.org>
-> 
-> x25_terminate_link() has been unused since the last use was removed
-> in 2020 by:
-> commit 7eed751b3b2a ("net/x25: handle additional netdev events")
-> 
-> Remove it.
-> 
-> [...]
+0: https://lore.kernel.org/netdev/20250625140357.6203d0af@kernel.org/
+Fixes: 4c975fd70002 ("net: hold instance lock during NETDEV_REGISTER/UP")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+e67ea9c235b13b4f0020@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=e67ea9c235b13b4f0020
+Signed-off-by: Stanislav Fomichev <sdf@fomichev.me>
+---
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Here is the summary with links:
-  - [net-next] net/x25: Remove unused x25_terminate_link()
-    https://git.kernel.org/netdev/net-next/c/08a305b2a5b8
-
-You are awesome, thank you!
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 995a7207bdf8..f357a7ac70ac 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -81,7 +81,7 @@ static struct lapbethdev *lapbeth_get_x25_dev(struct net_device *dev)
+ 
+ static __inline__ int dev_is_ethdev(struct net_device *dev)
+ {
+-	return dev->type == ARPHRD_ETHER && strncmp(dev->name, "dummy", 5);
++	return dev->type == ARPHRD_ETHER && !netdev_need_ops_lock(dev);
+ }
+ 
+ /* ------------------------------------------------------------------------ */
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.50.1
 
