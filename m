@@ -1,60 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mxout70.expurgate.net (mxout70.expurgate.net [194.37.255.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0F4027472;
-	Sat, 28 Mar 2026 00:33:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 893F237E2EE;
+	Mon, 30 Mar 2026 06:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.37.255.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774658015; cv=none; b=vAeGF9g+AoqMxa/DKdaf0B2vq3YVt0I8K78kaszHufD3o/6HjHqd+1l1+jjd+7PqQA9MBwnwS8FvYmmV5zwmfit5acqfbZxeIaHXvnfzjfhWnGvzylG68ilSOt66sWV+yN5aQAVIbHYPH+T3OpmRLzxcwZ8SQFnvtNAF8slzROA=
+	t=1774852591; cv=none; b=TADWrbQKdcZe0wO8F9lFlG4BtO84nf/PyXLMRilDnOP53hebm9/oHyjamF8sIpLX7CyNiCKpFK74sD8oOIh551YccKbKzdRVeO2+Uqr/eCeu9ZLxg/RgowOaW9BB8Z0yX5MlNe5LKWC4fSkC9IIatLJ7AoLRUZuGZfK4dag2Efo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774658015; c=relaxed/simple;
-	bh=ek6qtnjmWH1Vxb53j8u1fMJG2PqErRkSwBDjxGRCEic=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kYeSPpNX65L4gB53fF1jN+Nwqe4OP1p6E89UpppBfhG6CewOlYAbehTAdmkxCCiOPiEbFYf5aElT+7jI0M6cz0+VZWTo8AaSlCDKUAmWS2oBEeLI/FOM7dSqtSZVm4ekqOYbhO5DmejK8Swg4ChgLyKeLxkuVMAllm3st3UzBGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LePBlutr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774852591; c=relaxed/simple;
+	bh=XpLY8vVk+xjtPNLx85ccvF3JVVYJ1ep257Dx4BmBWOo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:Cc; b=NhWSbRAYSwKGyYrwRy2148aTPCo5HM84hw4FhKEexGkwRB+4zdFkVrG6BPWncdXqJWepNiZmOgy1mwIeruKMdV0fFy0PYJS/w68kxWAoYaj8wQS3wkNDAJEj+eCWlqljt8lostnPbHf03B3OwOAMhh+9wxk7j4GDm5WOHDKwNhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de; spf=pass smtp.mailfrom=dev.tdt.de; dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b=nxZ+9mXe; arc=none smtp.client-ip=194.37.255.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LePBlutr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520B4C19423;
-	Sat, 28 Mar 2026 00:33:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774658014;
-	bh=ek6qtnjmWH1Vxb53j8u1fMJG2PqErRkSwBDjxGRCEic=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=LePBlutrzAIavrVidgMT1Hn05mD15a+OP+bNz9tqg3koccogw6bncnoUMbNZe5XYQ
-	 HDRiz5nBjVxqm+dwDyM6SzFbFT9oZz2+CmQwErpAJlyZh7CxOLTSGSviK4vX+bQw9J
-	 WV0AaAPeh1uFGK+Oke9YozJnSGbUYEzhYNhfaN60Ij8yMF+O2BUfaOfVwjqfAfd2l/
-	 jZijf6X6rUrBbAO5rzyfIV5bTBe910U0pi3gUegOjby5uvHku7cJzX/qoAL5CEG1OW
-	 /EozEk0PMjeBrFyViGLNabEef/az6yuAH3Q4T3TuhMsSBgvExqY386dTCL+9DOmCv+
-	 MU8yvy/Ur8yAg==
-Date: Fri, 27 Mar 2026 17:33:23 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Yiming Qian
- <yimingqian591@gmail.com>, linux-x25@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, security@kernel.org
-Subject: Re: [PATCH net] net/x25: Fix overflow when accumulating packets
-Message-ID: <20260327173323.4f4783df@kernel.org>
-In-Reply-To: <b2099069e5dce49a0bc068a8d318f3a2@dev.tdt.de>
-References: <20260327-x25_fraglen-v1-1-9fc751d4f754@dev.tdt.de>
-	<b2099069e5dce49a0bc068a8d318f3a2@dev.tdt.de>
+	dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b="nxZ+9mXe"
+Received: from [194.37.255.9] (helo=mxout.expurgate.net)
+	by relay.expurgate.net with smtp (Exim 4.92)
+	(envelope-from <prvs=6563b15e2e=ms@dev.tdt.de>)
+	id 1w76ER-007lIZ-Ib; Mon, 30 Mar 2026 08:36:15 +0200
+Received: from [195.243.126.94] (helo=securemail.tdt.de)
+	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ms@dev.tdt.de>)
+	id 1w76EQ-00BUzF-BW; Mon, 30 Mar 2026 08:36:14 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
+	s=z1-selector1; t=1774852573;
+	bh=dlCl+45yJDKGfUis8Ieb5mpkcMlP0GxwsFcseJrCcJw=;
+	h=From:Date:Subject:To:Cc:From;
+	b=nxZ+9mXeV9t8HYYm81g7fGxpUKgdXONWwX8llMVNsfddoDxRZea46GNrk0Oe3aqCA
+	 2u0nJnzolDvyRmIeoLvnM/uc+19GNiFuZk9N0/FY0z08qFbiTA0c/G7jxrR/d6WOEk
+	 WiqaT3p6m4tKgRYXyEk5tzA0NSAlb9oC4y/oOSBaxZ4Mgzx1aSWUwjXx1NZAcJJ/WG
+	 QYH3QGA3TSbb6SG32hTs+LxEmMT2OaFBR1XQiX7BGFMCrqWwqJ2GVSrJ61w96i6RSB
+	 iJjKM8O8L2YftkSfWFLuj4a1gbxvtPsU78OppNHwgzGvDUF9bQHxCs0CLfgNsCW1+t
+	 tyPm3yxnSZRPQ==
+Received: from securemail.tdt.de (localhost [127.0.0.1])
+	by securemail.tdt.de (Postfix) with ESMTP id BB702240040;
+	Mon, 30 Mar 2026 08:36:13 +0200 (CEST)
+Received: from mail.dev.tdt.de (unknown [10.2.4.42])
+	by securemail.tdt.de (Postfix) with ESMTP id A9FA3240036;
+	Mon, 30 Mar 2026 08:36:13 +0200 (CEST)
+Received: from [127.0.1.1] (unknown [172.16.15.17])
+	by mail.dev.tdt.de (Postfix) with ESMTPSA id 5AF43206DD;
+	Mon, 30 Mar 2026 08:36:13 +0200 (CEST)
+From: Martin Schiller <ms@dev.tdt.de>
+Date: Mon, 30 Mar 2026 08:36:03 +0200
+Subject: [PATCH net v3] net/x25: Fix overflow when accumulating packets
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-ID: <20260330-x25_fraglen-v3-1-5a8938465cfe@dev.tdt.de>
+X-B4-Tracking: v=1; b=H4sIANIZymkC/32NQQrDIBRErxL+uob41aTtqvcopQT9JkIxRUVSQ
+ u5ekW6y6XJmeG82iBQcRbg2GwTKLrrFlyBODeh59BMxZ0oG7LDvBCq2onraME4v8uxsNcrOcDJ
+ GQCHegaxbq+0OnhI8Sjm7mJbwqQ+Z1+knGw6yzBlnF6sHxY20g5I3Q7lNJrWGqijjHxgLzKW4c
+ K6F7XE8wPu+fwFzW56S6QAAAA==
+X-Change-ID: 20260325-x25_fraglen-8fc240d1edd3
+To: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+Cc: Yiming Qian <yimingqian591@gmail.com>, linux-x25@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	security@kernel.org, Martin Schiller <ms@dev.tdt.de>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1774852573; l=2055;
+ i=ms@dev.tdt.de; s=20260220; h=from:subject:message-id;
+ bh=XpLY8vVk+xjtPNLx85ccvF3JVVYJ1ep257Dx4BmBWOo=;
+ b=RiDpVb1WEAt+5dMSFleR93L7KzLJ106RZj7HHM+xNaf0fl6whpEN9yVrU6gBgtFDrHrK6157N
+ BuvlcbRmGpDA0vd5rxYQkZAyL+tk9DyvbmO+/IEhZthJAmFp68I6KpQ
+X-Developer-Key: i=ms@dev.tdt.de; a=ed25519;
+ pk=MAojd7D5IafMnqCYSFC7hY/u/jppX58CLIEhsEsSOYE=
+X-purgate: clean
+X-purgate-ID: 151534::1774852575-EEC25842-B2B2FF62/0/0
+X-purgate-type: clean
 
-On Fri, 27 Mar 2026 09:36:00 +0100 Martin Schiller wrote:
-> > +	/* make sure we don't overflow */
-> > +	if (x25->fraglen + skb->len > sizeof(x25->fraglen)) {  
-> 
-> Please ignore this patch. I'll send a V2 without that
-> "sizeof()" nonsense in a moment.
+Add a check to ensure that `x25_sock.fraglen` does not overflow.
 
-We ask that submitters wait 24h before reposting:
-https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#tl-dr
+The `fraglen` also needs to be resetted when purging `fragment_queue` in
+`x25_clear_queues()`.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Suggested-by: Yiming Qian <yimingqian591@gmail.com>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+---
+Changes in v3:
+- Added missing Cc: Simon Horman <horms@kernel.org>  
+- Added missing Fixes tag
+- Replaced `Reported-by:` by `Suggested-by:`, because I cannot give an
+  URL to the required `Closes:` tag
+- Link to v2: https://lore.kernel.org/r/20260327-x25_fraglen-v2-1-143911c3f62a@dev.tdt.de
+
+Changes in v2:
+- Use USHRT_MAX instead of sizeof(fraglen) nonsense
+- Link to v1: https://lore.kernel.org/r/20260327-x25_fraglen-v1-1-9fc751d4f754@dev.tdt.de
+---
+ net/x25/x25_in.c   | 6 ++++++
+ net/x25/x25_subr.c | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
+index b981a4828d08c2e6676749a06035910eab01e6cd..cb84c683d249d6078f3673835bb2f80eb487f253 100644
+--- a/net/x25/x25_in.c
++++ b/net/x25/x25_in.c
+@@ -34,6 +34,12 @@ static int x25_queue_rx_frame(struct sock *sk, struct sk_buff *skb, int more)
+ 	struct sk_buff *skbo, *skbn = skb;
+ 	struct x25_sock *x25 = x25_sk(sk);
+ 
++	/* make sure we don't overflow */
++	if (x25->fraglen + skb->len > USHRT_MAX) {
++		kfree_skb(skb);
++		return 1;
++	}
++
+ 	if (more) {
+ 		x25->fraglen += skb->len;
+ 		skb_queue_tail(&x25->fragment_queue, skb);
+diff --git a/net/x25/x25_subr.c b/net/x25/x25_subr.c
+index 0285aaa1e93c17233748d38eef6d8b5c6059b67a..159708d9ad20cb2e6db24ead67daf1e9d6258f64 100644
+--- a/net/x25/x25_subr.c
++++ b/net/x25/x25_subr.c
+@@ -40,6 +40,7 @@ void x25_clear_queues(struct sock *sk)
+ 	skb_queue_purge(&x25->interrupt_in_queue);
+ 	skb_queue_purge(&x25->interrupt_out_queue);
+ 	skb_queue_purge(&x25->fragment_queue);
++	x25->fraglen = 0;
+ }
+ 
+ 
+
+---
+base-commit: dc9e9d61e301c087bcd990dbf2fa18ad3e2e1429
+change-id: 20260325-x25_fraglen-8fc240d1edd3
+
+Best regards,
 -- 
-pv-bot: 24h
+Martin Schiller <ms@dev.tdt.de>
+
