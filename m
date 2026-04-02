@@ -1,120 +1,91 @@
-Received: from mxout70.expurgate.net (mxout70.expurgate.net [194.37.255.70])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C663CA4A2;
-	Tue, 31 Mar 2026 07:43:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.37.255.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ECF32248AF;
+	Thu,  2 Apr 2026 02:48:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774943028; cv=none; b=qn/LafS0udIYN68vMTUbhh2Z7CIUdgV6sh41G7I2v+8i/FhwQM+0YdPLPmVLVqswMk+rLTvVTrWeKHmXOQUBxHNOvQeB/U5G+VWB5xiPAUfKpd9pVg/NOO9ZcclJIRucg2JI6imruQ1rHRZrftOgIwCUtvuqwNmrq8xi/8lzm04=
+	t=1775098139; cv=none; b=P84gtgcI2GOuL2PnJYgLlTY9wf6QiZikhxupP6vILGpn2ujDw/w7evpIepIFbDA/m5dIvjms2sopvdjAABCEq+Bj7m3iTRkAvwdGQU+/CwU6UUKXjuzm+gQ+0YutqfbvCE5d7P+CjFdCqfZVpUzMvTYL0Nwfvtg39Oegz6jrlIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774943028; c=relaxed/simple;
-	bh=Yxc5gETq734sKt5HMX9SLXU4+JbAVx2gBzcaYYWbREQ=;
-	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:Cc; b=XSXVNyiyxciXhau2LvDZ4Dahf2yD0zkeONsrrBcnXYjv3htAjcMv+mSGshOR6AItmSlLIGeN7X9OXFcjzm9lfGTCyJOvApgP/dYVRbtHlosnDuJFXCyPs5UzO4dZMVvioQZkfLqJ7JC40/mM6Mjj0RFcZ2Z56x683ycrNuyu0DQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de; spf=pass smtp.mailfrom=dev.tdt.de; dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b=gm6vQgb+; arc=none smtp.client-ip=194.37.255.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
+	s=arc-20240116; t=1775098139; c=relaxed/simple;
+	bh=/y7BtDXtMVn+5QZbRGNzHP7nGB8piHZSMw4Q3vnLvEI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=GiHbJDWS9r9rZhDSNk9ayKqrRHwrH1lYgIEnUihjMoDRESZTAAXvaNiS+wbx9ENf6aEVH0UnI466uDNOe43ZqpA9dJRaA97CTzisleajLvtISVQK/H0ust3uSFcsoS/lnyhRnZQtxxlAq+JzoDWquUq5BR5t0Ihee8Ktm7nCwmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ItUuchsa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b="gm6vQgb+"
-Received: from [194.37.255.9] (helo=mxout.expurgate.net)
-	by relay.expurgate.net with smtp (Exim 4.92)
-	(envelope-from <prvs=656447fc3f=ms@dev.tdt.de>)
-	id 1w7Tl6-00FWkC-65; Tue, 31 Mar 2026 09:43:32 +0200
-Received: from [195.243.126.94] (helo=securemail.tdt.de)
-	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ms@dev.tdt.de>)
-	id 1w7Tl4-00DBue-Uo; Tue, 31 Mar 2026 09:43:31 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
-	s=z1-selector1; t=1774943010;
-	bh=PHK65GrDgnKOkU4RSWaFPH5euhkDd2MuByk7s8lkvTk=;
-	h=From:Subject:Date:To:Cc:From;
-	b=gm6vQgb+hLEwyQv6LUKGJmyidQYo8JNxMixbqD9hLbWnv+GGxeOFAfqWtkeddIfIo
-	 jdkla+HZLb68cIw0OG9+txlcKiXhDo7PuHp5COi9Q01KZcynbKn7oKIWBJXg7WnlUP
-	 EQ267+7P37kncvr5mnC9/ydE8KZE9u41J6jd1tcTzwiAvvxSRNh3hzdOBnGexrxFvF
-	 nyRhw2EDVQd1TLRuecIwkuxfbZC0CuNTuNFKFbQ0ltZXPqqQsXNULZhGFMAL1Bb/nB
-	 B/KfhKOql67djO/m0fu/tWAwYL0rn6AZC82aVc43rhf0RL2rmj1x/NjwUmaF+3xgOa
-	 2yfsXlzDKzANw==
-Received: from securemail.tdt.de (localhost [127.0.0.1])
-	by securemail.tdt.de (Postfix) with ESMTP id 5842D240041;
-	Tue, 31 Mar 2026 09:43:30 +0200 (CEST)
-Received: from mail.dev.tdt.de (unknown [10.2.4.42])
-	by securemail.tdt.de (Postfix) with ESMTP id 3F585240036;
-	Tue, 31 Mar 2026 09:43:30 +0200 (CEST)
-Received: from [127.0.1.1] (unknown [10.2.3.19])
-	by mail.dev.tdt.de (Postfix) with ESMTPSA id E1B3920BF0;
-	Tue, 31 Mar 2026 09:43:29 +0200 (CEST)
-From: Martin Schiller <ms@dev.tdt.de>
-Subject: [PATCH net v4 0/2] net/x25: Fix overflow and double free
-Date: Tue, 31 Mar 2026 09:43:16 +0200
-Message-ID: <20260331-x25_fraglen-v4-0-3e69f18464b4@dev.tdt.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ItUuchsa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1FBC4CEF7;
+	Thu,  2 Apr 2026 02:48:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775098139;
+	bh=/y7BtDXtMVn+5QZbRGNzHP7nGB8piHZSMw4Q3vnLvEI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ItUuchsaF+APiA+A78Wcgv8QRRBV4wifMs3FyUNJVBiXzXGHvIcMKfsI09Guah7KK
+	 thmfxnO58m7yB6KUVvMfcxd7tZUZSitB0PcBLMBU6LEQ+cO9k1fQa5QA11bekg7M6J
+	 X9V/uZM9aZUp1MVl93QBFGPxD6OchRcOZBYci2TUIB97DmlGYhtOVZD6hkdx+zt1F6
+	 6w3roWmzqIB651UACtcUX9yKEhL/nnPRXqe0igXDPLZVtZxGp1KUCizn9qoQp49z+S
+	 JoqnqoFz5ZEJF5s1I2fO03/+YdFuzLF6xS2Wy/nUyiM3Sa5zq8f9I3G4BNzAqEgD2g
+	 Gkw3KvY/bB4Wg==
+From: Jakub Kicinski <kuba@kernel.org>
+To: ms@dev.tdt.de
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	yimingqian591@gmail.com,
+	linux-x25@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	security@kernel.org
+Subject: Re: [PATCH net v2] net/x25: Fix overflow when accumulating packets
+Date: Wed,  1 Apr 2026 19:48:55 -0700
+Message-ID: <20260402024855.842920-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260327-x25_fraglen-v2-1-143911c3f62a@dev.tdt.de>
+References: <20260327-x25_fraglen-v2-1-143911c3f62a@dev.tdt.de>
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIABR7y2kC/33NSwrDIBCA4asE1zX4zKOr3qOUIjomQjFFRVJC7
- l6RLhoKXc4M3z8bihAcRHRuNhQgu+gWXwZxapCelZ8AO1NmxAjrCGcSr0zebVDTAzwerGaCGAr
- GcFTEM4B1a61dkYeEbmU5u5iW8KofMq2nT6w/xDLFFI9W95IaYXspLgZym0xqDdRQZn8wK5gKP
- lKque2Y+sH8C3NyxLxgqYaRD6KT2sIB7/v+BrLfbRgmAQAA
-X-Change-ID: 20260325-x25_fraglen-8fc240d1edd3
-To: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
-Cc: Yiming Qian <yimingqian591@gmail.com>, linux-x25@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	security@kernel.org, Martin Schiller <ms@dev.tdt.de>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1774943009; l=1327;
- i=ms@dev.tdt.de; s=20260220; h=from:subject:message-id;
- bh=Yxc5gETq734sKt5HMX9SLXU4+JbAVx2gBzcaYYWbREQ=;
- b=UOkszNTkXjYabucscbnAfA8XDxFM4YbnAWGqhg3+qjJQm+TCcI9uHHSeYr1gaSxQcnhFN7XqY
- gVnv782DMLHArxG6h026ECGAXRNArhaXmwid5MPJlcDDEpPU4dZ42d9
-X-Developer-Key: i=ms@dev.tdt.de; a=ed25519;
- pk=MAojd7D5IafMnqCYSFC7hY/u/jppX58CLIEhsEsSOYE=
-X-purgate-ID: 151534::1774943011-42C73BD0-C9A6AE12/0/0
-X-purgate-type: clean
-X-purgate: clean
+Content-Transfer-Encoding: 8bit
 
-This patch set includes 2 fixes:
-
-The first removes a potential double free of received skb
-The second fixes an overflow when accumulating packets with the more-bit
-set.
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
 ---
-Changes in v4:
-- Do not call skb_free(skb) in case of overflow 
-- Add another patch to fix potential double free if alloc_skb fails
-- Link to v3: https://lore.kernel.org/r/20260330-x25_fraglen-v3-1-5a8938465cfe@dev.tdt.de
+net/x25: Fix overflow when accumulating packets
 
-Changes in v3:
-- Added missing Cc: Simon Horman <horms@kernel.org>  
-- Added missing Fixes tag
-- Replaced `Reported-by:` by `Suggested-by:`, because I cannot give an
-  URL to the required `Closes:` tag
-- Link to v2: https://lore.kernel.org/r/20260327-x25_fraglen-v2-1-143911c3f62a@dev.tdt.de
+This commit adds a check to prevent x25_sock.fraglen from overflowing
+during packet accumulation. It also resets the fragment length when
+purging the fragment queue.
 
-Changes in v2:
-- Use USHRT_MAX instead of sizeof(fraglen) nonsense
-- Link to v1: https://lore.kernel.org/r/20260327-x25_fraglen-v1-1-9fc751d4f754@dev.tdt.de
+> diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
+> index b981a4828d08..cb84c683d249 100644
+> --- a/net/x25/x25_in.c
+> +++ b/net/x25/x25_in.c
+> @@ -34,6 +34,12 @@ static int x25_queue_rx_frame(struct sock *sk, struct sk_buff *skb, int more)
+>  	struct sk_buff *skbo, *skbn = skb;
+>  	struct x25_sock *x25 = x25_sk(sk);
+>  
+> +	/* make sure we don't overflow */
+> +	if (x25->fraglen + skb->len > USHRT_MAX) {
+> +		kfree_skb(skb);
+> +		return 1;
+> +	}
 
----
-Martin Schiller (2):
-      net/x25: Fix potential double free of skb
-      net/x25: Fix overflow when accumulating packets
+Does this cause the skb to be freed twice?
 
- net/x25/x25_in.c   | 9 ++++++---
- net/x25/x25_subr.c | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
----
-base-commit: a142d139168cce8d5776245b5494c7f7f5d7fb7d
-change-id: 20260325-x25_fraglen-8fc240d1edd3
+When x25_queue_rx_frame() frees the skb and returns 1, the caller
+x25_state3_machine() leaves its local queued variable as 0 and returns 0.
 
-Best regards,
+This 0 value propagates up through x25_process_rx_frame() to callers
+like x25_backlog_rcv() or x25_lapb_receive_frame(). Since the return
+value indicates the packet was not consumed by the protocol stack, these
+upper-level functions will call kfree_skb(skb) again on the already
+freed skb.
+
+Would it be safer to return 1 without calling kfree_skb(skb) here so
+the callers can handle freeing the unconsumed packet?
 -- 
-Martin Schiller <ms@dev.tdt.de>
-
+pw-bot: cr
