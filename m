@@ -1,135 +1,80 @@
-Received: from mail-qt1-f202.google.com (mail-qt1-f202.google.com [209.85.160.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC0B39447C
-	for <linux-x25@vger.kernel.org>; Thu,  2 Apr 2026 10:35:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 097DE3C6A47;
+	Thu,  2 Apr 2026 11:50:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775126123; cv=none; b=pNIqXPuEK7ZgyfYv3bXWO3kN328oUF7a/enqggycrXjhA3yjhcE3fYphcoFdqlZTx+k/+LHy68FrQkcf5XnoDNxQbLAEzy4zkYm3xbD6JxJ1mMMbekVAKLln347swCA7ItwxWeKJKoeL2qSGoWo76E6v9n/TJMefyixJl0DjR7U=
+	t=1775130627; cv=none; b=EdKgJOy0ibouP7RVU2eSbTbVJUvcXGNZpDr9vDe/rw3HDU0PF7RUsILJnukyeoEHAhkF9BKAZ3WR/uygx2QFA7ISrQWGffcD9CKiGPNsVUHR/3rY/scFE8TPBLQQUj/xJm5pLDYLodHwhE4MtTR0lfWIC9d3+cqB0IYOkY1m7RQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775126123; c=relaxed/simple;
-	bh=FQsFBMXFr9zfTGcchLu1aFoI2dk9QTFQtknsHXSnb1c=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=qzT0ozHUGkV0PmHF0z43owULOQpqPtsGG7FFhNGm/ZdUIWSumd45Bj/TtZ0Hpexp7p0gu9YZpLDDFn2QVcONr1/Lc/c+ZBesGUHBMAIHzQvBkv4sdJg46vOcfex+S5SX1EJFZrdDvbj6ecwwpleOpD7weQCGA1R1x+ylwV3YyHA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Dv0Z1hy2; arc=none smtp.client-ip=209.85.160.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com
+	s=arc-20240116; t=1775130627; c=relaxed/simple;
+	bh=vEoba+fMvFDveHycMeExA5QONJY3k3BViAl1ncI9DhY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=U8OFwzTF3VWCdct4qJg46sAuOH8CSd8IdklX8KUrud4neAjjQ7CbZfKtO0EUQZtKVaRN7P9bx5TZ53cjeD2PMDobuW8mhdHlly86KlhbcyvKsQAdOhWrGR3gmS4YUMb2mHGExouP5qq3TiolpnfKw5VICiOM+4Ls/U5aCkL5D0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F1gseKUt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Dv0Z1hy2"
-Received: by mail-qt1-f202.google.com with SMTP id d75a77b69052e-50939597b85so15455021cf.2
-        for <linux-x25@vger.kernel.org>; Thu, 02 Apr 2026 03:35:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1775126121; x=1775730921; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=hTrYYWCDoops0RbC4qMtHcZwLDXHuLQzYz/4z22FWIM=;
-        b=Dv0Z1hy2QtXROjDoMF/KWGifiFgpRGg0Nstp6g2fjSTGVRwhHJKQY2wQIcBR6VUmoe
-         8Dx44eqYx4cSyjNQD5qWeNu58gYnHEBxMZifPYreVJ4fNdm/601mzSgrbeBVoow45PZf
-         5kPnBLqib04LJyFatGRc8REbdTpDqvwWUte/JFvVOIvt+pdMmTXhXc0dV9TSpOkTCTKy
-         l8DJ5TioSG5bfRac7rHV5vZB3MzuZIBkL7TePv4KUhveCuhXFA9u4q1UoBAra+2nMn1S
-         FgIwD/3ORs16JkUbdTKhPfwYS01wzK2CQnYgANO5yh/2bIkRSHC8nmjqFDuUqWzhtNSl
-         DMIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775126121; x=1775730921;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hTrYYWCDoops0RbC4qMtHcZwLDXHuLQzYz/4z22FWIM=;
-        b=gcQz+3eBqndhCIEMOvduHE/y+i8k6TrauF+rCQD5eOZrbO047n6fiVEMo6lVisxPlM
-         jTTT0E4sQgpvwN+tKTzyxD1qyTalifGdscRPfy0gNTS5eP+4916hajii6gsn8hJ9KPuv
-         02ot7tG4b8Bf5HfMkJ266MWjdH1jPVgRRUs/gk1nBECnUE8UfsBGuujVnBoqAUZwDqnY
-         JDCHFW6HUBVQ04okqT4iFW6cBrIay3oVjc3fZzVI6ID6LuDamxD5xqzduCmU1eW7Cd4e
-         iyEwHHy9iqgaHgk8Pm0Ad5SMxI4K1Or6ZrW1SH8O65AYUcv+g2GKnXun/jjsaczT3xJ7
-         EBJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVCO5mhLkYeehP63T+egab6aY6/jlftxz3NKhRWDEin5liMGlhD+vcBACipv3nrSYqFFk1iKWS2kXA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwEfNWvbvnv54kOAP5uZdjVKmYkaZc51zG5oNWumeAz0WbxQJDS
-	QWckL/LvBGe3GvVDYRNiaz8Zq72w/UX9m2I/r/90xBGJTeGFOgRdYa3+MffRGmoXgkyIQiHRbAa
-	+P6f+D2N4i9BQ1A==
-X-Received: from qtpb6.prod.google.com ([2002:ac8:6786:0:b0:50b:b6a0:30f8])
- (user=edumazet job=prod-delivery.src-stubby-dispatcher) by
- 2002:ac8:5f14:0:b0:509:764:2efa with SMTP id d75a77b69052e-50d3bd4d777mr95913911cf.59.1775126120823;
- Thu, 02 Apr 2026 03:35:20 -0700 (PDT)
-Date: Thu,  2 Apr 2026 10:35:19 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F1gseKUt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A61C19423;
+	Thu,  2 Apr 2026 11:50:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775130626;
+	bh=vEoba+fMvFDveHycMeExA5QONJY3k3BViAl1ncI9DhY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=F1gseKUtBpwrjvnxksoIBG1UFzJ0P4IhMA/UDXS9QXY8EJLsXdUk3+syxCRsS9Y6v
+	 0q0aTIFRj+xB3z2ZcP2qSGUnwnte4JjBTqBhdmzDtApdfiCs8k9nZg1Gp8cfDtRokN
+	 eCkWeWAdbfGa9CB0vBAxkx2Ae6KY2DqP68XJjP22s/5O60Gx4nag7rHtJWsyZvW9Q/
+	 E1TyDZlQgTuDLu6unRpdvgskq/3hx+WjDq8kpmf5EQLJSRRzH2su6/H/BXZVjBxQc1
+	 x4doTLfNRU2PioYPz2QkROFC/XWqe/9fX4Nuqvj5XhdxCg6o090Xm2NOlel1Q9nzp6
+	 uG2gh2STb9o0w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B9EA7380820D;
+	Thu,  2 Apr 2026 11:50:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.53.0.1185.g05d4b7b318-goog
-Message-ID: <20260402103519.1201565-1-edumazet@google.com>
-Subject: [PATCH v2 net] net: lapbether: handle NETDEV_PRE_TYPE_CHANGE
-From: Eric Dumazet <edumazet@google.com>
-To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, eric.dumazet@gmail.com, 
-	Eric Dumazet <edumazet@google.com>, syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com, 
-	Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v4 0/2] net/x25: Fix overflow and double free
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177513060854.4158057.16194132816256127315.git-patchwork-notify@kernel.org>
+Date: Thu, 02 Apr 2026 11:50:08 +0000
+References: <20260331-x25_fraglen-v4-0-3e69f18464b4@dev.tdt.de>
+In-Reply-To: <20260331-x25_fraglen-v4-0-3e69f18464b4@dev.tdt.de>
+To: Martin Schiller <ms@dev.tdt.de>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, yimingqian591@gmail.com,
+ linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, security@kernel.org
 
-lapbeth_data_transmit() expects the underlying device type
-to be ARPHRD_ETHER.
+Hello:
 
-Returning NOTIFY_BAD from lapbeth_device_event() makes sure
-bonding driver can not break this expectation.
+This series was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-Fixes: 872254dd6b1f ("net/bonding: Enable bonding to enslave non ARPHRD_ETHER")
-Reported-by: syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/netdev/69cd22a1.050a0220.70c3a.0002.GAE@google.com/T/#u
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Cc: linux-x25@vger.kernel.org
----
-v2: cache lapbeth_get_x25_dev() result in @lapbeth.
-    make sure @lapbeth is set before returning NOTIFY_BAD.
+On Tue, 31 Mar 2026 09:43:16 +0200 you wrote:
+> This patch set includes 2 fixes:
+> 
+> The first removes a potential double free of received skb
+> The second fixes an overflow when accumulating packets with the more-bit
+> set.
+> 
+> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+> 
+> [...]
 
- drivers/net/wan/lapbether.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Here is the summary with links:
+  - [net,v4,1/2] net/x25: Fix potential double free of skb
+    https://git.kernel.org/netdev/net/c/d10a26aa4d07
+  - [net,v4,2/2] net/x25: Fix overflow when accumulating packets
+    https://git.kernel.org/netdev/net/c/a1822cb524e8
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index f357a7ac70ac4756967730fa61c07258b4b3ac00..9861c99ea56c4efb03f22375b60f68665443e04d 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -446,33 +446,36 @@ static void lapbeth_free_device(struct lapbethdev *lapbeth)
- static int lapbeth_device_event(struct notifier_block *this,
- 				unsigned long event, void *ptr)
- {
--	struct lapbethdev *lapbeth;
- 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
-+	struct lapbethdev *lapbeth;
- 
- 	if (dev_net(dev) != &init_net)
- 		return NOTIFY_DONE;
- 
--	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
-+	lapbeth = lapbeth_get_x25_dev(dev);
-+	if (!dev_is_ethdev(dev) && !lapbeth)
- 		return NOTIFY_DONE;
- 
- 	switch (event) {
- 	case NETDEV_UP:
- 		/* New ethernet device -> new LAPB interface	 */
--		if (!lapbeth_get_x25_dev(dev))
-+		if (!lapbeth)
- 			lapbeth_new_device(dev);
- 		break;
- 	case NETDEV_GOING_DOWN:
- 		/* ethernet device closes -> close LAPB interface */
--		lapbeth = lapbeth_get_x25_dev(dev);
- 		if (lapbeth)
- 			dev_close(lapbeth->axdev);
- 		break;
- 	case NETDEV_UNREGISTER:
- 		/* ethernet device disappears -> remove LAPB interface */
--		lapbeth = lapbeth_get_x25_dev(dev);
- 		if (lapbeth)
- 			lapbeth_free_device(lapbeth);
- 		break;
-+	case NETDEV_PRE_TYPE_CHANGE:
-+		/* Our underlying device type must not change. */
-+		if (lapbeth)
-+			return NOTIFY_BAD;
- 	}
- 
- 	return NOTIFY_DONE;
+You are awesome, thank you!
 -- 
-2.53.0.1185.g05d4b7b318-goog
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
