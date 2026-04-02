@@ -1,116 +1,135 @@
-Received: from mxout70.expurgate.net (mxout70.expurgate.net [194.37.255.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f202.google.com (mail-qt1-f202.google.com [209.85.160.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30C1431F9B8;
-	Thu,  2 Apr 2026 07:14:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.37.255.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC0B39447C
+	for <linux-x25@vger.kernel.org>; Thu,  2 Apr 2026 10:35:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775114092; cv=none; b=aPpLc4LcDi/y3UzQsBWn+jUAc1dK/0P74kglhrrQO7KYz0XMt0dQnJ6YD4GP6nrodkTmjYEn+5EiBTG6G0B8XI11Kb+bBo7aC7yEzptPw02bQHP67AI8M4Rr8ukahyNH2nS96kFP2nitnSFAvO7Askrv2bnTu3+B6skAO0sSZJA=
+	t=1775126123; cv=none; b=pNIqXPuEK7ZgyfYv3bXWO3kN328oUF7a/enqggycrXjhA3yjhcE3fYphcoFdqlZTx+k/+LHy68FrQkcf5XnoDNxQbLAEzy4zkYm3xbD6JxJ1mMMbekVAKLln347swCA7ItwxWeKJKoeL2qSGoWo76E6v9n/TJMefyixJl0DjR7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775114092; c=relaxed/simple;
-	bh=PjRBbHyCDRs5giP5cHIj0UQ85MPBUDBHa3e7t/RsNA8=;
-	h=MIME-Version:Content-Type:Date:From:To:Cc:Subject:In-Reply-To:
-	 References:Message-ID; b=kRXmcMh5u7/NNRy2oar3IAu8HEbKwl/pLzENDdtPHv+Edga3WsXepX7We7Kwe4TiCUNReh9Y75VxSWLTafjJznfPtmeuno+Bt4JIj2vzlTeGZNqTK39HouAsyrXepua6OkJDG3+Ejldq4iZAfvkvcFvLsqH2dRqjRXwR3yvhnCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de; spf=pass smtp.mailfrom=dev.tdt.de; dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b=FOOoIjav; arc=none smtp.client-ip=194.37.255.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
+	s=arc-20240116; t=1775126123; c=relaxed/simple;
+	bh=FQsFBMXFr9zfTGcchLu1aFoI2dk9QTFQtknsHXSnb1c=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=qzT0ozHUGkV0PmHF0z43owULOQpqPtsGG7FFhNGm/ZdUIWSumd45Bj/TtZ0Hpexp7p0gu9YZpLDDFn2QVcONr1/Lc/c+ZBesGUHBMAIHzQvBkv4sdJg46vOcfex+S5SX1EJFZrdDvbj6ecwwpleOpD7weQCGA1R1x+ylwV3YyHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Dv0Z1hy2; arc=none smtp.client-ip=209.85.160.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=dev.tdt.de header.i=@dev.tdt.de header.b="FOOoIjav"
-Received: from [194.37.255.9] (helo=mxout.expurgate.net)
-	by relay.expurgate.net with smtp (Exim 4.92)
-	(envelope-from <prvs=6566d59578=ms@dev.tdt.de>)
-	id 1w8CGJ-00ATtn-5K; Thu, 02 Apr 2026 09:14:43 +0200
-Received: from [195.243.126.94] (helo=securemail.tdt.de)
-	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ms@dev.tdt.de>)
-	id 1w8CGI-005hTl-1N; Thu, 02 Apr 2026 09:14:42 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
-	s=z1-selector1; t=1775114081;
-	bh=lmFCqlfBE1fnq5/a2R/XBJFQiWLUI085rhhck3qDYPo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=FOOoIjavVRyTUPmFdkJZsNNZkzXcVcISOxtTcUf8yaL/OdmWyKG0SjI0SspO2lnmx
-	 dHboeRz7Q6g05aU5jJd70wNpMnZWlNT674aythhN0qovbZlLVBmGZX7uaTMdWb8v4k
-	 XZJYiGy9A4UGkH3yT+GmODkmrtXp3eWQaX0XaHkvHXlPxVgipAwFjf5ATByzuJl0j1
-	 s28NYh6xd7bZNp5LDL8zMC7zObjd0CVJWHkf5HcKff4Bsn2qKqu5QPqN2TFxAl4EJI
-	 /HXx6Sz1ZMNaS+C2/k5BG1K8iECOYf0a2orAd6Nuzmh+fUPifMBU3bSD86uQLsXD2y
-	 hNxqQ3y+ZEBGA==
-Received: from securemail.tdt.de (localhost [127.0.0.1])
-	by securemail.tdt.de (Postfix) with ESMTP id 807F4240040;
-	Thu,  2 Apr 2026 09:14:41 +0200 (CEST)
-Received: from mail.dev.tdt.de (unknown [10.2.4.42])
-	by securemail.tdt.de (Postfix) with ESMTP id 6C45B240036;
-	Thu,  2 Apr 2026 09:14:41 +0200 (CEST)
-Received: from mail.dev.tdt.de (localhost [IPv6:::1])
-	by mail.dev.tdt.de (Postfix) with ESMTP id 0E98423CE4;
-	Thu,  2 Apr 2026 09:14:40 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Dv0Z1hy2"
+Received: by mail-qt1-f202.google.com with SMTP id d75a77b69052e-50939597b85so15455021cf.2
+        for <linux-x25@vger.kernel.org>; Thu, 02 Apr 2026 03:35:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775126121; x=1775730921; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hTrYYWCDoops0RbC4qMtHcZwLDXHuLQzYz/4z22FWIM=;
+        b=Dv0Z1hy2QtXROjDoMF/KWGifiFgpRGg0Nstp6g2fjSTGVRwhHJKQY2wQIcBR6VUmoe
+         8Dx44eqYx4cSyjNQD5qWeNu58gYnHEBxMZifPYreVJ4fNdm/601mzSgrbeBVoow45PZf
+         5kPnBLqib04LJyFatGRc8REbdTpDqvwWUte/JFvVOIvt+pdMmTXhXc0dV9TSpOkTCTKy
+         l8DJ5TioSG5bfRac7rHV5vZB3MzuZIBkL7TePv4KUhveCuhXFA9u4q1UoBAra+2nMn1S
+         FgIwD/3ORs16JkUbdTKhPfwYS01wzK2CQnYgANO5yh/2bIkRSHC8nmjqFDuUqWzhtNSl
+         DMIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775126121; x=1775730921;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hTrYYWCDoops0RbC4qMtHcZwLDXHuLQzYz/4z22FWIM=;
+        b=gcQz+3eBqndhCIEMOvduHE/y+i8k6TrauF+rCQD5eOZrbO047n6fiVEMo6lVisxPlM
+         jTTT0E4sQgpvwN+tKTzyxD1qyTalifGdscRPfy0gNTS5eP+4916hajii6gsn8hJ9KPuv
+         02ot7tG4b8Bf5HfMkJ266MWjdH1jPVgRRUs/gk1nBECnUE8UfsBGuujVnBoqAUZwDqnY
+         JDCHFW6HUBVQ04okqT4iFW6cBrIay3oVjc3fZzVI6ID6LuDamxD5xqzduCmU1eW7Cd4e
+         iyEwHHy9iqgaHgk8Pm0Ad5SMxI4K1Or6ZrW1SH8O65AYUcv+g2GKnXun/jjsaczT3xJ7
+         EBJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVCO5mhLkYeehP63T+egab6aY6/jlftxz3NKhRWDEin5liMGlhD+vcBACipv3nrSYqFFk1iKWS2kXA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwEfNWvbvnv54kOAP5uZdjVKmYkaZc51zG5oNWumeAz0WbxQJDS
+	QWckL/LvBGe3GvVDYRNiaz8Zq72w/UX9m2I/r/90xBGJTeGFOgRdYa3+MffRGmoXgkyIQiHRbAa
+	+P6f+D2N4i9BQ1A==
+X-Received: from qtpb6.prod.google.com ([2002:ac8:6786:0:b0:50b:b6a0:30f8])
+ (user=edumazet job=prod-delivery.src-stubby-dispatcher) by
+ 2002:ac8:5f14:0:b0:509:764:2efa with SMTP id d75a77b69052e-50d3bd4d777mr95913911cf.59.1775126120823;
+ Thu, 02 Apr 2026 03:35:20 -0700 (PDT)
+Date: Thu,  2 Apr 2026 10:35:19 +0000
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Thu, 2 Apr 2026 09:14:40 +0200 (CEST)
-From: Martin Schiller <ms@dev.tdt.de>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
-	yimingqian591@gmail.com, linux-x25@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	security@kernel.org
-Subject: Re: [PATCH net v2] net/x25: Fix overflow when accumulating packets
-Organization: TDT AG
-In-Reply-To: <20260402024855.842920-1-kuba@kernel.org>
-References: <20260327-x25_fraglen-v2-1-143911c3f62a@dev.tdt.de>
- <20260402024855.842920-1-kuba@kernel.org>
-Message-ID: <8aa013a16fec55cdd7a2ba374bf37437@dev.tdt.de>
-X-Sender: ms@dev.tdt.de
-User-Agent: Roundcube Webmail/1.3.17
-X-purgate-type: clean
-X-purgate: clean
-X-purgate-ID: 151534::1775114082-B3EDD76A-8F68A85E/0/0
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.1185.g05d4b7b318-goog
+Message-ID: <20260402103519.1201565-1-edumazet@google.com>
+Subject: [PATCH v2 net] net: lapbether: handle NETDEV_PRE_TYPE_CHANGE
+From: Eric Dumazet <edumazet@google.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, eric.dumazet@gmail.com, 
+	Eric Dumazet <edumazet@google.com>, syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com, 
+	Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 2026-04-02 04:48, Jakub Kicinski wrote:
-> This is an AI-generated review of your patch. The human sending this
-> email has considered the AI review valid, or at least plausible.
-> ---
-> net/x25: Fix overflow when accumulating packets
-> 
-> This commit adds a check to prevent x25_sock.fraglen from overflowing
-> during packet accumulation. It also resets the fragment length when
-> purging the fragment queue.
-> 
->> diff --git a/net/x25/x25_in.c b/net/x25/x25_in.c
->> index b981a4828d08..cb84c683d249 100644
->> --- a/net/x25/x25_in.c
->> +++ b/net/x25/x25_in.c
->> @@ -34,6 +34,12 @@ static int x25_queue_rx_frame(struct sock *sk, 
->> struct sk_buff *skb, int more)
->>  	struct sk_buff *skbo, *skbn = skb;
->>  	struct x25_sock *x25 = x25_sk(sk);
->> 
->> +	/* make sure we don't overflow */
->> +	if (x25->fraglen + skb->len > USHRT_MAX) {
->> +		kfree_skb(skb);
->> +		return 1;
->> +	}
-> 
-> Does this cause the skb to be freed twice?
-> 
-> When x25_queue_rx_frame() frees the skb and returns 1, the caller
-> x25_state3_machine() leaves its local queued variable as 0 and returns 
-> 0.
-> 
-> This 0 value propagates up through x25_process_rx_frame() to callers
-> like x25_backlog_rcv() or x25_lapb_receive_frame(). Since the return
-> value indicates the packet was not consumed by the protocol stack, 
-> these
-> upper-level functions will call kfree_skb(skb) again on the already
-> freed skb.
-> 
-> Would it be safer to return 1 without calling kfree_skb(skb) here so
-> the callers can handle freeing the unconsumed packet?
+lapbeth_data_transmit() expects the underlying device type
+to be ARPHRD_ETHER.
 
-This is already fixed / changed in the v4 patch set.
+Returning NOTIFY_BAD from lapbeth_device_event() makes sure
+bonding driver can not break this expectation.
+
+Fixes: 872254dd6b1f ("net/bonding: Enable bonding to enslave non ARPHRD_ETHER")
+Reported-by: syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/netdev/69cd22a1.050a0220.70c3a.0002.GAE@google.com/T/#u
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Cc: linux-x25@vger.kernel.org
+---
+v2: cache lapbeth_get_x25_dev() result in @lapbeth.
+    make sure @lapbeth is set before returning NOTIFY_BAD.
+
+ drivers/net/wan/lapbether.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index f357a7ac70ac4756967730fa61c07258b4b3ac00..9861c99ea56c4efb03f22375b60f68665443e04d 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -446,33 +446,36 @@ static void lapbeth_free_device(struct lapbethdev *lapbeth)
+ static int lapbeth_device_event(struct notifier_block *this,
+ 				unsigned long event, void *ptr)
+ {
+-	struct lapbethdev *lapbeth;
+ 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++	struct lapbethdev *lapbeth;
+ 
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
+ 
+-	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
++	lapbeth = lapbeth_get_x25_dev(dev);
++	if (!dev_is_ethdev(dev) && !lapbeth)
+ 		return NOTIFY_DONE;
+ 
+ 	switch (event) {
+ 	case NETDEV_UP:
+ 		/* New ethernet device -> new LAPB interface	 */
+-		if (!lapbeth_get_x25_dev(dev))
++		if (!lapbeth)
+ 			lapbeth_new_device(dev);
+ 		break;
+ 	case NETDEV_GOING_DOWN:
+ 		/* ethernet device closes -> close LAPB interface */
+-		lapbeth = lapbeth_get_x25_dev(dev);
+ 		if (lapbeth)
+ 			dev_close(lapbeth->axdev);
+ 		break;
+ 	case NETDEV_UNREGISTER:
+ 		/* ethernet device disappears -> remove LAPB interface */
+-		lapbeth = lapbeth_get_x25_dev(dev);
+ 		if (lapbeth)
+ 			lapbeth_free_device(lapbeth);
+ 		break;
++	case NETDEV_PRE_TYPE_CHANGE:
++		/* Our underlying device type must not change. */
++		if (lapbeth)
++			return NOTIFY_BAD;
+ 	}
+ 
+ 	return NOTIFY_DONE;
+-- 
+2.53.0.1185.g05d4b7b318-goog
+
