@@ -1,80 +1,68 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 097DE3C6A47;
-	Thu,  2 Apr 2026 11:50:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88B3F3C65E7;
+	Fri,  3 Apr 2026 15:55:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775130627; cv=none; b=EdKgJOy0ibouP7RVU2eSbTbVJUvcXGNZpDr9vDe/rw3HDU0PF7RUsILJnukyeoEHAhkF9BKAZ3WR/uygx2QFA7ISrQWGffcD9CKiGPNsVUHR/3rY/scFE8TPBLQQUj/xJm5pLDYLodHwhE4MtTR0lfWIC9d3+cqB0IYOkY1m7RQ=
+	t=1775231733; cv=none; b=UPShruLrvKCv2GcrHOZ8AoZ1mLqJ7zzoF30SM5xtldlQE0aqaq5YYOrnN5TfM2IcyRDczYbIfpOjnDBC5AhedkTbNsa5oAjSr2CyZG+9II/TN5dQ4r7Y1bDTDNR9rznTCsp8fNx3LWuzYU7eRMQsMqFhkRQGmjbo1b69WTk1LsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775130627; c=relaxed/simple;
-	bh=vEoba+fMvFDveHycMeExA5QONJY3k3BViAl1ncI9DhY=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=U8OFwzTF3VWCdct4qJg46sAuOH8CSd8IdklX8KUrud4neAjjQ7CbZfKtO0EUQZtKVaRN7P9bx5TZ53cjeD2PMDobuW8mhdHlly86KlhbcyvKsQAdOhWrGR3gmS4YUMb2mHGExouP5qq3TiolpnfKw5VICiOM+4Ls/U5aCkL5D0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F1gseKUt; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775231733; c=relaxed/simple;
+	bh=5zCdI3/H+C2yChLoNxakHbo/nK6sYvMuqWoXXXeX1xM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UCGsZwxQlD4KWoZqJWymnSFJtiyzBWQGN3TfWZdaAx/aNHQEgFaeDEtwN/7XzpwNKUe4DKcD3m7evPoSvXN62XW2QwzQWlSP19zV++9AREoBSVLClV+mv3jlQXR0vgBhMFVVgASAyXLYOsFGfua4hnFHM3Ix7remD/wKVmo4ujw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tOjp5HqM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F1gseKUt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A61C19423;
-	Thu,  2 Apr 2026 11:50:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tOjp5HqM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF1DC4CEF7;
+	Fri,  3 Apr 2026 15:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775130626;
-	bh=vEoba+fMvFDveHycMeExA5QONJY3k3BViAl1ncI9DhY=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=F1gseKUtBpwrjvnxksoIBG1UFzJ0P4IhMA/UDXS9QXY8EJLsXdUk3+syxCRsS9Y6v
-	 0q0aTIFRj+xB3z2ZcP2qSGUnwnte4JjBTqBhdmzDtApdfiCs8k9nZg1Gp8cfDtRokN
-	 eCkWeWAdbfGa9CB0vBAxkx2Ae6KY2DqP68XJjP22s/5O60Gx4nag7rHtJWsyZvW9Q/
-	 E1TyDZlQgTuDLu6unRpdvgskq/3hx+WjDq8kpmf5EQLJSRRzH2su6/H/BXZVjBxQc1
-	 x4doTLfNRU2PioYPz2QkROFC/XWqe/9fX4Nuqvj5XhdxCg6o090Xm2NOlel1Q9nzp6
-	 uG2gh2STb9o0w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B9EA7380820D;
-	Thu,  2 Apr 2026 11:50:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1775231733;
+	bh=5zCdI3/H+C2yChLoNxakHbo/nK6sYvMuqWoXXXeX1xM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=tOjp5HqMlfxqT8dJIb0IjSHeFSaxEgLddrpyBkKJIdaJeYCW5sEQ9ayITXYjdcSmy
+	 5F8bwW6PBPgJohc+QcKbboI4SzLiBsFYI2+csceuSx1lBK6mgEosFPd34EghQBCHps
+	 EdajSe9aiOVZQNK+zAQOl6BdUFroLLNQLK+VDWZhBGuIuBATjQiziJ0c3Gl0nG8d6g
+	 z98LvV7OTIxb8/BAOFw9xw0iqT4ELkK1MppSKO25nQmRBIw/9E8NaW22bWG4QHZJ6L
+	 v70rtSy/18LZXUuZh/QO1QfcCYCNeLeCGSSUfR3oHl+jdYXYy95BpsZX1l6SMJqYFc
+	 /ocOleUbPmjdA==
+Date: Fri, 3 Apr 2026 16:55:28 +0100
+From: Simon Horman <horms@kernel.org>
+To: Eric Dumazet <edumazet@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, eric.dumazet@gmail.com,
+	syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com,
+	Martin Schiller <ms@dev.tdt.de>, linux-x25@vger.kernel.org
+Subject: Re: [PATCH v2 net] net: lapbether: handle NETDEV_PRE_TYPE_CHANGE
+Message-ID: <20260403155528.GA198235@horms.kernel.org>
+References: <20260402103519.1201565-1-edumazet@google.com>
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v4 0/2] net/x25: Fix overflow and double free
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177513060854.4158057.16194132816256127315.git-patchwork-notify@kernel.org>
-Date: Thu, 02 Apr 2026 11:50:08 +0000
-References: <20260331-x25_fraglen-v4-0-3e69f18464b4@dev.tdt.de>
-In-Reply-To: <20260331-x25_fraglen-v4-0-3e69f18464b4@dev.tdt.de>
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, yimingqian591@gmail.com,
- linux-x25@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, security@kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260402103519.1201565-1-edumazet@google.com>
 
-Hello:
-
-This series was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Tue, 31 Mar 2026 09:43:16 +0200 you wrote:
-> This patch set includes 2 fixes:
+On Thu, Apr 02, 2026 at 10:35:19AM +0000, Eric Dumazet wrote:
+> lapbeth_data_transmit() expects the underlying device type
+> to be ARPHRD_ETHER.
 > 
-> The first removes a potential double free of received skb
-> The second fixes an overflow when accumulating packets with the more-bit
-> set.
+> Returning NOTIFY_BAD from lapbeth_device_event() makes sure
+> bonding driver can not break this expectation.
 > 
-> Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-> 
-> [...]
+> Fixes: 872254dd6b1f ("net/bonding: Enable bonding to enslave non ARPHRD_ETHER")
+> Reported-by: syzbot+d8c285748fa7292580a9@syzkaller.appspotmail.com
+> Closes: https://lore.kernel.org/netdev/69cd22a1.050a0220.70c3a.0002.GAE@google.com/T/#u
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Cc: Martin Schiller <ms@dev.tdt.de>
+> Cc: linux-x25@vger.kernel.org
+> ---
+> v2: cache lapbeth_get_x25_dev() result in @lapbeth.
+>     make sure @lapbeth is set before returning NOTIFY_BAD.
 
-Here is the summary with links:
-  - [net,v4,1/2] net/x25: Fix potential double free of skb
-    https://git.kernel.org/netdev/net/c/d10a26aa4d07
-  - [net,v4,2/2] net/x25: Fix overflow when accumulating packets
-    https://git.kernel.org/netdev/net/c/a1822cb524e8
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Reviewed-by: Simon Horman <horms@kernel.org>
 
