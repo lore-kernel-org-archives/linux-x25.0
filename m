@@ -1,90 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA70302750;
-	Wed, 29 Apr 2026 11:26:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F10C3EF0DC;
+	Thu,  7 May 2026 10:58:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777462002; cv=none; b=T4w88c8pfdui+uKTZ/A75N54vv5+ygt6XtOs+c3C834wo0jn3RKHbz8ymm034YMsyjybqeQRh4/Pkv4+hdKrXyhNd6+FeEmf1vc8g4TePtP2zeSpc7qPPwVv/agvMsclMeZvSkFsu2dIiPIE3NOV7HwPXDkT9IpDdJth3Fb3HrQ=
+	t=1778151494; cv=none; b=EMIQ4vdT4uLmnHcDiWvoojQf1As5iE40cHFmCq2sK5caSrsrhDslzCOkXf0LP8mrp1ArwNGexLzC/HG5gXHiv1VrHGgunMmaOmrp5uRHk4GdJMbOChU7A6HaBH+5F8a08eiAwlPnoGO7PNd7RKimYx09RecH4i0KfbdILnWRuf4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777462002; c=relaxed/simple;
-	bh=HgV0q/+gZ9n2giWTxhUD6P3yQ6wEmY66ZwCWQHhgQ2g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kKGPImIqofHhHWkrh4obt4PWgAsqITzuUZVnGNDkfXyNLSZcsDoFgpxWWpSmbc5g0edrzTytstBlWuiMROxKCSnCuFDN5vsyWoqKkpkiSdJCcn9sghnNkWFaAx9gXkuVuHeVxtZuU4tcBqXoQ9JIGTcKIDXLTkfHvbQdDMgSy0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ejvHWE1z; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778151494; c=relaxed/simple;
+	bh=9OUTdGAhrGO7HPSBpW+FABM8Uhcs8lMyfb3Gcx7O1yM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rFVytJ2FCxgwMGHGNRaldWLBwr/QnBbeiYrsxFEl7SZZELlItHKWvX2MtS8D+zirrwC530Wpfw0ZumLAngM3VtDIhlZ8qKYgZB68MECmLyutcW/swf69lAhES4oMB9GFEoIupZcCYJAFCQlkq/rJ+SklTzeaAKFD3H+6i2hZBJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=TRPQwHEb; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ejvHWE1z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 158D1C19425;
-	Wed, 29 Apr 2026 11:26:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777462002;
-	bh=HgV0q/+gZ9n2giWTxhUD6P3yQ6wEmY66ZwCWQHhgQ2g=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ejvHWE1zJ0tb1KwQu/gVCMj0KcNhlMqCOjLI4kQmWC01EPIO4HFDTFQg5PpNyMx2F
-	 7OMWgwbyfp16yd5ZKGLwfDDMuBlWK8CK9qcSIqUHZRxyhnWE4iAN+OK+xmr5WBtr4T
-	 BgqmCB7r/rsFvwFu/mT2z67QkDE/mDzOf7GDi68KHsQjYM3r7svy7TXqJDW5kWsfNa
-	 xYHmkznhflijvwvOUJkH6AcM42ZHWo8kZp7k26fwbFC82N/jHC8/F/rL8GlM8z6Ksh
-	 UMOZ5KVH94exo80oAIrmoHKOK/k/qke5mU8V2uOXUW3Mlxuf7JynBO/Edq8wMcfI5M
-	 twwrBSWDcoLLw==
-Date: Wed, 29 Apr 2026 12:26:30 +0100
-From: Will Deacon <will@kernel.org>
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: Yury Norov <ynorov@nvidia.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	David Laight <david.laight.linux@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	dmaengine@vger.kernel.org, linux-efi@vger.kernel.org,
-	linux-fsi@lists.ozlabs.org, amd-gfx@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-	linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-media@vger.kernel.org, linux-staging@lists.linux.dev,
-	linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-	xen-devel@lists.xenproject.org, linux-fsdevel@vger.kernel.org,
-	ocfs2-devel@lists.linux.dev, bpf@vger.kernel.org,
-	kasan-dev@googlegroups.com, linux-mm@kvack.org,
-	linux-x25@vger.kernel.org, rust-for-linux@vger.kernel.org,
-	linux-sound@vger.kernel.org, sound-open-firmware@alsa-project.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linux-sh@vger.kernel.org, linux-arch@vger.kernel.org,
-	catalin.marinas@arm.com
-Subject: Re: [RFC PATCH v1 8/9] arm64: Add unsafe_copy_from_user()
-Message-ID: <afHq5vyNUJzxVwDV@willie-the-truck>
-References: <cover.1777306795.git.chleroy@kernel.org>
- <5b09e58a84c9edcfe5724db5cd57e45d96a96bfa.1777306795.git.chleroy@kernel.org>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="TRPQwHEb"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:Message-Id:Date:Subject:From:Reply-To:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=jR+Qe4bynPS3peoy/mcVrEPP6Gm0C/vr5e+MmwGl5ho=; b=TRPQwHEbcN8UjRFWdupJhNdPKi
+	LO4iQm5CuuDWxfhkH43OR453aUjRm5wEN8FtYcKsIO1Zv0sBW8Ro3fzRlLD6HLqHplxP4d/StAbJL
+	/L3mCyNRBAid/5L3ULi/Le1mXyisNeQJodfCKi8cMVSper0vFv8uwLJTRCQTYEmG65b2mxjMdoTzQ
+	1v5+aOuxEmYe7PgvTQqafFJbZMcGpQ/gF0EtMgQC/A0osOHsAWKCgMu8Tu9stI3FLB3Aes40N6Zlp
+	l7WBqG+FE9KfuIDlLYMWE0/5MZg+9bticy0Vu1hncydHkKi3njRmIQHZZ0jmJ3Bb1pzMMnDwnGGyY
+	aIUi8OGQ==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1wKwQX-004Jne-2Y;
+	Thu, 07 May 2026 10:57:58 +0000
+From: Breno Leitao <leitao@debian.org>
+Subject: [PATCH net-next v2 0/5] net: convert four more protocols to
+ getsockopt_iter
+Date: Thu, 07 May 2026 03:57:49 -0700
+Message-Id: <20260507-getsock_two-v2-0-5873111d9c12@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5b09e58a84c9edcfe5724db5cd57e45d96a96bfa.1777306795.git.chleroy@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAC5w/GkC/22NQQ6CMBBFr9LMmpqBAgor72GIacsIo0lr2ooYw
+ t0NuHX9339vgUiBKUIrFgg0cWTvoBVFJsCO2g0kuYdWQIFFjRVWcqAUvX1c09tLbXSfN3WplKo
+ hE/AMdON5t13AUZKO5gTdb4kvcyebNtnGjhyTD589POX7429jyiXK0ho8qlNTIeG5J8PaHXwYo
+ FvX9Qth+enQwwAAAA==
+X-Change-ID: 20260505-getsock_two-abad19643336
+To: Jeremy Kerr <jk@codeconstruct.com.au>, 
+ Matt Johnston <matt@codeconstruct.com.au>, Martin Schiller <ms@dev.tdt.de>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>
+Cc: linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ Breno Leitao <leitao@debian.org>, kernel-team@meta.com, 
+ Stanislav Fomichev <sdf@fomichev.me>, 
+ Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.16-dev-453a6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1947; i=leitao@debian.org;
+ h=from:subject:message-id; bh=9OUTdGAhrGO7HPSBpW+FABM8Uhcs8lMyfb3Gcx7O1yM=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBp/HAwmiaQEBXEHCXbpgGdD/hq0K6qRUISkzQSJ
+ lYB/g1Fz1WJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCafxwMAAKCRA1o5Of/Hh3
+ bbNBEACVeSN/aZEWHrjkqWMXYmo/akAK6yqqHSNbyH4wZyFvAC9uA/mzXfsfS1Ve6CVTOSnj6GS
+ IHgcbcmlBDcpTZybO6fnRcO1lx3n/zpc/aWTz7/osUTtjvjrTeOrp7usfJcbyDHIADEY/nhnLsS
+ yfAtbVzaSogHCxcbsDzgDOd9RlU0RxHzdOtinhlDlfqnjPliVmwc/FBnWauvewb6xjIImjdHa+e
+ Nc/QujUfUDERzSvjrj3EGfzGcPg9JHPkn+p1W5nm6ExLnfhikqRkN7EMxWisUJ8vS+Q7TnfW3kS
+ 7MF08fzSz/ZM54fSyBrXpigY5MNgl+nVfyRLrnUiLy37NNs+Qs6j8QKb4FuvrvlvsyVIEy9+0uW
+ ZWMvH+DU+QyvvHrlx9fBhkPFFpkV45KjJEyZ5I+hzBi5JKhco/n6BTd4P0X0aHP6iWWs0bFPK8B
+ SeeTAVJ6lD67m0OKMQSM1TVJluqezZpo4aIaetwcr9CsZuxP9EPRNwK1D0BJ5P3Yhy1FrchH8vi
+ cnz+2thpz8E2JO8StSrQp7N/KlcFT4N0yVhziX80zXhovpiZUlwJ7BdrIrpXCFF+J1EF8S2ehCL
+ vFTwejuG3Z8qKMQExhNDy9LYurNVdiPtS5v4WSr/Mc7xCi7TzVHCfPe2mUniS872p0NxuAY2RSv
+ 8vYAOswmuKiaQTA==
+X-Developer-Key: i=leitao@debian.org; a=openpgp;
+ fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
+X-Debian-User: leitao
 
-[+Catalin]
+Continue the work to convert protocols to the new getsockopt_iter API.
 
-On Mon, Apr 27, 2026 at 07:13:49PM +0200, Christophe Leroy (CS GROUP) wrote:
-> At the time being, x86 and arm64 are missing unsafe_copy_from_user().
-> 
-> Add it.
-> 
-> Signed-off-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-> ---
->  arch/arm64/include/asm/uaccess.h | 29 ++++++++++++++++++++++++-----
->  1 file changed, 24 insertions(+), 5 deletions(-)
+Convert four additional getsockopt implementations to the new
+sockopt_t/getsockopt_iter callback:
 
-Why?
+  - MCTP
+  - LLC
+  - X.25
+  - KCM
 
-And please cc the arm64 maintainers on arm64 patches next time. You've
-managed to cc most of the world apart from us.
+These are mechanical, ABI-preserving conversions following the same
+pattern as the previously converted protocols (af_packet, can/raw,
+af_netlink, af_vsock): the (char __user *optval, int __user *optlen)
+pair is replaced with a single sockopt_t *opt that carries the buffer
+length on input and the returned size on output, and exposes an iov_iter
+for the copy-out path. put_user()/copy_to_user() pairs are replaced with
+a single copy_to_iter() per option, and the wrapper in
+do_sock_getsockopt() handles writing optlen back to userspace.
 
-Will
+I picked these four because each is small and self-contained.
+
+Signed-off-by: Breno Leitao <leitao@debian.org>
+---
+Changes in v2:
+- Fix kdoc as suggested by Jakub.
+- Drop the CAN patches; they will be sent separately through the
+  linux-can tree.
+- Add X.25 and KCM conversions, keeping the series at four protocols.
+- Link to v1: https://patch.msgid.link/20260505-getsock_two-v1-0-4cb0738950e0@debian.org
+
+---
+Breno Leitao (5):
+      mctp: convert to getsockopt_iter
+      llc: convert to getsockopt_iter
+      x25: convert to getsockopt_iter
+      kcm: convert to getsockopt_iter
+      selftests: net: getsockopt_iter: cleanup
+
+ net/kcm/kcmsock.c                             |  16 ++--
+ net/llc/af_llc.c                              |  18 ++---
+ net/mctp/af_mctp.c                            |  10 +--
+ net/x25/af_x25.c                              |  16 ++--
+ tools/testing/selftests/net/getsockopt_iter.c | 109 +++++++++++++++++++++++---
+ 5 files changed, 124 insertions(+), 45 deletions(-)
+---
+base-commit: c1e5127b577c6b88fa48e532616932ae978528d5
+change-id: 20260505-getsock_two-abad19643336
+
+Best regards,
+--  
+Breno Leitao <leitao@debian.org>
+
