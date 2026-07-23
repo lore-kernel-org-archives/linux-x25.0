@@ -1,80 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CAD923393C;
-	Thu, 23 Jul 2026 10:00:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585AE4734CC;
+	Thu, 23 Jul 2026 17:11:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784800841; cv=none; b=TgoXzhLbkPzyBblp62CWuFL4QN0HH6ukfCZHbiHzU3SpkNC9hXq+xXEFme5kiFNFvtPyokLeSKRqxoE79ztWUZrrgCMUtrxk/ApFvebxaMaRdYWFhBTDbQZ12lJ/d7ff8RcamaMRySumHbXBAas0KaZ+fCnW2u/qIxDsRsq8SQE=
+	t=1784826687; cv=none; b=jEMhOA6DLgeo/33ljY+3qpywzS+XdWKFx27l6V0xTs9HxvofOoN28LYR9xETuIRk/q1BPZrClTro4z3/ROg4mc6diiCezsyOPmgx00QBXRreOtm7YmeY82yzg5BomNT5FtIoHgpFI9AC/v/64TNQIuzNWUrV4OXY66rmkL18AXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784800841; c=relaxed/simple;
-	bh=yLwlWMjGlmNOvX2xqRqyDkGHLz5Mas6s2NWIMsRLzlM=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=MB04Vk8E2MguNLT89bqPe1m6tE4jmZz9O3uBYioyTjXRGTRJ1cryekum9NyDkNK5CF6bZSrXow93wiBlLfIap2YDBb46yw79y5EUcI0oThgCe1+8vl5cxbCDjCTK8o+Hc56NFa3+nklVhMcRvqx6D2G7asx3pnSLQlnQ3khJOa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fraicX4t; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784826687; c=relaxed/simple;
+	bh=uLjCsRyL6ECw7qzzeSBxM3OsBA/sqWMPK7qS+OZ1faQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dE435Zl/D6c3eAAjZw8+APxee6QUHpbOh5spbFlKH8m0394NvuO2IBRUM0d1khbnXXxOIDBwbyYkxgdJk7N1tJJkcyAqAMJH5FcSgdrKxUHS+GoX5q1zKcofV4UP/1BdvtKdmhEAl6V1Z4njIOP+BcFPclGQtBviiv4VnFkgFzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LDsLG/zP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fraicX4t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C9F1F00A3A;
-	Thu, 23 Jul 2026 10:00:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LDsLG/zP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ABB1F00A3A;
+	Thu, 23 Jul 2026 17:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784800839;
-	bh=64jLRdjGOV13XRhg3nTslFaj9ixO+K1fBIX/mLV6wSA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=fraicX4t3Ak5ud/2+rXGbx1bddS5khQ4jWvN/fbxh1Nsa0O5Tz/UfInzmWM2sg644
-	 xENnMZ2A9Tnxs4qyQpSF0XLLAJC5FzBnjnRw/jGgyXnbaQoOiLZG0kYc0T6nMZblok
-	 gfe3aVUM4uczcv67W9IOdeulcCYxdDFfIBo1KhYotcWwlYwXnusJSH3kcm889STN1s
-	 9AdctGuXyhKQ5l412vW5gbbX0nBEUN2P65mdkTQxxPimCGmJhHsAnmXHcyxY9K2uDl
-	 vsgh9fsTsF6f8B1zCz8vqPeAPNEQXx0jXvkzbC2ihv+htP8tYuxFcKMYIRZ8VCEw4e
-	 mmrKKZyes58Nw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 939073810902;
-	Thu, 23 Jul 2026 10:00:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1784826679;
+	bh=uXp90yDbLlTCr+yUpZjkHrZ3yz305a7ahk5wNSsYKWo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=LDsLG/zPTBS/wWc/Es8DKFhvZTFNkaNqt8vxWXGn063NV+KsFmU5m1DOEVmZcYbQ8
+	 w/qoLjR5kJnqe1FlAFSRSV/++YbQrqcgOzZ25LTrftBVPu+2XNBydp/xiGpKfoTQLx
+	 UWdYigggg4n3lPUaZyQOmAAN0qaqvpXjJDOvBopZYXFfyyJHofOhLxKntNcPShZG0v
+	 m+V6df57sjdlIAW9/clDjTBaLRJ9E6EffHMsz/ujBFpW0a7AILeziiPN5eGYVk99HZ
+	 6SOY/Oy3X0Fq3XXSfKj84f0r+jdlRvP5CJEbHS2x8qKniMRXtvQLitGF+q7N+HqEP+
+	 Wdo6VdQ1C1G8A==
+Date: Thu, 23 Jul 2026 10:11:01 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Ibrahim Hashimov <security@auditcode.ai>
+Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, horms@kernel.org, linma@zju.edu.cn, duoming@zju.edu.cn,
+ linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net] net: x25: fix use-after-free in x25_kill_by_neigh()
+Message-ID: <20260723101101.00b91e89@kernel.org>
+In-Reply-To: <20260720202718.13934-1-security@auditcode.ai>
+References: <20260720202718.13934-1-security@auditcode.ai>
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/x25: fix use-after-free in x25_kill_by_neigh()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178480080614.2220921.17021057508770530521.git-patchwork-notify@kernel.org>
-Date: Thu, 23 Jul 2026 10:00:06 +0000
-References: <20260713104752.241175-1-david.lee@trailofbits.com>
-In-Reply-To: <20260713104752.241175-1-david.lee@trailofbits.com>
-To: David Lee <david.lee@trailofbits.com>
-Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, dominik.czarnota@trailofbits.com,
- linux-x25@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
+On Mon, 20 Jul 2026 22:27:18 +0200 Ibrahim Hashimov wrote:
+> Fixes: 7781607938c8 ("net/x25: Fix null-ptr-deref caused by x25_disconnect")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ibrahim Hashimov <security@auditcode.ai>
+> Assisted-by: AuditCode-AI:2026.07
 
-This patch was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Mon, 13 Jul 2026 10:47:50 +0000 you wrote:
-> x25_kill_by_neigh() walks the global X.25 socket list looking for sockets
-> attached to a terminating neighbour. x25_list_lock protects list membership
-> while the lookup is in progress, but it does not pin a socket's lifetime
-> after the lock is dropped.
-> 
-> The function currently drops x25_list_lock before calling lock_sock(s). A
-> concurrent close can run x25_release(), remove the same socket from
-> x25_list, and drop the last socket reference in that window. The neighbour
-> teardown path can then lock or inspect a freed struct sock/struct x25_sock.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] net/x25: fix use-after-free in x25_kill_by_neigh()
-    https://git.kernel.org/netdev/net/c/5499e0602d2f
-
-You are awesome, thank you!
+Another LLM jokey had a faster horse:
+see commit 5499e0602d2faafd42c580d25f615903c3fbe11b already in tree
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+pw-bot: nap
