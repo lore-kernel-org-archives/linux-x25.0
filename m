@@ -1,84 +1,187 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi2-f7.google.com (mail-oi2-f7.google.com [74.125.231.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45391282F1E;
-	Tue, 18 Aug 2026 16:22:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 385343BD638
+	for <linux-x25@vger.kernel.org>; Fri, 28 Aug 2026 19:34:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787070152; cv=none; b=kwrTh/lBvhhijeE9RlRrtCBt5FHT2UTrn/F+vnrdiT/HxslohcqRbnLM6N7jFZBeaKkHO/ZFYoWt49gNynUayW0uHHVKK1zENXOZGY993Oc3SSGHvlsp5CTO2WUq2tXXgsp8HnI57cIkIQDDmIcOp1OXHPE52K9LO48u58/CZv4=
+	t=1787945676; cv=none; b=cATVG8C6Ix7MIP8WZLes5ozKaxaI1IPhRiLpCfJ/2uWR84fTBm+oBXnVtAtykNm3+GlYqQVqJJH3tJ1lj9owCuLSUHk06yMvFyvplysL5xo8ga8oJh3NQt7jVrpwVH6bJlEAgrhKwL5xFC4TEkX5eV+putPIiCH/r20A3c4/veU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787070152; c=relaxed/simple;
-	bh=t2oY11ns0jS3BpZciMtCiLhR9jeNvY9/zGXLqwgMy8Y=;
-	h=From:To:Cc:Subject:Content-Type:MIME-Version; b=YTWMCBXQYi+e1D56lXK27yyeSYZHm0IUSRjb+9TMp/+o4AskH8s4CpNgdIoDDfmFWSB8oaWzM99hpVaVVkW6Vin/xRjzRrai9VI2HWKRKL5e2Qh4N3qbEqSGRWL8lGq5LDsik6cljCk3fhETvrWTCRbd7wmJbFRwKdWup2kzTgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CSkPCDaE; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CSkPCDaE"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1787070147; h=From:To:Subject:Content-Type:MIME-Version;
-	bh=SH8i/OWv8+A83f6CY1bNy1IPbwWnaGBCa2g2N5HatNE=;
-	b=CSkPCDaEtzdsGiWAx0tGJKb+FGb95yjDGyNyklC8feb4R4gZ8HYki8/SWvaIHcqT5hTjGFFy5ftOwIljADR8FCUjl5hL6ZF/UaqM2hAH1+bYcC5DkBALV+v7QFUCphca+8gpCzDMfWqYaGsotA8CXY+DhM6VdGX861KscG+6heE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=chuyf26@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X9E5Agt_1787070146;
-Received: from x31j07255.sqa.na131(mailfrom:Chuyf26@linux.alibaba.com fp:SMTPD_---0X9E5Agt_1787070146 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 19 Aug 2026 00:22:27 +0800
-From: Chuyf26 <Chuyf26@linux.alibaba.com>
-To: Martin Schiller <ms@dev.tdt.de>
-Cc: linux-x25@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH] x25: validate class D facility length before reading it
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1787945676; c=relaxed/simple;
+	bh=rIDic2O9l/GS7rRQDlr/0lWFt8qc/ste6l8CtDOTGr0=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=kP40W6Tp+x3b6iGSnlAa31ksBY/ei0CJ7E6KE5zEmsl15mg66j/daeitQIGmDAc8ZH3Im2JB4ssaS/ZJyQmCb4KKt9K7n0AKg/D+1JMcLiE8AQ3KiFYghxjJEtYLm/EgIFleLPL+KqN5kOvRTnrCeChCLMcaiWg+BbO5tHitcS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi2-f7.google.com with SMTP id 5614622812f47-4b39374fab5so507528b6e.1
+        for <linux-x25@vger.kernel.org>; Fri, 28 Aug 2026 12:34:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787945674; x=1788550474;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=98nWEY1hN1kg8FloyxfUIcpI3fw4Dep5t6bB4KJAlno=;
+        b=Xbly3/lh7mRrGxG3r+dodJ48SXHkz/+okzlfLLzsnEwyS9IOhOJtE6v1SbgWToxpnZ
+         8Cf76j2NJRr2F7GMO8bTiZDo4tMNIbVRkn8BMxuSV4b/dv45UFDr6rex1Mr5FGsaMuYj
+         y8+R463heGekaI3rS4RZxXfEptVOH3DF+x5dvKdQ2yFl8xKtgvZ23bcMZwNW+f9dq0aL
+         HyrOQJiAIwEZzEjD2q9RwFzG9nzwjebw20jIyv6ymAWNtfqSHJVqgavMHwO+jtu6zYBn
+         2M+WjB4CNqhK6OJsf+0/ZQnKm2821SGL4OUGqvNlm61htVXd6BjZ0BivVAl/SAmNIMQr
+         D3qg==
+X-Forwarded-Encrypted: i=1; AHgh+RonXnmVLqm1UFa3IqaLCKBqD75iog6lyJ/IAfy363OzA7TaiCyn35XnW8quRn8cJJ1O3rVFVCQVd7E=@vger.kernel.org
+X-Gm-Message-State: AFuF++l6OqUa3DQkYP6kg9wlQLmK6MVwm1dkOl7ltOkeQGKiNfS6oIa4
+	lQmU3yDUdKDoWNJVmWy9ipULd6v1MU24bMvixilhglesSKubscfdeRmixgoknzg9EqZPCLi/4Ux
+	nJh4xmsStoAtP57p9x65U3rQxStoBXRCUUtg0+KTCmq5psnnZ7o8vtQmVQ/E=
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <20260818162229.yOFI43Vfo0v911uVw0AFpyHQ_aOe_fsjoQXPZP70vMI@z>
+X-Received: by 2002:a05:6808:1992:b0:4b3:2274:247a with SMTP id
+ 5614622812f47-4b39819525dmr10306895b6e.11.1787945674295; Fri, 28 Aug 2026
+ 12:34:34 -0700 (PDT)
+Date: Fri, 28 Aug 2026 12:34:34 -0700
+In-Reply-To: <6a7a68ea.9c11d2ce.289b96.00f3.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a91e2ca.1d9ded08.62e62.00f3.GAE@google.com>
+Subject: Re: [syzbot] [x25?] inconsistent lock state in valid_state (7)
+From: syzbot <syzbot+15cbd86f569e8b084383@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
+	kirigirik076@gmail.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-x25@vger.kernel.org, ms@dev.tdt.de, netdev@vger.kernel.org, 
+	pabeni@redhat.com, syzbot@kernel.org, syzbot@lists.linux.dev, 
+	syzkaller-bugs@googlegroups.com, 
+	syzkaller-upstream-moderation@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-x25_parse_facilities() checks that at least p[1] + 2 bytes remain for a
-class D facility, but it reads p[1] itself to perform that check. If a
-call setup packet carries a truncated facility list ending with a single
-class D facility byte (len =3D=3D 1), p[1] is dereferenced one byte past the
-end of the facilities buffer.
+syzbot has found a reproducer for the following issue on:
 
-The path is: a frame received over the LAPB link is handed to the X.25
-state machine in x25_in.c, and call setup frames are parsed by
-x25_parse_facilities(), called directly and via
-x25_negotiate_facilities() for incoming calls, on the remaining skb
-data. The facilities length is derived from the frame itself, so a peer
-can deliver a list that ends exactly on the class D facility type byte.
-The over-read lands one byte past the packet data but inside the skb
-data allocation, where KASAN does not report it, and the value read
-then controls how many further bytes the parser believes remain.
+HEAD commit:    1b78070aaef6 Merge tag 'net-7.3-rc1' of git://git.kernel.o..
+git tree:       net-next
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=134d8c15580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5e4e3a0e188a497e
+dashboard link: https://syzkaller.appspot.com/bug?extid=15cbd86f569e8b084383
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14336d79580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1781ce25580000
 
-Classes A, B and C each validate their fixed length before reading any
-value byte. Do the same for class D by requiring the two header bytes to
-be present before p[1] is read.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/18856a03a9a3/disk-1b78070a.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/cc2bc68d7ef4/vmlinux-1b78070a.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/05a5e00f8f91/bzImage-1b78070a.xz
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Assisted-by: abaci:qwen3.8-max
-Signed-off-by: Chuyf26 <Chuyf26@linux.alibaba.com>
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+15cbd86f569e8b084383@syzkaller.appspotmail.com
+
+================================
+WARNING: inconsistent lock state
+syzkaller #0 Not tainted
+--------------------------------
+inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+ksoftirqd/0/15 [HC0[0]:SC1[1]:HE1:SE0] takes:
+ffff88807f892260 (sk_lock-AF_X25){+.?.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
+ffff88807f892260 (sk_lock-AF_X25){+.?.}-{0:0}, at: x25_kill_by_neigh+0x10d/0x250 net/x25/af_x25.c:1778
+{SOFTIRQ-ON-W} state was registered at:
+  lock_acquire+0x115/0x350 kernel/locking/lockdep.c:5908
+  lock_sock_nested+0x41/0x100 net/core/sock.c:3827
+  lock_sock include/net/sock.h:1713 [inline]
+  x25_bind+0x209/0x450 net/x25/af_x25.c:694
+  __sys_bind_socket net/socket.c:1945 [inline]
+  __sys_bind+0x2e3/0x410 net/socket.c:1976
+  __do_sys_bind net/socket.c:1981 [inline]
+  __se_sys_bind net/socket.c:1979 [inline]
+  __x64_sys_bind+0x7a/0x90 net/socket.c:1979
+  do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+  do_syscall_64+0x166/0x520 arch/x86/entry/syscall_64.c:84
+  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+irq event stamp: 732208
+hardirqs last  enabled at (732208): [<ffffffff8188ed06>] __local_bh_enable_ip+0xd6/0x140 kernel/softirq.c:478
+hardirqs last disabled at (732207): [<ffffffff8188eca2>] __local_bh_enable_ip+0x72/0x140 kernel/softirq.c:455
+softirqs last  enabled at (732126): [<ffffffff818919e6>] run_ksoftirqd+0x36/0x60 kernel/softirq.c:1108
+softirqs last disabled at (732131): [<ffffffff818919e6>] run_ksoftirqd+0x36/0x60 kernel/softirq.c:1108
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(sk_lock-AF_X25);
+  <Interrupt>
+    lock(sk_lock-AF_X25);
+
+ *** DEADLOCK ***
+
+locks held by ksoftirqd/0/15: 1, last CPU#0:
+ #0: ffffffff8ed5c6e0 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff8ed5c6e0 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff8ed5c6e0 (rcu_read_lock){....}-{1:3}, at: netif_receive_skb_core+0x33/0x2b0 net/core/dev.c:6288
+
+stack backtrace:
+CPU: 0 UID: 0 PID: 15 Comm: ksoftirqd/0 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ print_usage_bug+0x28c/0x2e0 kernel/locking/lockdep.c:4058
+ valid_state+0xbe/0xf0 kernel/locking/lockdep.c:4072
+ mark_lock_irq+0x36/0x380 kernel/locking/lockdep.c:4283
+ mark_lock+0x117/0x190 kernel/locking/lockdep.c:4769
+ mark_usage kernel/locking/lockdep.c:-1 [inline]
+ __lock_acquire+0x6b7/0x2e50 kernel/locking/lockdep.c:5208
+ lock_acquire+0x115/0x350 kernel/locking/lockdep.c:5908
+ lock_sock_nested+0x41/0x100 net/core/sock.c:3827
+ lock_sock include/net/sock.h:1713 [inline]
+ x25_kill_by_neigh+0x10d/0x250 net/x25/af_x25.c:1778
+ x25_lapb_receive_frame+0x1b0/0xfb0 net/x25/x25_dev.c:138
+ __netif_receive_skb_one_core net/core/dev.c:6264 [inline]
+ netif_receive_skb_core+0x2a6/0x2b0 net/core/dev.c:6289
+ lapbeth_napi_poll+0x42/0x90 drivers/net/wan/lapbether.c:100
+ __napi_poll+0xaa/0x330 net/core/dev.c:7787
+ napi_poll net/core/dev.c:7850 [inline]
+ net_rx_action+0x61d/0xf50 net/core/dev.c:8007
+ handle_softirqs+0x226/0x860 kernel/softirq.c:645
+ run_ksoftirqd+0x36/0x60 kernel/softirq.c:1108
+ smpboot_thread_fn+0x565/0xa70 kernel/smpboot.c:160
+ kthread+0x38b/0x480 kernel/kthread.c:436
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+BUG: sleeping function called from invalid context at net/core/sock.c:3829
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 15, name: ksoftirqd/0
+preempt_count: 100, expected: 0
+RCU nest depth: 1, expected: 0
+INFO: lockdep is turned off.
+Preemption disabled at:
+[<ffffffff8188ef0b>] softirq_handle_begin kernel/softirq.c:486 [inline]
+[<ffffffff8188ef0b>] handle_softirqs+0xab/0x860 kernel/softirq.c:621
+CPU: 0 UID: 0 PID: 15 Comm: ksoftirqd/0 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ __might_resched+0x36a/0x4c0 kernel/sched/core.c:9234
+ lock_sock_nested+0x56/0x100 net/core/sock.c:3829
+ lock_sock include/net/sock.h:1713 [inline]
+ x25_kill_by_neigh+0x10d/0x250 net/x25/af_x25.c:1778
+ x25_lapb_receive_frame+0x1b0/0xfb0 net/x25/x25_dev.c:138
+ __netif_receive_skb_one_core net/core/dev.c:6264 [inline]
+ netif_receive_skb_core+0x2a6/0x2b0 net/core/dev.c:6289
+ lapbeth_napi_poll+0x42/0x90 drivers/net/wan/lapbether.c:100
+ __napi_poll+0xaa/0x330 net/core/dev.c:7787
+ napi_poll net/core/dev.c:7850 [inline]
+ net_rx_action+0x61d/0xf50 net/core/dev.c:8007
+ handle_softirqs+0x226/0x860 kernel/softirq.c:645
+ run_ksoftirqd+0x36/0x60 kernel/softirq.c:1108
+ smpboot_thread_fn+0x565/0xa70 kernel/smpboot.c:160
+ kthread+0x38b/0x480 kernel/kthread.c:436
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+
 ---
- net/x25/x25_facilities.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/x25/x25_facilities.c b/net/x25/x25_facilities.c
-index 8e1a49b0c0dc..059dc3ac6261 100644
---- a/net/x25/x25_facilities.c
-+++ b/net/x25/x25_facilities.c
-@@ -147,7 +147,7 @@ int x25_parse_facilities(struct sk_buff *skb, struct x25_=
-facilities *facilities,
- 			len -=3D 4;
- 			break;
- 		case X25_FAC_CLASS_D:
--			if (len < p[1] + 2)
-+			if (len < 2 || len < p[1] + 2)
- 				return -1;
- 			switch (*p) {
- 			case X25_FAC_CALLING_AE:
---=20
-2.43.5
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
