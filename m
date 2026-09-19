@@ -1,64 +1,65 @@
-Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CDF53921DE
-	for <linux-x25@vger.kernel.org>; Sat, 19 Sep 2026 21:36:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F00C43988E0
+	for <linux-x25@vger.kernel.org>; Sat, 19 Sep 2026 22:34:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789853806; cv=none; b=MUYWJkm+sABEgpY8EtMBaqj4Qqyf0s0yZZQBVwsVOLLXPWn2LnJYQxH6rabDOBfuK/5g/BfxBWjSXrCgFmIe80HPPXnS9Blur9NIW/M2eQDTjcFNWDkXnAs3GPi4ErhnCJRWnqk1/K436mizvsiIJjCe7wwbgtm937PbSpopL3I=
+	t=1789857276; cv=none; b=MGMvrTqkxVxo2+hx41nlenVuVSIxPqLUSU3EWX14+8tH1lMJP8fvJlGS9gpI4wJS9jOIkpFrs8iu5TYyFq+gXpmpRpfXdeq60+hnlOYbGG9fAH81+fZJLKij0aZkDijy+5ejBj1qiDUWl6NJjYDOj48TUdqdSGyMi/i0TK1dJ9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789853806; c=relaxed/simple;
-	bh=ylIbZgKsiNrIwpSIWxBnwwtC6dQOGngNLUyTzMPDsPM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rdWYHHCERJDMrhYcKcKvQ3GT8hKLHFCjmvsOKiJtVNU3lScv7PucIxNEqn/lql4pv0d3ny3WY6vNSaVPPkADjIZ41NOhtO6iYJhzc5JDlKLElW9JWtMSuQ4WKaWdCaVnQStnzZAmALY0oDZ7sutO9c2MoxSEBo+OPf08MDQ5uD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dh22EdDh; arc=none smtp.client-ip=74.125.227.171
+	s=arc-20240116; t=1789857276; c=relaxed/simple;
+	bh=wOlYZODCnWgbZZy7EFDEtjpA+YRshMveyCdiX6qNFAc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YiJbigKrrux9EUnM2uxTfC0a4eMlbmVkSVrX5v26CuFnxZRvcyuhDrGLzNHeN2wRE0z7asW1PSc7jv/oLz6g7A9GShFMip3xIbikFS4nM9Yr0Quswj1bHT/SccpCegAv8mbmUIhFCDnIWUezqJDEUve9IYa1OZW9mFt3Kw3D4Sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efcltKNJ; arc=none smtp.client-ip=74.125.227.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dh22EdDh"
-Received: by mail-pj2-f43.google.com with SMTP id 98e67ed59e1d1-396cccbba92so1704409a91.0
-        for <linux-x25@vger.kernel.org>; Sat, 19 Sep 2026 14:36:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efcltKNJ"
+Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2dd58e1e2c7so16404255ad.0
+        for <linux-x25@vger.kernel.org>; Sat, 19 Sep 2026 15:34:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789853800; x=1790458600; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789857274; x=1790462074; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2j7v0Gfm1mzC7ZOfmDBTrSr3Zc/OVo6Hpw1JferQnEU=;
-        b=Dh22EdDh0UblCqQrVFJlrRnXe5i3GujtQ01GJbijTagJjmQ3fqGBdV1OaZVOVm9F79
-         G0y8fV5JAtFcMpMQZrfEZWpNBbo5uLc+TtfVc7HO/T58uesahn5csB7+fYqAEtuoPIoG
-         aaP49+NasMI0vXt5w/Obmcq/YjRllQ2xvjNPs38TcwRy0R1F65ogE2jKbJqQ0GPMXr6C
-         v8E0daC1woNDY9Ql71lgn8LYFsewPRruf7KoFZ3599qgMGlqHtjvv/0GtrHFlso5Jmow
-         VbA4aa4rSsE1kETBZzCSaGJ+m3JZUwid3e/qRDgHF4w9ipC7pV4IL8AJq3vTad4V+gO8
-         iTiw==
+        bh=WI1pki+zfwXSN5E34Vg9l05h0Yqa+0/MqFS6gNIfHcw=;
+        b=efcltKNJqW/7HGHJgatxbipBfbnnQ6TQnRUxuqZR02ZRWbPguKWzF1gpIi6/95mor1
+         mfc3HFmNrBpo/DT/NtGWEwRaiLVp0KmhUByVqViKIx6xlt1WOpwpdEQTNqhtfQw2C3P/
+         R3xyffbknUuTqYZlPj2NXFw/sQtNQLJzZazsIiOUdtOS4QfTAU2AmIZXEesBkHP7DN0e
+         hE7afFDg3G7nxru+fTP2ieryR3/U9neKWgNQiRT4BNWYxELCKgEs0J555WsrjGCbq+H0
+         wPZiCh8yQXbO9oA6A3hcuPlFqPOTSQGaroBHcEpRuTEHcjbehIQtXUglwlN2Zpzp1aVI
+         CQyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789853800; x=1790458600;
+        d=1e100.net; s=20260707; t=1789857274; x=1790462074;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=2j7v0Gfm1mzC7ZOfmDBTrSr3Zc/OVo6Hpw1JferQnEU=;
-        b=QbtPCxu1pBRLPFnt/4kX850sZtHwfFICMqBRJlKX5VCGAV3nXQEsdookAhu+ixxGUs
-         rjrYatJ1vC2HOUzn/xOjsD7RxJb0/ucwoKP0Y1KIcU/tUAZ4d3CCOF35H9e+HmYE38ku
-         vwplR/RQFyXLMTZwwmA+Rq5v06o+mMZCxOGjDI1OgbXr+KjoTpPmbPPRt49ttGJ0CPxM
-         nSZ36dtz2Wh6j4AZCK6uTMMiNInA2FbbrLgwY1uBwIAa7bcysB8wuFsZYskZVhvVlFIW
-         1NU3TKNTENM+HkkpEeo552d8JxDqBlo2ne7ZzT/syjUJtWKeo58Ge7OjKk2Xyc0i6TZk
-         PmSQ==
-X-Gm-Message-State: AFuF++n5Kb3zDI+SgPZ2w0zbjMf8b3RBLaICu82ItK6nqsW/ljj9cY8/
-	WdEJBNV7eymQ6rHcqrgS30+zrAdkrXjtyUbZ6nQs3ydJuHT0CRceNbGB
-X-Gm-Gg: AYBFou1dMnaWK+k+AZdDmPcVKXlEalNSZSd+V8zW27Ih8NWaMP5LsVCMolXNbzU5dSY
-	VPeb0PJzywq4JQswab2tBC2VOiNIk0S+kTkMWyVg6FerjKyBGmWesQnztcYz/TG7ucooa4ePFRY
-	iR4yu84IpxW/SBv452GrMBq0/t8CbQLUIB3yk2KlrY3w9dqHVji7V8kYJ2j0n3AjAy2i6mSHm7g
-	XGeBCh0sB2J14XcSec0Wa3zoqEo8fMCqUkkZyMcINdwszLi+kXLQNixdlmrgOMX/7dA1mzGIXzX
-	L7I/9mkP6kyMHE08czH7FTU3yL0ZTk0ApjqKdtmYAr5alW0Ud521SnXTc8NihwsopFGiyJE8nia
-	4EKRXenLuh0Z+qI8nPEmA8KVnxuvaB5Q/LNJHDW6TKAci+IjP6oDbbzDbMsbyG3syil+yT3c3ic
-	dvyCXM9+oxD9Yofq5sN2kl2+x+FBzyW0PH6qCtWYgkP4+397iFe71tJVosoSwlZOm5qWazZQJKL
-	QxRtOhI2QNqEsPNR7umTgZec097gFGxcotjiwJtw6h6cYpuxOWvldv7a+lSkAF4xoizZwfh5pkx
-	gN+WH90QL/1rNSQRaNWq
-X-Received: by 2002:a17:90b:4cce:b0:3a0:2646:7495 with SMTP id 98e67ed59e1d1-3a026467c7cmr2912646a91.53.1789853800393;
-        Sat, 19 Sep 2026 14:36:40 -0700 (PDT)
+        bh=WI1pki+zfwXSN5E34Vg9l05h0Yqa+0/MqFS6gNIfHcw=;
+        b=PnXb8wblNkmn2DwyrOiAAkPbOdVL2H+izXlFSZrWf4L+koOqh7SLsK+WT8aowwJteU
+         RGfwNAF5QqV6O9rZ93kgyn9W1CnhnHViYWZMX/vd68iztgxH1z2VjKDz4CaQDJz16sIl
+         kMeXEuwQLHBlOlt1beCYRzhLfyFjMuDk2T6IxPUHJD1ySpohvhaxkyyrxPmSN0Zmqkkm
+         wcCDw5akG9Xn2Gr7THD5v1qlsIzWxmU9k3uIH+TOJlItsyNRwI62tLc3cJ4KC3bg8zXZ
+         bqwYbbSqaMoqz/BA/4RdOEYRDYLH8Ju9wqnMzrzlbuIyNJbdus13d+DPBk/UchGaKg8l
+         S8mg==
+X-Gm-Message-State: AFuF++mOSfmhtnXQapH24AtJHOQnNLkHAJAumt0BowhxtulOY6TKCtfn
+	dyRDTV7o6t2+0gtjBKosS6rcvDVEaoWTS5C5H0H4DKbq24a93mgdTXyD
+X-Gm-Gg: AYBFou3SV1tOVjE3OX6Im2i2HNJUb1MgnyRM1FUGYwCebjLdGptRWwzDZcFdnZCiIMD
+	Cwln8Rldel0lutKQ/3S73Tvme01wXOdoTQX40JXJ1m3On7tBsLbdru5CvjSELNgStQBXnosKvxU
+	twkxNf+enbbb6527X/RlzA/EMRnRTUr0W+4JKZrma81fFGTcpS0sD5lidXjKbW8Jn/pjcsR0xFG
+	SfQcI/3wshUHESMUBElbUcoGYibGqntVKHo+kAcLvovXPoMDfyr4qZPPmDnHVDi7A8MEfb/8tYC
+	a06Pgpt/DUm4B/qrkvlaX6yMTTQ7d4hl6eT698Qq3UJ2StKV5+krd0kDhARKZIRPgGZ7p1gI+x1
+	uk8G4iD+93nGEM7KflIzYAoCz7Mp8eXyg3P7/lkuxBDNYhFrg+C8BMq/yV9kC9BnBs5dMwVYzYf
+	SZ0QF34Hxi9Nv7uH57xVHgN1EezB7KdUOcLz/CjI41w61I8xGu4gIxDuYruXTjKgWPMvjLm+ReC
+	AtRHIFWeU9tyqfOAXqsBJAwVFP2FviZnqEKkYygBeibCY2sWN5nBwFinxW9eH79FT8xjTUx2qqG
+	rvpKJVGqsA==
+X-Received: by 2002:a17:902:d54c:b0:2dd:c100:b2d1 with SMTP id d9443c01a7336-2ddc100b3d4mr44684205ad.60.1789857274157;
+        Sat, 19 Sep 2026 15:34:34 -0700 (PDT)
 Received: from phui-2.c.googlers.com.com (78.123.83.34.bc.googleusercontent.com. [34.83.123.78])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a038fffaa8sm59595a91.1.2026.09.19.14.36.39
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ddc17ba65csm13032565ad.52.2026.09.19.15.34.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Sep 2026 14:36:39 -0700 (PDT)
+        Sat, 19 Sep 2026 15:34:33 -0700 (PDT)
 From: Hui Peng <benquike@gmail.com>
 To: ms@dev.tdt.de,
+	andrew+netdev@lunn.ch,
 	davem@davemloft.net,
 	edumazet@google.com,
 	kuba@kernel.org,
@@ -66,9 +67,9 @@ To: ms@dev.tdt.de,
 Cc: linux-x25@vger.kernel.org,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] net: lapb: fix uninitialized stack frame fields in lapb_decode()
-Date: Sat, 19 Sep 2026 21:36:39 +0000
-Message-ID: <20260919213639.3314894-1-benquike@gmail.com>
+Subject: [PATCH] net: wan: lapbether: validate frame length and headroom in lapbeth_rcv() and xmit
+Date: Sat, 19 Sep 2026 22:34:33 +0000
+Message-ID: <20260919223433.3882618-1-benquike@gmail.com>
 X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
@@ -78,82 +79,32 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-`lapb_decode()` populates a caller-allocated `struct lapb_frame frame`
-on the stack of `lapb_data_input()`, but does not zero-initialize
-`*frame`.
-
-1. When `skb->data[0]` is not a valid LAPB address byte (`LAPB_ADDR_A`,
-   `LAPB_ADDR_B`, `LAPB_ADDR_C`, or `LAPB_ADDR_D`), `frame->cr` is left
-   uninitialized on the stack while `lapb_decode()` continues parsing
-   and copies `frame->cr` into `lapb->frmr_data.cr` via
-   `lapb_transmit_frmr()`, leaking 1 bit of kernel stack memory over the
-   network.
-2. When decoding an unnumbered (`LAPB_U`) or illegal frame in
-   `LAPB_EXTENDED` mode, `frame->control[1]` is left uninitialized on
-   the stack and copied into the outgoing `FRMR` frame by
-   `lapb_transmit_frmr()`.
-
-Zero-initialize `*frame` at the start of `lapb_decode()` and return `-1`
-when `skb->data[0]` is not a valid LAPB address byte.
+In drivers/net/wan/lapbether.c, call pskb_may_pull() before reading the
+2-byte length prefix in lapbeth_rcv() and ensure sufficient headroom in
+lapbeth_data_transmit().
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Assisted-by: LLM
 Signed-off-by: Hui Peng <benquike@gmail.com>
-
 ---
- net/lapb/lapb_subr.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/net/lapb/lapb_subr.c b/net/lapb/lapb_subr.c
-index 592a22d86a97..8150f3583f15 100644
---- a/net/lapb/lapb_subr.c
-+++ b/net/lapb/lapb_subr.c
-@@ -106,6 +106,7 @@ int lapb_validate_nr(struct lapb_cb *lapb, unsigned short nr)
- int lapb_decode(struct lapb_cb *lapb, struct sk_buff *skb,
- 		struct lapb_frame *frame)
- {
-+	memset(frame, 0, sizeof(*frame));
- 	frame->type = LAPB_ILLEGAL;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index c3630a82913b..3838910ea7bd 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -133,11 +133,13 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev,
+ 		goto drop_unlock;
  
- 	lapb_dbg(2, "(%p) S%d RX %3ph\n", lapb->dev, lapb->state, skb->data);
-@@ -120,25 +121,33 @@ int lapb_decode(struct lapb_cb *lapb, struct sk_buff *skb,
- 		if (lapb->mode & LAPB_DCE) {
- 			if (skb->data[0] == LAPB_ADDR_D)
- 				frame->cr = LAPB_COMMAND;
--			if (skb->data[0] == LAPB_ADDR_C)
-+			else if (skb->data[0] == LAPB_ADDR_C)
- 				frame->cr = LAPB_RESPONSE;
-+			else
-+				return -1;
- 		} else {
- 			if (skb->data[0] == LAPB_ADDR_C)
- 				frame->cr = LAPB_COMMAND;
--			if (skb->data[0] == LAPB_ADDR_D)
-+			else if (skb->data[0] == LAPB_ADDR_D)
- 				frame->cr = LAPB_RESPONSE;
-+			else
-+				return -1;
- 		}
- 	} else {
- 		if (lapb->mode & LAPB_DCE) {
- 			if (skb->data[0] == LAPB_ADDR_B)
- 				frame->cr = LAPB_COMMAND;
--			if (skb->data[0] == LAPB_ADDR_A)
-+			else if (skb->data[0] == LAPB_ADDR_A)
- 				frame->cr = LAPB_RESPONSE;
-+			else
-+				return -1;
- 		} else {
- 			if (skb->data[0] == LAPB_ADDR_A)
- 				frame->cr = LAPB_COMMAND;
--			if (skb->data[0] == LAPB_ADDR_B)
-+			else if (skb->data[0] == LAPB_ADDR_B)
- 				frame->cr = LAPB_RESPONSE;
-+			else
-+				return -1;
- 		}
- 	}
+ 	len = skb->data[0] + skb->data[1] * 256;
+-	dev->stats.rx_packets++;
+-	dev->stats.rx_bytes += len;
  
--- 
-2.55.0.1082.g2b9226bbc0-goog
-
+ 	skb_pull(skb, 2);	/* Remove the length bytes */
+-	skb_trim(skb, len);	/* Set the length of the data */
++	if (pskb_trim_rcsum(skb, len))
++		goto drop_unlock;
++
++	dev->stats.rx_packets++;
++	dev->stats.rx_bytes += len;
+ 
+ 	err = lapb_data_received(lapbeth->axdev, skb);
+ 	if (err != LAPB_OK) {
