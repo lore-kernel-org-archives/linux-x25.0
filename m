@@ -1,262 +1,304 @@
-Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEBC151C056
-	for <linux-x25@vger.kernel.org>; Thu,  1 Oct 2026 15:01:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801184C224C;
+	Mon,  5 Oct 2026 15:20:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790866886; cv=none; b=Cu6TmX8r9sny3mn52AKOGJcA/+PoQYI1jmCH1BIw3RIjpbyIaXZNxD3LQsx1cFnxM1sWG1KxfoL9XsJCWw0xRCVQeZy7K+4TOKb2+L+0+01LLQOKIpWpVXSffmhksS9sX8Ky4URt/OyV3HgmddDApjWRlMJJDUBu73fGChG1WHU=
+	t=1791213644; cv=none; b=n2r413PdWhSNY+7CA++sbcsTYpljWMcOR2lzOzMBZbpXBr3/jPKPaWRuPivC2zoxNeivm7b1IBBgxjHBvx7Yn8neAAk8oJg8wSH2TI0wIptpBY2k/f514Epp7Yj+MVykLClL4hNs/03sNBQvUpq4kYgeaFdfJAc/RnlrOqc+D2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790866886; c=relaxed/simple;
-	bh=Fx9LIzRQJ1dzk3z4FsDRixuZiDh43a0l/JdqUOahWUE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gFO2cTIbP2LSpi0F+KLacHMzpsx6ozhOB3uVYtuqx7ZOmDxPfUbgi5d8oFmtxRvnPWtO0DlSgYckFheeTgErYkvp/Dzg2ZLXcgukn5G0sd08j810mpsyqnSFE5Lf0ML3J97FR84QcUQdaoQEtOEyP/FDv5Xwe/fd8KsUFlDAWa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cFRhmVIX; arc=none smtp.client-ip=74.125.227.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791213644; c=relaxed/simple;
+	bh=m+geoa7sqgjtiAAaIl12GrIqmVWw2b/2v7tYNtQ1+yg=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=EGfgWzwUrTm16c03SjOHwXmwMTVRLPZnlmL3XcEYjjbXFD7pYlz7+x1OotyZa7/sEkJmlTL5RhOzTS3X1zlyiaSrJhLl91s6NYX6RCikC74JtS5IwGM5U7PVM8PqlXcBx+Vdtr0vMSVadILTansRJFVfybSKO8MJ74a5mZdqyRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m7b3NiFm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cFRhmVIX"
-Received: by mail-pj2-f43.google.com with SMTP id d9443c01a7336-2d91ede8035so56112945ad.3
-        for <linux-x25@vger.kernel.org>; Thu, 01 Oct 2026 08:01:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790866884; x=1791471684; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/18g52fyWi7SSiANKI+3d34RdqiQMPghAW+kS4u7wIQ=;
-        b=cFRhmVIXNcXMpkZaRLPackH4eRSLTEU9Ph9fTL8N/FqaWAXISpN1OuSND3TP8rBQg6
-         fbRxXEuBQKMx3a80Pi1g5QetGv0mhEDYCACKVAYPcMfxZ9eBczGcZ5YPRRXotcYK7EjL
-         EJLRIEf8YjsDiPupNj+hh3eRW/l7BUv+gHq6HAADVCJVZedNBGU8l/nOsB9hPPLdQgBO
-         mTVVLxVZeXbKSsq2Gj6mIQUj8mnSEB0d2hDxTnl5RZfEU+Eu6r2c/Te14G5+FVW5MPx0
-         yCOHU3uHVGR5vYGUx3OSOTchkZFGHH5/nxNqomXj15XlYvVL/5wLwzahgdpFBJpvZ4qX
-         5zCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790866884; x=1791471684;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/18g52fyWi7SSiANKI+3d34RdqiQMPghAW+kS4u7wIQ=;
-        b=EaiB/bwniTlUYu1bBKz1ZQgM0K/hjAZJieOqBah12UqtUvg8EfRo4QSGOcj1+M9NIs
-         xRms3LtCOr/QpKpxOYinJQjrcEEf8hrgmle2v+t3JVGjrEtyAV/LK/3vPM8n+n1c4Iur
-         Q3LFnNEhU6THPHn2c/hdzQ8CuZSGhOSLxcG+6slJN77/Cefgk8K7C3DEqJYaqj+1o1m4
-         WNhsvK/heoO7zRIvuGdMYswKaNEHA/wWAP+QaOrzzU2eeWYXV0JG5MUeVJjtttY7UNeE
-         nN09PR8fxO5rIRQhxbOornrMJ/+EYw/M0GQlWhFfqSzJNmynIBaVomocrx8prjs9Av86
-         8OTw==
-X-Forwarded-Encrypted: i=1; AKwUvBweYE8SkRrqbSK3mndLEvdOHhg2DhRTcOPnlXWomQ3hQCRFmU8aDYWm8GIO9BxCOgYeo8v2L4XFO+s=@vger.kernel.org
-X-Gm-Message-State: AFq9FYL6+iBs3+dYPp1eXA8CouLG6EMYz72tVtHQRqVXkp+7DyQ/eruB
-	pZU1cNlcmeyFCkmIeFHb0RERQTLtQ0soixdXQwqv+t24wV9d4Erj1ymA
-X-Gm-Gg: AYBFou0QxzHNEwtoX5dFyGQeQbZ602mWvBoHNtVZKgx2cUQDeUvHxOhnw2wPh5er9mM
-	/H9YopNektmHRbK/wmOHHSRMACLsVNY+k+S5D2F8JEa4sNMUdvy7I3l7uz3w0KaEo+kl4kMsxd1
-	iU+mO+Ayjk5wi3AhHbq00DVQcEedCUJMcGI5iYW9IwQmmlOQ74oKpWOxEPKfggRpABW39fdUvIq
-	/x+sBHEWOqKIfL4Xo360tvynx9qVzU9CcFgc/DuAsNaB1LMa1emndjiaiQhbfs1XBz6dK7L3RsD
-	iHBgKCwS4+FVEXdsaIOSiEa6Dnf26y/E+tVulVfyCZi/WeHkzoDzusoq19rMH5hDN3TKR5x6zEl
-	Po9YprGB2EAcBDaqvKdpLoAQv78mY3fgrWyd9WjR0tTkAOjzw2o1OoGuVWO5zwURcBqdYQr09EN
-	QERI19qFWJuIOKAD5sQf/z2NhjjBhQfr9COk58c6nNS+9kKE1vP9PyEr76+IcJXqCWcfhGnOF9
-X-Received: by 2002:a17:902:fc4d:b0:2dd:7646:35cd with SMTP id d9443c01a7336-2e2e43cc01dmr47103035ad.0.1790866883936;
-        Thu, 01 Oct 2026 08:01:23 -0700 (PDT)
-Received: from thangnn-ASUS.. ([2a09:bac5:d457:2e1e::498:2b])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e31cf35578sm5718675ad.80.2026.10.01.08.01.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2026 08:01:23 -0700 (PDT)
-From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-To: Martin Schiller <ms@dev.tdt.de>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Simon Horman <horms@kernel.org>,
-	Duoming Zhou <duoming@zju.edu.cn>,
-	Lin Ma <linma@zju.edu.cn>,
-	linux-x25@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	syzbot+9faa82ae2e94c5c7d2ef@syzkaller.appspotmail.com,
-	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-Subject: [PATCH net] net/x25: don't call lock_sock() from softirq in x25_kill_by_neigh()
-Date: Thu,  1 Oct 2026 22:01:18 +0700
-Message-ID: <20261001150118.128470-1-ngocthang2710.1999@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m7b3NiFm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8091F000FF;
+	Mon,  5 Oct 2026 15:20:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791213643;
+	bh=D23wEKcHFE8exia2wYG9a025ElQqIYJw5G+VPC0O2qk=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=m7b3NiFmQ40VKu+ArUfJhVj5YEtUU3sPDNL3Ij+3Aa6+yxeLB8YcUhvPFiAxTNt4+
+	 zNtSlz9uzTFSQYSjXLOYEfRJHq2pPn4u0xYe8iThLn7Qq2CF6A+ZvDAl3DwnAfeoU1
+	 d1dYUHfJq0CuzVOjuaW3aJgNmSTr/X06RvBpMokDXUFSKrgZUxCyXoj0UHGN1/Eh6Y
+	 Hc2063eNDIwv+OkXJ+NR8x3aPekYnzfMrHu0rtoLkaUgZDbevko52ORR/KddJL5eSF
+	 kCneIa5Az2cSXZAtkvuctPYJaZWNJ0Y9lb16gDWp+Jgrxs3SJlAAen0tfZ5On2rwLw
+	 w7z7dI7gXvaYA==
+Subject: Re: [PATCH net] net/x25: don't call lock_sock() from softirq in
+ x25_kill_by_neigh()
+From: netdev-bot+sashiko@kernel.org
+To: ngocthang2710.1999@gmail.com
+Cc: ms@dev.tdt.de, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, duoming@zju.edu.cn, linma@zju.edu.cn,
+ linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ syzbot+9faa82ae2e94c5c7d2ef@syzkaller.appspotmail.com
+Date: Mon, 05 Oct 2026 15:20:42 +0000
+Message-ID: <179121364205.434549.10310203820251738113@kernel.org>
+In-Reply-To: <20261001150118.128470-1-ngocthang2710.1999@gmail.com>
+References: <20261001150118.128470-1-ngocthang2710.1999@gmail.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Subscribe: <mailto:linux-x25+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-x25_kill_by_neigh() is reached from the receive path when the link layer
-goes away or the peer restarts:
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
 
-  net_rx_action()
-    lapbeth_napi_poll()
-      x25_lapb_receive_frame()
-        x25_link_terminated() / x25_link_control()
-          x25_kill_by_neigh()
-            lock_sock()
+Critical: 0 · High: 0 (1) · Medium: 1 (1) · Low: 1
 
-lock_sock() may sleep, which is not allowed in softirq context:
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-  BUG: sleeping function called from invalid context at net/core/sock.c:3832
-  in_atomic(): 0, irqs_disabled(): 0, non_block: 0, pid: 29, name: ktimers/1
-  RCU nest depth: 2, expected: 0
-  ...
-   lock_sock_nested+0x56/0x130 net/core/sock.c:3832
-   x25_kill_by_neigh+0x134/0x2a0 net/x25/af_x25.c:1778
-   x25_lapb_receive_frame+0x1b0/0xfb0 net/x25/x25_dev.c:138
+- [Medium] The patch adds a deferred-kill state.
+- [Low] x25_make_new() copies the parent's whole flags word into the
+  child (`x25->flags = ox25->flags;`) and clears only X25_INTERRUPT_FLAG.
 
-Take the socket spinlock instead, the same way the x25 timers and receive
-path already do. If the socket is not owned by user, disconnect it right
-away. If it is, mark it with X25_KILL_FLAG and let a new release_cb do
-the disconnect when the owner releases the socket. This keeps the
-serialization against x25_sendmsg()/x25_recvmsg()/x25_connect() that
-commit 7781607938c8 ("net/x25: Fix null-ptr-deref caused by
-x25_disconnect") added lock_sock() for. Sockets that already have the
-flag set are skipped, so the rescan loop always terminates.
+Pre-existing issues:
+- [High] x25_sendmsg() checks `if (!x25->neighbour)` under lock_sock().
+- [Medium] On NETDEV_DOWN, x25_device_event() runs under RTNL and calls
+  the new x25_kill_by_neigh_sync().
 
-NETDEV_DOWN runs in process context and the device may be freed right
-after, so keep waiting for socket owners there as before: a sleeping
-sweep makes sure no socket still uses the neighbour on return.
+--
 
-Fixes: 7781607938c8 ("net/x25: Fix null-ptr-deref caused by x25_disconnect")
-Reported-by: syzbot+9faa82ae2e94c5c7d2ef@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=9faa82ae2e94c5c7d2ef
-Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
----
-Tested in QEMU with the syzbot config (PREEMPT_RT, KASAN, lockdep) and
-the syzbot C reproducer: the unpatched kernel hits the BUG twice in 240s,
-the patched kernel runs 300s clean. The owned-by-user branch was
-exercised with a temporary debug hack forcing the deferred path:
-release_cb disconnected the socket and userspace saw ENETUNREACH.
-"ip link set lapb0 down" with a connecting socket also disconnects it
-right away. No lockdep splats in any run.
+net/x25: don't call lock_sock() from softirq in x25_kill_by_neigh()
 
-syzbot also has an AI-generated workqueue variant of this fix in
-moderation. This version keeps the teardown synchronous for sockets
-that are not owned, so a link that comes back quickly cannot have a
-stale work item kill freshly connected calls. Owned sockets are cleared
-when their owner releases them.
+x25_kill_by_neigh() can be reached from softirq. This patch replaces its
+lock_sock() with bh_lock_sock(). Sockets not owned by user are
+disconnected right away. Owned sockets are marked with X25_KILL_FLAG, and
+a new x25_release_cb() disconnects them on release_sock(). NETDEV_DOWN
+also runs a sleeping x25_kill_by_neigh_sync() sweep.
 
- include/net/x25.h |  1 +
- net/x25/af_x25.c  | 62 +++++++++++++++++++++++++++++++++++++++++++----
- 2 files changed, 58 insertions(+), 5 deletions(-)
+> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+> index 033e7d059f58c..4f9ca22231ac7 100644
+> --- a/net/x25/af_x25.c
+> +++ b/net/x25/af_x25.c
+> @@ -200,6 +200,32 @@ static void x25_remove_socket(struct sock *sk)
+>  	write_unlock_bh(&x25_list_lock);
+>  }
+>  
+> +/*
+> + * Process context only: wait for owners that x25_kill_by_neigh() deferred,
+> + * so no socket still uses nb once the device goes away.
+> + */
+> +static void x25_kill_by_neigh_sync(struct x25_neigh *nb)
+> +{
+> +	struct sock *s;
+> +
+> +again:
+> +	write_lock_bh(&x25_list_lock);
+> +
+> +	sk_for_each(s, &x25_list) {
+> +		if (x25_sk(s)->neighbour == nb) {
+> +			sock_hold(s);
+> +			write_unlock_bh(&x25_list_lock);
+> +			lock_sock(s);
 
-diff --git a/include/net/x25.h b/include/net/x25.h
-index 414f3fd99345..ed8ba01fa3cb 100644
---- a/include/net/x25.h
-+++ b/include/net/x25.h
-@@ -118,6 +118,7 @@ enum {
- #define X25_Q_BIT_FLAG		0
- #define X25_INTERRUPT_FLAG	1
- #define X25_ACCPT_APPRV_FLAG	2
-+#define X25_KILL_FLAG		3
- 
- /**
-  *	struct x25_route - x25 routing entry
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 033e7d059f58..4f9ca22231ac 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -200,6 +200,32 @@ static void x25_remove_socket(struct sock *sk)
- 	write_unlock_bh(&x25_list_lock);
- }
- 
-+/*
-+ * Process context only: wait for owners that x25_kill_by_neigh() deferred,
-+ * so no socket still uses nb once the device goes away.
-+ */
-+static void x25_kill_by_neigh_sync(struct x25_neigh *nb)
-+{
-+	struct sock *s;
-+
-+again:
-+	write_lock_bh(&x25_list_lock);
-+
-+	sk_for_each(s, &x25_list) {
-+		if (x25_sk(s)->neighbour == nb) {
-+			sock_hold(s);
-+			write_unlock_bh(&x25_list_lock);
-+			lock_sock(s);
-+			if (x25_sk(s)->neighbour == nb)
-+				x25_disconnect(s, ENETUNREACH, 0, 0);
-+			release_sock(s);
-+			sock_put(s);
-+			goto again;
-+		}
-+	}
-+	write_unlock_bh(&x25_list_lock);
-+}
-+
- /*
-  *	Handle device status changes.
-  */
-@@ -222,6 +248,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
- 			nb = x25_get_neigh(dev);
- 			if (nb) {
- 				x25_link_terminated(nb);
-+				x25_kill_by_neigh_sync(nb);
- 				x25_neigh_put(nb);
- 			}
- 			x25_route_device_down(dev);
-@@ -495,10 +522,20 @@ static int x25_listen(struct socket *sock, int backlog)
- 	return rc;
- }
- 
-+/* Finish a link teardown that hit while the socket was owned by user. */
-+static void x25_release_cb(struct sock *sk)
-+{
-+	struct x25_sock *x25 = x25_sk(sk);
-+
-+	if (test_and_clear_bit(X25_KILL_FLAG, &x25->flags) && x25->neighbour)
-+		x25_disconnect(sk, ENETUNREACH, 0, 0);
-+}
-+
- static struct proto x25_proto = {
- 	.name	  = "X25",
- 	.owner	  = THIS_MODULE,
- 	.obj_size = sizeof(struct x25_sock),
-+	.release_cb = x25_release_cb,
- };
- 
- static struct sock *x25_alloc_socket(struct net *net, int kern)
-@@ -1764,6 +1801,23 @@ static struct notifier_block x25_dev_notifier = {
- 	.notifier_call = x25_device_event,
- };
- 
-+/* May run in softirq, so lock_sock() is not an option. */
-+static void x25_kill_sock(struct sock *sk, struct x25_neigh *nb)
-+{
-+	struct x25_sock *x25 = x25_sk(sk);
-+
-+	local_bh_disable();
-+	bh_lock_sock(sk);
-+	if (x25->neighbour == nb) {
-+		if (sock_owned_by_user(sk))
-+			set_bit(X25_KILL_FLAG, &x25->flags);
-+		else
-+			x25_disconnect(sk, ENETUNREACH, 0, 0);
-+	}
-+	bh_unlock_sock(sk);
-+	local_bh_enable();
-+}
-+
- void x25_kill_by_neigh(struct x25_neigh *nb)
- {
- 	struct sock *s;
-@@ -1772,13 +1826,11 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
- 	write_lock_bh(&x25_list_lock);
- 
- 	sk_for_each(s, &x25_list) {
--		if (x25_sk(s)->neighbour == nb) {
-+		if (x25_sk(s)->neighbour == nb &&
-+		    !test_bit(X25_KILL_FLAG, &x25_sk(s)->flags)) {
- 			sock_hold(s);
- 			write_unlock_bh(&x25_list_lock);
--			lock_sock(s);
--			if (x25_sk(s)->neighbour == nb)
--				x25_disconnect(s, ENETUNREACH, 0, 0);
--			release_sock(s);
-+			x25_kill_sock(s, nb);
- 			sock_put(s);
- 			goto again;
- 		}
+[Severity: Medium]
+This isn't a bug introduced by this patch, but can this sweep hold RTNL
+indefinitely?
+
+x25_device_event() handles NETDEV_DOWN with RTNL held and calls
+x25_kill_by_neigh_sync(). That function sleeps in lock_sock() for each
+socket on nb. Meanwhile, x25_sendmsg() holds the socket lock across the
+user copy:
+
+net/x25/af_x25.c:x25_sendmsg() {
+    ...
+	rc = memcpy_from_msg(skb_transport_header(skb), msg, len);
+    ...
+}
+
+If the user buffer is backed by userfaultfd or FUSE, the user can stall
+that copy for as long as they like. A later "ip link set <dev> down"
+would then block here with RTNL held.
+
+The old x25_kill_by_neigh() made the same lock_sock() call from the same
+notifier. The commit message keeps this on purpose ("keep waiting for
+socket owners there as before"), so the new helper carries it forward.
+
+> +			if (x25_sk(s)->neighbour == nb)
+> +				x25_disconnect(s, ENETUNREACH, 0, 0);
+
+[ ... ]
+
+> @@ -495,10 +522,20 @@ static int x25_listen(struct socket *sock, int backlog)
+>  	return rc;
+>  }
+>  
+> +/* Finish a link teardown that hit while the socket was owned by user. */
+> +static void x25_release_cb(struct sock *sk)
+> +{
+> +	struct x25_sock *x25 = x25_sk(sk);
+> +
+> +	if (test_and_clear_bit(X25_KILL_FLAG, &x25->flags) && x25->neighbour)
+> +		x25_disconnect(sk, ENETUNREACH, 0, 0);
+
+[Severity: Low]
+Can X25_KILL_FLAG be inherited by a child socket?
+
+x25_make_new() copies the whole flags word from the listener and clears
+only X25_INTERRUPT_FLAG:
+
+net/x25/af_x25.c:x25_make_new() {
+    ...
+	x25->flags	= ox25->flags;
+    ...
+	clear_bit(X25_INTERRUPT_FLAG, &x25->flags);
+    ...
+}
+
+x25_connect() does not reject TCP_LISTEN sockets, and it assigns
+x25->neighbour while it owns the socket. A link kill during connect()
+can therefore set X25_KILL_FLAG on a socket that was listening.
+
+x25_rx_call_request() clones the listener without taking its socket
+lock. A child created in that window would inherit the bit, even though
+its own neighbour is healthy.
+
+x25_release_cb() does not check which neighbour caused the kill. The
+child's first release_sock() after accept() would then disconnect its
+call with ENETUNREACH, and no CLEAR is sent to the peer.
+
+The sequence is contrived. Should x25_make_new() also clear
+X25_KILL_FLAG?
+
+> +}
+> +
+
+[ ... ]
+
+> @@ -1764,6 +1801,23 @@ static struct notifier_block x25_dev_notifier = {
+>  	.notifier_call = x25_device_event,
+>  };
+>  
+> +/* May run in softirq, so lock_sock() is not an option. */
+> +static void x25_kill_sock(struct sock *sk, struct x25_neigh *nb)
+> +{
+> +	struct x25_sock *x25 = x25_sk(sk);
+> +
+> +	local_bh_disable();
+> +	bh_lock_sock(sk);
+> +	if (x25->neighbour == nb) {
+> +		if (sock_owned_by_user(sk))
+> +			set_bit(X25_KILL_FLAG, &x25->flags);
+
+[Severity: Medium]
+While the flag is set, x25->lci and x25->neighbour stay unchanged until
+x25_release_cb() runs. __x25_find_socket() matches on only those two
+fields:
+
+	if (x25_sk(s)->lci == lci && x25_sk(s)->neighbour == nb) {
+
+Could a new incoming call on the same LCI end up on the stale socket's
+backlog?
+
+In X25_LINK_STATE_3, x25_link_control() acknowledges a restart as soon
+as x25_kill_by_neigh() returns:
+
+		case X25_LINK_STATE_3:
+			/* clear existing virtual calls */
+			x25_kill_by_neigh(nb);
+
+			x25_transmit_restart_confirmation(nb);
+
+>From then on the peer treats every LCI as free. Suppose it sends a
+CALL_REQUEST on an LCI still held by a flagged, user-owned socket.
+x25_receive_data() finds that socket before it checks the frame type:
+
+	if ((sk = x25_find_socket(lci, nb)) != NULL) {
+		...
+			queued = !sk_add_backlog(sk, skb, READ_ONCE(sk->sk_rcvbuf));
+	...
+	if (frametype == X25_CALL_REQUEST)
+		return x25_rx_call_request(skb, nb, lci);
+
+The call therefore never reaches x25_rx_call_request().
+
+release_sock() replays the backlog before it calls release_cb, so the
+old connection's state machine handles the CALL_REQUEST. In
+X25_STATE_1, x25_state1_machine() treats it as a call collision and
+clears the peer's new call:
+
+	case X25_CALL_REQUEST:
+		/* call collision */
+		...
+		x25_write_internal(sk, X25_CLEAR_REQUEST);
+		x25_disconnect(sk, EISCONN, 0x01, 0x48);
+
+In X25_STATE_3 the frame is dropped as unknown, and x25_release_cb()
+then disconnects the socket.
+
+Before 7781607938c8 the disconnect was immediate. The lock_sock()
+version waited for the owner. Either way, the old (lci, nb) binding was
+gone before the restart was answered.
+
+This window also seems to contradict the note after the commit message
+that a link that comes back quickly cannot have stale state kill
+freshly connected calls.
+
+Should the lookup skip sockets with X25_KILL_FLAG set? Alternatively,
+the lci/neighbour binding could be dropped at kill time.
+
+> +		else
+> +			x25_disconnect(sk, ENETUNREACH, 0, 0);
+
+[Severity: High]
+This is a pre-existing issue, but the immediate disconnect here still
+seems to race with x25_sendmsg().
+
+x25_sendmsg() checks x25->neighbour under lock_sock(). It then drops
+the lock around the skb allocation, and afterwards checks only skb:
+
+	release_sock(sk);
+	skb = sock_alloc_send_skb(sk, size, noblock, &rc);
+	lock_sock(sk);
+	if (!skb)
+		goto out;
+
+While the lock is dropped the socket is not owned. Two paths can then
+run x25_disconnect() and set x25->neighbour to NULL:
+
+  - this branch of x25_kill_sock(), reached from a RESTART or LAPB
+    disconnect via x25_kill_by_neigh()
+  - a remote CLEAR_REQUEST through x25_state3_machine()
+
+sock_alloc_send_pskb() checks sk_err and SEND_SHUTDOWN only before it
+allocates. A disconnect during the allocation or the relock goes
+unnoticed, and the sender then reaches this before any TCP_ESTABLISHED
+recheck:
+
+	if (msg->msg_flags & MSG_OOB) {
+		if (x25->neighbour->extended) {
+
+The non-OOB branch has the same dereference. Can a remote peer trigger
+a NULL pointer dereference this way?
+
+The fragmentation loop in x25_output() has the same pattern. Each
+fragment does release_sock() / sock_alloc_send_skb() / lock_sock(),
+followed by an unchecked x25->neighbour->extended.
+
+The old lock_sock() in x25_kill_by_neigh() could take the lock in the
+same window, so this predates the patch. Still, the claim about keeping
+the 7781607938c8 serialization holds only as far as that earlier fix
+went.
+
+> +	}
+> +	bh_unlock_sock(sk);
+> +	local_bh_enable();
+> +}
+
+[ ... ]
+
 -- 
-2.43.0
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261001150118.128470-1-ngocthang2710.1999%40gmail.com
