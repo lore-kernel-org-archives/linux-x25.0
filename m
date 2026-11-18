@@ -1,83 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.64
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794789287;
-	b=ezyEuRVFMzXf7mU0amKOQl+hZyT0m9ntwhf406aYRtL9C0zmvkxNJQ8XvCGAXsvvIdIP
-	 d0FtmDcVXRUC78fMVZCX/gJNbfezXK8xkBOknPDegp9UDaLLnWaqjjxW7tq8GV3R0QDJ2
-	 eGMypSOZUlQAzWskxozuHxTSjJ7ofZiOuHfw3xuJX3ida/zx4TLsR2QCK3r2PmMFwCjS+
-	 MDqHcIntz9LgH2hoWF8dZLdPH6Ciu73D7rzAj7eu2o4epM9WKXbzO5PGgNFfslCyXBPu9
-	 jQmaeYzXkoxtB5hEKgrGN2VcpvVbJ6R1qawb4ISWmZRE2O5u7xArgaYEpZPIem6PT+A==
+	t=1795026922;
+	b=cqN7MPoyCYNy/pBOEELpTyQ3wcJBZjD4rtcBKEhpjKcV4wCao8q8ivSMvC/oVqDwSaAD
+	 eT+ngMvWwXkekfdc6k0BqiXBNoKYqU3Y59H9mgR5FpdnB74CX2dL7EjDcvY6VtuS3d5HF
+	 A4B2mugYFX9DKVB6nDwvNUHK3qrWTFklBiGVGuUu2L29YdIYnuohDH3jE6Vk0UNfFqVL+
+	 Twe14KVNBMsXyNfKtWKCZKK1uJJRlnppZY8sxI+5+m17BvbnIOo/rG3eQjMfUSzhjSs+F
+	 Ucz040ug/cW1FOUn4ZT9sjuDWldA0Olk7aeXG3ewTZALXE5oLoDaYkSme4wD+84Zq/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794789287;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=aTcJ6BGq+uGBRIpdVXeWfbkOmZQ+zlmmC71Argp1h/4=;
-	b=lyt9GtaAiDipDO89+weQgouO67Onpddn6bVusk3OVv8qQhImxxnQ3lvKGuLpk2rH2qxh
-	 cQMDDYEshhrzACMjUiRIIozgqbAKHzUVO9xzSM2Snz+PkzOv+UBJGtWaphlSqlUhlBac5
-	 +O6BBhnExQxg6zKvfFps+TaWIOP/FNZBiy6omI/omTIH780TC/YUwO7VsmpKLc/b7vofY
-	 ZKe9fTO1mpZtPhsrVxZ6YZScc+RNTRpoo0xlnNuONzWmKuTSDFUg8haqUIun0wS2psj24
-	 jx23kHCDxlOAVpMDTBJdyT5w8jY0h9knQVQPiAPRN/UmQo2UAdpXVSSTPaQ7+875kTw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795026922;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=06qENrVHT40iOvMyTGhyjZi0wGDlQK1zjmO3TygZh8s=;
+	b=KDlf8ahOnlvJvMeG4ENjgJU4CTCALC3YiX9BmysQH/CxYOMThjxWGD5h3LgfLxc/zvAa
+	 sVliURJKqfr6ifXesOPCsBcRpRC0QO49iEM6ksK2Xk3ydN2GcGVAEJ8F0CDfI6xLG5TSM
+	 KgbxWygOj4g5FDfK9y1JPMDQ0ZCgS9PzcyCXnWZEacQGagc+J36mfxYp2B7iO3fr6cMWO
+	 pmCyAR/T8kmj09hI9DScNBsYl9PCvj/xC2eahJvU9xJuEu7f20pdHjOoUavqgPDFyCujb
+	 zPj/7uxeNa5R2PMn1ADzO3jmr35BgiNv5+ckHqZtWRuB2SeZYoa6BSH7a3LH4+DJJdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=qq.com;
-	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=RsHCkO8+;
-	arc=none smtp.remote-ip=162.62.57.64
-Received: from out162-62-57-64.mail.qq.com (out162-62-57-64.mail.qq.com [162.62.57.64])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8nFU6xm;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 490BD606A31F;
-	Mon, 16 Nov 2026 00:34:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 490BD606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8CD1606A31C;
+	Wed, 18 Nov 2026 18:35:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=RsHCkO8+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1794789279; bh=aTcJ6BGq+uGBRIpdVXeWfbkOmZQ+zlmmC71Argp1h/4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=RsHCkO8+2lxmdKbDtD080xHIGsnFbYAicOV1cD7X+t62EvjUBzoufhSwFNaBr1FaD
-	 f2ogTcxxSdqma/smYCFQrobmaA3RhCr0fo0JYp6SjM/nCdsE20i8xG2fRdcCUyHxU1
-	 W26qydVYbFtDGo4NGoNhMlcnZoQD8FZlfHxHl9V4=
-Received: from shuai-VMware-Virtual-Platform.. ([117.158.156.199])
-	by newxmesmtplogicsvrsza73-0.qq.com (NewEsmtp) with SMTP
-	id 8A427430; Mon, 16 Nov 2026 08:34:36 +0800
-X-QQ-mid: xmsmtpt1794789276tyxiqpen2
-Message-ID: <tencent_F7C2DC0FA42B5866E5C39A9E70D3C52C2609@qq.com>
-X-QQ-XMAILINFO: NUaRPsENHoCKH0tB3KqJdR18HkKzy0d5mKWWfq9kSeWXuj1++6RYjZaOcxHLLA
-	 6qNhkKln8w/HhLNThhu+Xw81j1EuMVXg1j0nQrYK2Be+VOmjrdJr1cLj+JAEFG3s/ugNZf4UZXCp
-	 jS23lMqvezmSXgyRwidfoUDn28NEDozsDiDEWKrvr8lA0rgSN084DowQDOb+McZIatGIL8jjBeTc
-	 1dlwcptWnlm8xWl09B/DzC9z2YwmLyYUGYxKhurIj+1WuyuJLqzXYq1xZ1bp4IGUADsHaO0XqJIg
-	 VDM+n+oCeNcfl4RV35Mr8164Mlym4yVahCWFUe1irCar8n12B6EFckjlM2VtIkz5EOnc0ndPpkGa
-	 lXx5U0SrDGbZb2bpH7cwdGvLBOuJeecjl5R9GhbExB2cboT2bR+PfFP+sLcfcSxQZmNpbjcN8v1c
-	 f/qAgpPb4qbnWDxbNoDdLJzRaFOIv+K63ia9yusXYJMwkIlysMFBVB53Hv+a2VUM1DV7UFfV2cB9
-	 xNJ9mJJx3m/yMtDkWa2nYXRRJnWbFWSMqimen12PyUB8F73jh+u9Wg5XbYI2zktw/6Jl3XwtDqL9
-	 CzgwU09jYcGJfhCGwJVwUgZgHnQ41I8DBoWhoBTKVrIvGSzAfx8sWqeKe/LLIURwPaymVMrzk4FL
-	 yhj04P7qUV7legmeaw80bmBm8ZHtDFqgpWMdgP84z2wGYoTMNyGvn1wo/VZvlLghdKIphREGIvy2
-	 KeMvdANWNVKBj7HxsfCQIF5XcEoN1o4GxvUTdZabZYA/1LML8kS85u70CagzS2OnxcOI78veAee9
-	 Fiod5jIiYrc4mXdhkELdjLgyLV8FXtP2tBF55QQpdRYJhGTaWIN0uELxe8nhbsgeu+hTIWqyPesU
-	 C3jWkciv/ye/Ag8weeaCwLMuwJFXPFq93tLDRKex1b0/N7ZZDadb4N9SQLj5VTO+iDlsViPtlNId
-	 IlKr//odsYL7ueVeAR3dB3qzb9TbZffMW2ibSIcYroElpwm5ZTL4S+F+2hlXh3UKiPp/lyxCl9Vw
-	 uTklvD++8pTUq3jmuKNWKqC+O2EZeIk0kJjjaHiBoU8onOTjH3l1a+Bj6Bz9maxzUQZJqEBg==
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-From: Shuai Liu <847807867@qq.com>
-To: ms@dev.tdt.de,
-	linux-x25@vger.kernel.org
-Cc: netdev@vger.kernel.org,
-	davem@davemloft.net,
-	kuba@kernel.org,
-	edumazet@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
-	linux-kernel@vger.kernel.org,
-	847807867@qq.com
-Subject: [PATCH] x25: defer socket cleanup on link termination to process context
-Date: Mon, 16 Nov 2026 08:34:16 +0800
-X-OQ-MSGID: <20261116003416.747357-1-847807867@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <6acad256.a150a118.27e199.0030.GAE@google.com>
-References: <6acad256.a150a118.27e199.0030.GAE@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z8nFU6xm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F27C41F000C5;
+	Wed, 18 Nov 2026 18:35:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795026922;
+	bh=06qENrVHT40iOvMyTGhyjZi0wGDlQK1zjmO3TygZh8s=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=Z8nFU6xmkjpCEk2I8NYD4QQ1GxgOHisH41qarcu0HMEarNTLhZ15TpvoQks7Dg5/U
+	 kTDUrSEXL3dTdJTjLIduY816Ouogybiz0nAp07prJJVNhIE4rxvT+JpUsy/WnSt4iR
+	 IeBl9XDTKDqWCpU5qLqA3KreCJ3VILamSifWdBBO93I4iBqMgv4s09CmnXpUHNasFM
+	 7OceXlRBAVHVFo+ek/UbOyMBU6fqJOnFcerjgakbLA0wjVUkdxJIp3kXQn6eNCEZxP
+	 Dm747/zfBo0GjZ3b8uxocCbEY85mroHdklDrcLYJKHLFgzGrwGE3+TAqm2zFL1Cys1
+	 hArM16tZ5bU6Q==
+Subject:
+ Re: [PATCH] x25: defer socket cleanup on link termination to process context
+From: netdev-bot+sashiko@kernel.org
+To: 847807867@qq.com
+Cc: ms@dev.tdt.de, linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+ davem@davemloft.net, kuba@kernel.org, edumazet@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
+ linux-kernel@vger.kernel.org
+Date: Wed, 18 Nov 2026 18:35:21 +0000
+Message-ID: <179502692151.3136.18288735873132919768@kernel.org>
+In-Reply-To: <tencent_F7C2DC0FA42B5866E5C39A9E70D3C52C2609@qq.com>
+References: <tencent_F7C2DC0FA42B5866E5C39A9E70D3C52C2609@qq.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Post: <mailto:linux-x25@vger.kernel.org>
@@ -87,126 +64,250 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-x25+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-x25_kill_by_neigh() walks all sockets bound to a neighbour and calls
-lock_sock() and x25_disconnect() on each one.  It is invoked from
-x25_link_terminated() and x25_link_control(), which both run in softirq
-context when the LAPB link goes down or a restart frame arrives, e.g.
-from the lapbether NAPI poll path.
+Thank you for your contribution! Sashiko AI review found 5 potential
+issue(s) to consider.
 
-lock_sock() takes a mutex in its slow path, so calling it from softirq
-sleeps in atomic context:
+Critical: 0 · High: 3 · Medium: 1 · Low: 1
 
-  BUG: sleeping function called from invalid context at net/core/sock.c:3839
-    in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 14, name: ksoftirqd/0
-    ...
-    lock_sock_nested+0x66/0x70
-    x25_kill_by_neigh+0x90/0x110
-    x25_link_terminated+0x18/0x50
-    x25_lapb_receive_frame+0x1c2/0x1f0
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-and lockdep flags the sk_lock-AF_X25 usage violation because the same
-lock is registered in process context by x25_bind():
+- [High] Each of the three new deferral sites calls x25_neigh_hold(nb)
+  and then schedule_work(&nb->kill_work) without checking what…
+- [High] The patch adds nb->kill_work.
+- [High] Device deletion now leaves a window in which X.25 sockets can
+  transmit on a freed net_device.
+- [Medium] Moving x25_kill_by_neigh() into a worker changes the X.25
+  restart and out-of-order handling.
+- [Low] The commit fixes a real bug reported by syzbot (sleeping in
+  atomic context and an inconsistent lockdep state in…
 
-  WARNING: inconsistent lock state
-  inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-    ksoftirqd/0/14 [HC0[0]:SC1[1]:HE1:SE0] takes:
-    ...
-    x25_kill_by_neigh+0x90/0x110
-    x25_link_terminated+0x18/0x50
-    x25_lapb_receive_frame+0x1c2/0x1f0
+--
 
-Defer the neighbour socket cleanup to a per-neighbour work item so it
-always runs in process context.  The work holds a reference on the
-neighbour so the deferred cleanup cannot race with neighbour teardown.
-x25_kill_by_neigh() is idempotent, so repeated scheduling is harmless.
+x25: defer socket cleanup on link termination to process context
 
-Reported-by: syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com
+This commit moves the x25_kill_by_neigh() calls in x25_link_control() and
+x25_link_terminated() into a per-neighbour work item, so that lock_sock()
+runs in process context. Each call site takes a reference on the
+neighbour, and the work item drops it once it has run.
+
 Closes: https://syzkaller.appspot.com/bug?extid=300375dfd44665f063a6
-Signed-off-by: Shuai Liu <847807867@qq.com>
----
- include/net/x25.h  |  2 ++
- net/x25/x25_link.c | 18 +++++++++++++++---
- 2 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/x25.h b/include/net/x25.h
-index 414f3fd993454..cb51be81351b8 100644
---- a/include/net/x25.h
-+++ b/include/net/x25.h
-@@ -13,6 +13,7 @@
- #include <linux/x25.h>
- #include <linux/slab.h>
- #include <linux/refcount.h>
-+#include <linux/workqueue.h>
- #include <net/sock.h>
- 
- #define	X25_ADDR_LEN			16
-@@ -143,6 +144,7 @@ struct x25_neigh {
- 	struct sk_buff_head	queue;
- 	unsigned long		t20;
- 	struct timer_list	t20timer;
-+	struct work_struct	kill_work;
- 	unsigned long		global_facil_mask;
- 	refcount_t		refcnt;
- };
-diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-index d1e8cd81c2143..150ccd78cba64 100644
---- a/net/x25/x25_link.c
-+++ b/net/x25/x25_link.c
-@@ -58,6 +58,14 @@ static inline void x25_stop_t20timer(struct x25_neigh *nb)
- 	timer_delete(&nb->t20timer);
- }
- 
-+static void x25_kill_by_neigh_work(struct work_struct *work)
-+{
-+	struct x25_neigh *nb = container_of(work, struct x25_neigh, kill_work);
-+
-+	x25_kill_by_neigh(nb);
-+	x25_neigh_put(nb);
-+}
-+
- /*
-  *	This handles all restart and diagnostic frames.
-  */
-@@ -82,7 +90,8 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
- 			break;
- 		case X25_LINK_STATE_3:
- 			/* clear existing virtual calls */
--			x25_kill_by_neigh(nb);
-+			x25_neigh_hold(nb);
-+			schedule_work(&nb->kill_work);
- 
- 			x25_transmit_restart_confirmation(nb);
- 			break;
-@@ -97,7 +106,8 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
- 			break;
- 		case X25_LINK_STATE_3:
- 			/* clear existing virtual calls */
--			x25_kill_by_neigh(nb);
-+			x25_neigh_hold(nb);
-+			schedule_work(&nb->kill_work);
- 
- 			x25_transmit_restart_request(nb);
- 			nb->state = X25_LINK_STATE_2;
-@@ -254,7 +264,8 @@ void x25_link_terminated(struct x25_neigh *nb)
- 	x25_stop_t20timer(nb);
- 
- 	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
--	x25_kill_by_neigh(nb);
-+	x25_neigh_hold(nb);
-+	schedule_work(&nb->kill_work);
- }
- 
- /*
-@@ -269,6 +280,7 @@ void x25_link_device_up(struct net_device *dev)
- 
- 	skb_queue_head_init(&nb->queue);
- 	timer_setup(&nb->t20timer, x25_t20timer_expiry, 0);
-+	INIT_WORK(&nb->kill_work, x25_kill_by_neigh_work);
- 
- 	dev_hold(dev);
- 	nb->dev      = dev;
+> Reported-by: syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=300375dfd44665f063a6
+> Signed-off-by: Shuai Liu <847807867@qq.com>
+
+[Severity: Low]
+This isn't a bug, but should this have a Fixes: tag and a Cc: stable?
+
+The lock_sock()/release_sock() calls in x25_kill_by_neigh() were added by
+commit 7781607938c8 ("net/x25: Fix null-ptr-deref caused by
+x25_disconnect").
+
+The later commit 5499e0602d2f ("net/x25: fix use-after-free in
+x25_kill_by_neigh()") has Fixes: 7781607938c8 and Cc: stable, so the
+stable trees contain the sleeping code too.
+
+> diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
+> index d1e8cd81c2143..150ccd78cba64 100644
+> --- a/net/x25/x25_link.c
+> +++ b/net/x25/x25_link.c
+
+[ ... ]
+
+> @@ -82,7 +90,8 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
+>  			break;
+>  		case X25_LINK_STATE_3:
+>  			/* clear existing virtual calls */
+> -			x25_kill_by_neigh(nb);
+> +			x25_neigh_hold(nb);
+> +			schedule_work(&nb->kill_work);
+
+[Severity: High]
+What happens to the reference from x25_neigh_hold() when kill_work is
+already pending? In that case schedule_work() returns false and does not
+queue the item again. x25_kill_by_neigh_work() still drops only one
+reference per run:
+
+static void x25_kill_by_neigh_work(struct work_struct *work)
+{
+	...
+	x25_kill_by_neigh(nb);
+	x25_neigh_put(nb);
+}
+
+So each extra hold leaks a reference on nb. Once __x25_remove_neigh()
+drops the list's reference, the refcount never reaches zero and nb is
+never kfree()'d.
+
+In X25_LINK_STATE_3, a RESTART_REQUEST leaves nb->state at STATE_3. A
+remote peer that sends several restart requests before the worker runs
+would therefore leak one reference per request.
+
+Locally, the same happens when x25_link_terminated() runs twice before
+the worker does. Examples are NETDEV_CHANGE with carrier off followed by
+NETDEV_DOWN, or X25_IFACE_DISCONNECT followed by NETDEV_DOWN.
+
+The commit message says "x25_kill_by_neigh() is idempotent, so repeated
+scheduling is harmless". That holds for the cleanup itself, but does it
+hold for the reference counting?
+
+Would something like this work at all three call sites?
+
+	x25_neigh_hold(nb);
+	if (!schedule_work(&nb->kill_work))
+		x25_neigh_put(nb);
+
+Every caller still holds its own reference from x25_get_neigh(), so that
+put cannot free nb.
+
+The RESTART_CONFIRMATION case and x25_link_terminated() below have the
+same pattern.
+
+>  
+>  			x25_transmit_restart_confirmation(nb);
+>  			break;
+
+[Severity: Medium]
+Does deferring the clear change the restart semantics here? Before this
+patch, the existing virtual calls were cleared before the restart
+confirmation went out.
+
+Now the confirmation goes out and nb->state stays at STATE_3. The stale
+sockets are still in X25_STATE_3 with neighbour == nb.
+
+x25_kill_by_neigh() matches only on the neighbour:
+
+	sk_for_each(s, &x25_list) {
+		if (x25_sk(s)->neighbour == nb) {
+
+Calls set up after the restart, through x25_receive_data() ->
+x25_rx_call_request() or a local x25_connect(), also have neighbour ==
+nb. Would they get disconnected with ENETUNREACH when the worker finally
+runs?
+
+Until the worker runs, x25_find_socket(lci, nb) in x25_receive_data()
+also keeps delivering post-restart frames to the stale sockets. That
+includes a CALL_REQUEST that reuses a stale LCI, which would go to
+x25_process_rx_frame() instead of x25_rx_call_request().
+
+After x25_link_terminated() sets nb->state = X25_LINK_STATE_0, the stale
+sockets can still transmit. This can happen through x25_sendmsg() ->
+x25_kick(), or through the heartbeat and T2 timers via
+x25_write_internal().
+
+In STATE_0, x25_transmit_link() queues the skb on nb->queue and calls
+x25_establish_link(). Could stale traffic bring a just-terminated link
+back up? Those frames would then be flushed by the
+nb->state == X25_LINK_STATE_3 loop at the end of x25_link_control().
+
+The NETDEV_DOWN and NETDEV_CHANGE callers in x25_device_event() already
+run in process context and didn't need deferral, but they lose their
+synchronous cleanup too.
+
+The "clear existing virtual calls" and "X.25 03/93 4.6.3" comments also
+no longer match what the code does.
+
+[ ... ]
+
+> @@ -254,7 +264,8 @@ void x25_link_terminated(struct x25_neigh *nb)
+>  	x25_stop_t20timer(nb);
+>  
+>  	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
+> -	x25_kill_by_neigh(nb);
+> +	x25_neigh_hold(nb);
+> +	schedule_work(&nb->kill_work);
+>  }
+
+[Severity: High]
+Can this lead to a use-after-free of the net_device when the device is
+unregistered? unregister_netdevice() -> dev_close() sends NETDEV_DOWN,
+and NETDEV_UNREGISTER follows under RTNL:
+
+x25_device_event()
+  NETDEV_DOWN
+    x25_link_terminated(nb)
+      nb->state = X25_LINK_STATE_0
+      schedule_work(&nb->kill_work)    <- sockets not cleared yet
+  NETDEV_UNREGISTER
+    x25_link_device_down(dev)
+      __x25_remove_neigh(nb)
+      dev_put(dev)
+
+x25 sockets hold a reference on nb but not on nb->dev. Once the netdev
+is freed, nb->dev dangles.
+
+Before this patch, NETDEV_DOWN had already disconnected the sockets
+(neighbour = NULL, state = X25_STATE_0). Now, until the worker runs, a
+connected socket still has x25->state == X25_STATE_3 and
+x25->neighbour == nb:
+
+x25_sendmsg()
+  x25_kick()
+    x25_transmit_link(skb, nb)        <- nb->state == STATE_0
+      x25_establish_link(nb)
+        switch (nb->dev->type)
+        ...
+        skb->dev = nb->dev;
+        dev_queue_xmit(skb);
+
+The heartbeat (x25_check_rbuf()) and the T2 timer
+(x25_enquiry_response()) reach the same path through
+x25_write_internal().
+
+The worker also passes the stale nb->dev to x25_clear_forward_by_dev().
+That function compares raw pointers, so it could match a new device
+allocated at the same address.
+
+Would it be better to keep the NETDEV_DOWN teardown synchronous, since it
+runs in process context? Or at least flush or cancel kill_work and keep
+the device pinned until the work has run?
+
+>  
+>  /*
+> @@ -269,6 +280,7 @@ void x25_link_device_up(struct net_device *dev)
+>  
+>  	skb_queue_head_init(&nb->queue);
+>  	timer_setup(&nb->t20timer, x25_t20timer_expiry, 0);
+> +	INIT_WORK(&nb->kill_work, x25_kill_by_neigh_work);
+
+[Severity: High]
+Does anything cancel or flush kill_work on teardown? x25_exit(),
+x25_link_free() and x25_link_device_down() never call cancel_work_sync()
+or flush_work(). A pending work item does not pin the module.
+
+With no X.25 sockets open, "ip link set <x25dev> down" (NETDEV_DOWN ->
+x25_link_terminated() -> schedule_work()) followed right away by
+"rmmod x25" is allowed.
+
+x25_exit() -> x25_link_free() then drops the list references. nb stays
+allocated because the work holds a reference. However, the module text
+and data are freed before system_percpu_wq runs the item. That covers
+x25_kill_by_neigh_work(), x25_list_lock, x25_list and x25_forward_list.
+
+There is also an ordering question in x25_exit():
+
+	x25_proc_exit();
+	x25_link_free();
+	x25_route_free();
+	...
+	unregister_netdevice_notifier(&x25_dev_notifier);
+
+	dev_remove_pack(&x25_packet_type);
+
+A receive or notifier call that is already in progress, holding an nb
+from x25_get_neigh(), could still queue kill_work after x25_link_free().
+
+Would a dedicated workqueue cover this, destroyed at the end of
+x25_exit() after packet reception and the notifier have been shut down?
+
+>  
+>  	dev_hold(dev);
+>  	nb->dev      = dev;
+
 -- 
-2.43.0
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/tencent_F7C2DC0FA42B5866E5C39A9E70D3C52C2609%40qq.com
