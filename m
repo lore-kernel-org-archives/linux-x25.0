@@ -1,49 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795167875;
-	b=hbNh8VyY/fLvw199pU7Kr10Q5rbo+4alRYgjHsSJgaEQyCbySGjCx2GFOe0ebSrR8aLy
-	 RBmMVkIbXXBWtrXFSkm7XlGgVzhxYLBjCW+YIQPuELttiN1EMjw4veDu96JtKq2XJBOj0
-	 p/G2eFsCx9MCav0AUx0L9tw9Y6850zpQ9YdiZvyP8cgb+lQXPOKf/5Nj2oGP6R1aJh1WT
-	 0g/wg464zvtLoUV4XFClvWMglyMPeN1rJ2ofF9idQxAa37ddx2/MJ6XYjikhvrAe3bElx
-	 fSXLo2qzKXnS2uhtBQQZrdg7Ie85TMicEdqe68W2SEe3ssfNyB76lyhp6utUjZLXAEw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795167875;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Date;
-	bh=Dqkiq30yBanl7xewXuyuKJYZnue8ASHNq+EZiXLR6V8=;
-	b=dLkD7SZksAr862puewXsHDp1sBx6V8gkcuePG4MzG3Dr7DgSAdGThdXK66BMHvJffthv
-	 fx02g1yfhZni0sdnw2bofG8hgWavcw9EfN02OPlTxDCC61cKz11Hm4rnOO1fxUx33YW+9
-	 oWnKjJDX0vrY5Q8e7uR01btY0QEvSzCE72zYDwlK/mjDG1rmQo3iHIVEjeWPv2Yjc/G9T
-	 0zAlAO5ECNPvRfY4MPoknuAQXiJkYQ0uKdUF0wQ+c1uewdiZvOfv76Jm1UQrhrvI2xzIl
-	 DWagYpxjjMaN3v737dtZgcL5KeiD39VH55W7/eiL7Dp5EGZf79yduoWfHLY9FlsKFeA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bWT6Mk1b;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795393907;
+	b=F7P8Rc+g7fXmQ1izL+b/zed7nqgOy6N97k4DqTXvpWeCR0VBQqSpT2Y3Br/QRFDGrwtA
+	 lFbUpTkVII/uwk8TrVBzJ5tku99KeVCo0Q2msqCvExrfVWz/9pKeIERsD4N6kRYrQypBD
+	 Tk/KyndQQKQqJ9M6Q/9PlfZdExHly0LpMuwjVUwhELSxtSRwrkjUxl8rLb9//bemdeHXV
+	 MSFqwM8bvnxblH8MO1+qYQOxtKiFLqcLx46cSXk4j6pPeS3ZPCyiYLZJN83+rZLwaGqUg
+	 VTAqgRsRYvP1+aSyR9Y6Ppq/bWoHwbmDMgtmHduG36VP+omDeDzuaqlFQawpjgFjkMQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795393907;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=BeHk85TjcCNnd3naREJ0w1wMPb08Z9jIC+l2HRGELtY=;
+	b=K7fDwk6jKmAqijK4kJfeJopVf7ZM2h3wYPVR+prv43psmafDkfs38+W56qZjioBWutmr
+	 Uw2TffuIkliA2zskprkF4hyqhowrd6SZeIE1E+ObRGFVyTEhYQo04KP+d4JvhEpkbWHg6
+	 T7ApOAhS5VfkrlWtedRaNQF+A0JGWecibyd9LTWLkK0PXGJX1VqBovD8GzvmEGGbKEfbM
+	 U+5mJUnv+dsPXrNiHaIU11d+PSxqvKeypzr8HT+UtD2dO/jVd2gsmtg/Lknv5a3c3LLh9
+	 GrGX9hnYIyODO/Qbx0TL/+mxlyqkbH3SxxmWkePzErr1RUg1FAFxfxlwKEfSVkJbMZw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BXP738gS;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 4325B606A32C;
-	Fri, 20 Nov 2026 09:44:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E1EC606A31A;
+	Mon, 23 Nov 2026 00:31:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bWT6Mk1b
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 7531F1F000CA;
-	Fri, 20 Nov 2026 09:44:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BXP738gS
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795393906;
+	b=uxQKsHn6hfHAZpAQUXKAfNKYZGnOdcsiLv3nIJQR3vPGbk0nRB9Rsx+UNFnLPHtiXqBZ
+	 baxAZGjyTX6w2nLd87sn67sGYX7Z2iTSxBuhyrJEAyyHLm/IJVVWRfkX2FdF+nm2bb5So
+	 Boiz2CBfHwbNeoKOz/5K2+0QZm+G4078MGmK5erlBYkY/NpZLyp/bty1dW5koUBGj0fn4
+	 gycoMC8ip504jSzGDplq6d9jHiZ6NqDQWqjTSlGhd1gBHiHqMAcD13d3WwXwiYxJgnRuX
+	 MnCJrQnSfWOSaDC7IQjn2DaF+hWAWK/LqDrfZTH20BGUIt4Q4CqSb5lmUQ6pI1aEtcQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795393906;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=BeHk85TjcCNnd3naREJ0w1wMPb08Z9jIC+l2HRGELtY=;
+	b=jj6DcbUcYj+1BAltXdAF9RA7wAMTc3EfyCpmuIJQ1ZeBDTew4qJwasvA90J7I+AVwPZN
+	 umNZHSuRPfrmpIkVbD/2TH/ln/BNrg8JtF9uA2ys3L9fAKtjKvRTx8kJBmsz7skjzuXtC
+	 4e+BpUsOPSThce6x/920Vv0Fffoee23qiJrTBuoq7uFeZ5ClRvFNZbEYxftR1acfLyFt2
+	 AboLO1yyk/XA38dBQA3f226oLujiCzcQkw7rtVxkRpTh9WRaJAmuCpetaidEEk4NI+Jyf
+	 HH1URU7ASyEUrPrFdVGLKXiyV1EGdOBecAf9fEo3dyIXQu/+VjmabxXC0wbBbKeQsPg==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 3B10D1F000CF;
+	Mon, 23 Nov 2026 00:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795167874;
-	bh=Dqkiq30yBanl7xewXuyuKJYZnue8ASHNq+EZiXLR6V8=;
-	h=From:To:Cc:Subject:Date;
-	b=bWT6Mk1bpBFDnkNSq7deGXEZQ9xyInf+E70oPJPue746FOF29p3l45GNV/ErXIFI5
-	 UbH+70GzaD2SigF2H9gicAo2PC5KeNutGD6IAcoDW1T8IGM0NSN0d9kvN/rDR8YKeK
-	 21u+doNk0fUbsMVHYKgGQ+NW5KzBsC9UqvXGPaaQhmWOb4AIB4eWvWMd+9/EvgueH+
-	 bZLtTdX31/syiaWxKU++awHFgkE8z4jWfpdqcJXdBTw5FSf0gpzYMXtTX/6s4xYFfk
-	 2X8kWIV+L0cu3ZzvFPlkW/K5VQGm+NuDH56Ih1pXwVTNAaDs+L+tV0K11Uaoxta8xt
-	 I+StyLQ2s+vxg==
-From: "syzbot" <syzbot@kernel.org>
-To: syzkaller-bugs@googlegroups.com, Krystian Kaniewski <krystianmkaniewski@gmail.com>, "David S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@kernel.org>, "Jakub Kicinski" <kuba@kernel.org>, <linux-x25@vger.kernel.org>, "Martin Schiller" <ms@dev.tdt.de>, <netdev@vger.kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Duoming Zhou" <duoming@zju.edu.cn>
-Cc: horms@kernel.org, linux-kernel@vger.kernel.org, syzbot@lists.linux.dev
-Subject: [PATCH] net/x25: fix invalid lock_sock() usage in x25_kill_by_neigh()
-Message-ID: <00f667e3-a158-4fb5-84a3-9ecda4718ce8@mail.kernel.org>
+	s=k20260515; t=1795393906;
+	bh=BeHk85TjcCNnd3naREJ0w1wMPb08Z9jIC+l2HRGELtY=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=BXP738gSnOHTcWFltqYFLnH3FwV7XfUoa1BUdb3NVJr6IrAKNQ1ufyD5e47SBXL+q
+	 3u6ezBWVAudQWWQH08py4jEBMhUp5OvKvN0OBnoiHGBEZ1wgRcmTUGB0R9dr6M9V5v
+	 k2vGn3irBEX9eZwMmWqKA7O+YqwoXvD5BAliWFab+EQWFMSQ0SSMZZlMauVtws5qmX
+	 kvKqDe4C4K5Lga6+Ad8A4FpAcDkQ6+YwPPUZdDHtFim+dLEoqQhrzvSzCU+KGojfd9
+	 GAbxyWDetpo+q56yLNFBtKBH8lfXkn3FeFixRhKo02+8vMvFhjypFWD0jljdgwym4p
+	 buS1p37Lit+6Q==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 848154C250;
+	Mon, 23 Nov 2026 00:31:20 +0000 (UTC)
+From: Suyuan Wang via B4 Relay <devnull+shyckless.gmail.com@kernel.org>
+Date: Mon, 23 Nov 2026 00:31:20 +0000
+Subject: [PATCH net] net/x25: inherit the listening socket's security label
+ on accept
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Post: <mailto:linux-x25@vger.kernel.org>
@@ -53,236 +83,70 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-x25+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Date: Fri, 20 Nov 2026 09:44:34 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261123-x25-v1-1-4432d3892f8b@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAFeJA2sC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzNDQyNj3QojU11DC7NUM3PjRAtDoxQloMqCotS0zAqwKdFKeaklSrEQweL
+ SpKzU5BKQfqXaWgD+ODVGbAAAAA==
+X-Change-ID: 20261123-x25-186e673a812d
+To: davem@davemloft.net, kuba@kernel.org, ms@dev.tdt.de, 
+ edumazet@kernel.org, pabeni@redhat.com
+Cc: netdev@vger.kernel.org, linux-x25@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+ paul@paul-moore.com
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795393879; l=1370;
+ i=shyckless@gmail.com; s=default; h=from:subject:message-id;
+ bh=XGoRm9Gpljgv4Y+6YNOH8RsisuTKbd1tc1zo4DvuC1o=;
+ b=hnXxtrPN9egbQpZkz6j8eAD4973y57RXC/IPXVBw3HgfYsXcxTW/dYanVAypab2fkZJf5DoEk
+ h8c4yugbM3IDu8UzdmiOMbP2e90i/qZPKMxaMYYZdoRsRIPbNtdc/qi
+X-Developer-Key: i=shyckless@gmail.com; a=ed25519;
+ pk=pMtccVGiWES3bV+7YBFuBclkvq2n2HBHQ5azaBrK2lY=
+X-Endpoint-Received: by B4 Relay for shyckless@gmail.com/default with
+ auth_id=1498
+X-Original-From: Suyuan Wang <shyckless@gmail.com>
+Reply-To: shyckless@gmail.com
 
-From: Krystian Kaniewski <krystianmkaniewski@gmail.com>
+From: Suyuan Wang <stevewong@hust.edu.cn>
 
-x25_kill_by_neigh() is invoked to tear down X.25 sockets associated with a
-terminating neighbour. This function is called in process context from
-netdevice notifier handlers (such as NETDEV_DOWN in x25_device_event()),
-but it is also called in softirq context when receiving LAPB frames in
-x25_lapb_receive_frame() or link control packets in x25_link_control(), as
-both lapbether (via NAPI) and hdlc_x25 (via tasklet) deliver frames in
-softirq.
+x25_make_new() creates the socket that accept() returns by copying
+fields from the listening socket, but it never clones the listening
+socket's LSM security state -- there is no security_sk_clone(osk, sk).
+The accepted socket therefore keeps the security state that was newly
+allocated for it in x25_alloc_socket(), instead of inheriting the
+listening socket's security state.
 
-x25_kill_by_neigh() acquires lock_sock() around x25_disconnect(). Because
-lock_sock() is a sleeping lock, calling it from softirq context triggers a
-"BUG: sleeping function called from invalid context" and a lockdep
-inconsistent lock state warning ({SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W}) on
-sk_lock-AF_X25.
+Other accept paths (bluetooth, tipc, vsock, iucv) call
+security_sk_clone() for this. Do the same for X.25.
 
-Fix this by passing a boolean parameter to x25_kill_by_neigh() and
-x25_link_terminated() to distinguish between process and softirq contexts.
-Sockets hold neighbour references and reach net_device only through the
-neighbour. In process context (netdevice notifiers), continue using
-lock_sock() to synchronously disconnect sockets and wait for tasks owning
-the socket, because x25_link_device_down() drops the neighbour's netdevice
-reference on NETDEV_UNREGISTER. In softirq context, use bh_lock_sock()
-instead; if the socket is currently owned by a task through lock_sock(),
-defer the disconnect by setting X25_KILL_BY_NEIGH_FLAG and handling it in
-x25_release_cb() when the socket is released.
+Found with a static analysis tool and checked by hand.
 
-Fixes: 7781607938c8 ("net/x25: Fix null-ptr-deref caused by x25_disconnect")
-Assisted-by: Gemini:gemini-4-carbon Gemini:gemini-3.8-flash syzbot
-Reported-by: syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=300375dfd44665f063a6
-Link: https://syzkaller.appspot.com/ai_job?id=98a38af7-51e0-4126-afa7-b8246507da37
-Signed-off-by: Krystian Kaniewski <krystianmkaniewski@gmail.com>
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Co-developed-by: Kaixuan Li <kaixuan.li@ntu.edu.sg>
+Signed-off-by: Kaixuan Li <kaixuan.li@ntu.edu.sg>
+Signed-off-by: Suyuan Wang <stevewong@hust.edu.cn>
 ---
-diff --git a/include/net/x25.h b/include/net/x25.h
-index 414f3fd99..ec4c9ced1 100644
---- a/include/net/x25.h
-+++ b/include/net/x25.h
-@@ -118,6 +118,7 @@ enum {
- #define X25_Q_BIT_FLAG		0
- #define X25_INTERRUPT_FLAG	1
- #define X25_ACCPT_APPRV_FLAG	2
-+#define X25_KILL_BY_NEIGH_FLAG	3
- 
- /**
-  *	struct x25_route - x25 routing entry
-@@ -196,7 +197,7 @@ int x25_addr_aton(unsigned char *, struct x25_address *, struct x25_address *);
- struct sock *x25_find_socket(unsigned int, struct x25_neigh *);
- void x25_destroy_socket_from_timer(struct sock *);
- int x25_rx_call_request(struct sk_buff *, struct x25_neigh *, unsigned int);
--void x25_kill_by_neigh(struct x25_neigh *);
-+void x25_kill_by_neigh(struct x25_neigh *, bool);
- 
- /* x25_dev.c */
- void x25_send_frame(struct sk_buff *, struct x25_neigh *);
-@@ -230,7 +231,7 @@ void x25_link_control(struct sk_buff *, struct x25_neigh *, unsigned short);
- void x25_link_device_up(struct net_device *);
- void x25_link_device_down(struct net_device *);
- void x25_link_established(struct x25_neigh *);
--void x25_link_terminated(struct x25_neigh *);
-+void x25_link_terminated(struct x25_neigh *, bool);
- void x25_transmit_clear_request(struct x25_neigh *, unsigned int,
- 				unsigned char);
- void x25_transmit_link(struct sk_buff *, struct x25_neigh *);
+Compile tested on x86_64 (W=1, no new warnings). I don't have X.25
+hardware; the fix is by inspection.
+---
+ net/x25/af_x25.c | 1 +
+ 1 file changed, 1 insertion(+)
+
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index f45c9ec7d..26a8deb82 100644
+index f45c9ec7d2c6..802688d5ad56 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
-@@ -221,7 +221,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
- 		case NETDEV_DOWN:
- 			nb = x25_get_neigh(dev);
- 			if (nb) {
--				x25_link_terminated(nb);
-+				x25_link_terminated(nb, false);
- 				x25_neigh_put(nb);
- 			}
- 			x25_route_device_down(dev);
-@@ -234,7 +234,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
- 			if (!netif_carrier_ok(dev)) {
- 				nb = x25_get_neigh(dev);
- 				if (nb) {
--					x25_link_terminated(nb);
-+					x25_link_terminated(nb, false);
- 					x25_neigh_put(nb);
- 				}
- 			}
-@@ -492,10 +492,24 @@ static int x25_listen(struct socket *sock, int backlog)
- 	return rc;
- }
+@@ -598,6 +598,7 @@ static struct sock *x25_make_new(struct sock *osk)
+ 	sk->sk_state       = TCP_ESTABLISHED;
+ 	sk->sk_backlog_rcv = osk->sk_backlog_rcv;
+ 	sock_copy_flags(sk, osk);
++	security_sk_clone(osk, sk);
  
-+/*
-+ * release_sock() calls this with the socket spinlock held while the task
-+ * still owns the socket, so x25->neighbour cannot change during the check.
-+ */
-+static void x25_release_cb(struct sock *sk)
-+{
-+	struct x25_sock *x25 = x25_sk(sk);
-+
-+	if (test_and_clear_bit(X25_KILL_BY_NEIGH_FLAG, &x25->flags) &&
-+	    x25->neighbour)
-+		x25_disconnect(sk, ENETUNREACH, 0, 0);
-+}
-+
- static struct proto x25_proto = {
- 	.name	  = "X25",
- 	.owner	  = THIS_MODULE,
- 	.obj_size = sizeof(struct x25_sock),
-+	.release_cb = x25_release_cb,
- };
- 
- static struct sock *x25_alloc_socket(struct net *net, int kern)
-@@ -610,6 +624,7 @@ static struct sock *x25_make_new(struct sock *osk)
- 	x25->cudmatchlength = ox25->cudmatchlength;
- 
- 	clear_bit(X25_INTERRUPT_FLAG, &x25->flags);
-+	clear_bit(X25_KILL_BY_NEIGH_FLAG, &x25->flags);
- 	x25_init_timers(sk);
- out:
- 	return sk;
-@@ -1761,7 +1776,13 @@ static struct notifier_block x25_dev_notifier = {
- 	.notifier_call = x25_device_event,
- };
- 
--void x25_kill_by_neigh(struct x25_neigh *nb)
-+/*
-+ * The receive path (bh == true) runs in softirq and must not wait for a task
-+ * that owns the socket. The netdevice notifier (bh == false) must wait for
-+ * every owner because x25_link_device_down() drops the device reference of the
-+ * neighbour on NETDEV_UNREGISTER.
-+ */
-+void x25_kill_by_neigh(struct x25_neigh *nb, bool bh)
- {
- 	struct sock *s;
- 
-@@ -1769,13 +1790,28 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
- 	write_lock_bh(&x25_list_lock);
- 
- 	sk_for_each(s, &x25_list) {
--		if (x25_sk(s)->neighbour == nb) {
-+		if (x25_sk(s)->neighbour == nb &&
-+		    (!bh ||
-+		     !test_bit(X25_KILL_BY_NEIGH_FLAG, &x25_sk(s)->flags))) {
- 			sock_hold(s);
- 			write_unlock_bh(&x25_list_lock);
--			lock_sock(s);
--			if (x25_sk(s)->neighbour == nb)
--				x25_disconnect(s, ENETUNREACH, 0, 0);
--			release_sock(s);
-+			if (bh) {
-+				bh_lock_sock(s);
-+				if (x25_sk(s)->neighbour == nb) {
-+					if (sock_owned_by_user(s))
-+						set_bit(X25_KILL_BY_NEIGH_FLAG,
-+							&x25_sk(s)->flags);
-+					else
-+						x25_disconnect(s, ENETUNREACH,
-+							       0, 0);
-+				}
-+				bh_unlock_sock(s);
-+			} else {
-+				lock_sock(s);
-+				if (x25_sk(s)->neighbour == nb)
-+					x25_disconnect(s, ENETUNREACH, 0, 0);
-+				release_sock(s);
-+			}
- 			sock_put(s);
- 			goto again;
- 		}
-diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
-index fb8ac1aa5..be5eb01de 100644
---- a/net/x25/x25_dev.c
-+++ b/net/x25/x25_dev.c
-@@ -135,7 +135,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
- 		break;
- 
- 	case X25_IFACE_DISCONNECT:
--		x25_link_terminated(nb);
-+		x25_link_terminated(nb, true);
- 		break;
- 	}
- 	x25_neigh_put(nb);
-diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-index d1e8cd81c..d3e90b402 100644
---- a/net/x25/x25_link.c
-+++ b/net/x25/x25_link.c
-@@ -82,7 +82,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
- 			break;
- 		case X25_LINK_STATE_3:
- 			/* clear existing virtual calls */
--			x25_kill_by_neigh(nb);
-+			x25_kill_by_neigh(nb, true);
- 
- 			x25_transmit_restart_confirmation(nb);
- 			break;
-@@ -97,7 +97,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
- 			break;
- 		case X25_LINK_STATE_3:
- 			/* clear existing virtual calls */
--			x25_kill_by_neigh(nb);
-+			x25_kill_by_neigh(nb, true);
- 
- 			x25_transmit_restart_request(nb);
- 			nb->state = X25_LINK_STATE_2;
-@@ -247,14 +247,14 @@ void x25_link_established(struct x25_neigh *nb)
-  *	request has failed.
-  */
- 
--void x25_link_terminated(struct x25_neigh *nb)
-+void x25_link_terminated(struct x25_neigh *nb, bool bh)
- {
- 	nb->state = X25_LINK_STATE_0;
- 	skb_queue_purge(&nb->queue);
- 	x25_stop_t20timer(nb);
- 
- 	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
--	x25_kill_by_neigh(nb);
-+	x25_kill_by_neigh(nb, bh);
- }
- 
- /*
+ 	ox25 = x25_sk(osk);
+ 	x25->t21        = ox25->t21;
 
 
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
--- 
-See https://goo.gle/syzbot-ai-patches for information about AI-generated patches.
-The person who has signed off on the patch is responsible for
-addressing comments.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+
