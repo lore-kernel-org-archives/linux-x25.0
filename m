@@ -1,78 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.252
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.198.224.70
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795430376;
-	b=00wNdoRcVBUrpzss5dIR0bJ0DBFldIQ/w2n0LIMdAVUnb19JiqpoUTOdWfCaJ2CU9/dG
-	 gtQ4NfvgmQdx3/rWmooTEAxtZbsDHRHZGkVHO/62LoRPdnHoCm8z6U/qq0C2E5i8lfeAd
-	 OfKz3ZorLhV8wgPz8NjYfnLLHMPQ1R4uVuIizsboAH4p0cSxcoan3WXqbCjOPRWyTYDUd
-	 4f4kk0OLT0H8tYTgStU9noj0S+aFDKtnCpZs7kYOAo3L5letzjC/X6Yp60WpybsY6a6d7
-	 jK1ihH+HNv9eTe+HAeUPD3cqZV8O4Mcqzm2GLdAXMv+m0Lt2N0mWo5F2B4nXeRtZUTQ==
+	t=1795452248;
+	b=szYsGarJrQ3O2QwZ5hQP/72a78hGcVBvIJm8x9kvrV9khVPX8FcaRUXvfKI/4JndVPQw
+	 7pBwhzeZDIolD+yLpFjMiHEmp1ce6Y8WWB/xTBJyu/RZDa87cDyetg2F/lLQUlMPSVuTX
+	 8evK+Sm1zidJJHDD4tXirlHddYtnUXCvF7nwoMfBo/I2haHlA/mznHhkxzCH1WQl8a8V/
+	 YkXCjho7OjB/VKvLazIcvQlqHYZwTHPfW09mDI6oyKHK5KXA3hW3l2DdH83TLkdycKiwb
+	 jTo0YbF7hP/l5MeyXJgQH+KML5WwKx77QJL0MK8sV9QEXZImBy02HYfH6p5/mZ7C1/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795430376;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=j/tG/UEzIieZgAJph/MrBCvQdKGyZRKklloUXvZ0UYA=;
-	b=Gs87BowwKRc3XrAXhXU+wYqRm6ElhqL+TI6j0gRL76aMByh8ktYPcz4Mf+K+OEE6P26U
-	 /4uYd9/PYz5Nu17BmrSl1Td0Px1dykqOBcpYTOYRFJ9o+e3IxofgQlvazXV+scMQ8GHdJ
-	 1DvttnDS5CGyhaC8Q1zRasGxj4vSrDGykNJUln8X+jRR87LcViNuHHE9aLSd6LkiYQnF9
-	 tFxuDctIdnDNM9pxnCAUmYBG46+SlXLkPW6mPok93eMA9jSFr4XoxHfG9gZ9KDeVvMXuu
-	 4/qhWmcsxpoaKBduQwM91r5wsRD7i8FaoMb5jd+uSbwRpE/uhGcwq3I0dZobKae0fFg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795452248;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:Received:Received:
+	 Received:MIME-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 From:To:Cc:Subject:Organization:In-Reply-To:References:Message-ID:
+	 X-Sender:User-Agent:X-Spam-Status:X-Spam-Checker-Version:
+	 X-purgate-type:X-purgate-ID:X-purgate;
+	bh=+j8NlTDkaSolKJC2T/OgIC4R3UPkUPvo0idclAridzw=;
+	b=jZXaBHdptvKePGgFyHCKx7tsLPwvuThWS871Za40506dOX+FIBxFWfVL50mKvfocF3O4
+	 PRIi5EH7sbJpeO7O5Nv+rhgeQbjxOlospTKAr6K1Y8//Yl5Gb233pwyoTGqt73xtOBKaS
+	 /OIilQONsVVNXEpw/GCoVU1T07+brpyibS8ZaFOVY/A+eddj8EagX8U+zz3q5D8tB/lXn
+	 u4SBCLwSnpf3UiU1CKlvgUkBtN3xUWhIoI92o1yvdU6cjm7Lin2ewB6gTzqW7zkOxCa7H
+	 4jpWvS+QWxjLR2R1xeUKtXeqIcRnaGAbAm4Il9Y2XcgogQBR8v0DZLSNI/Zpac917EQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=qq.com;
-	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=njNAbrpq;
-	arc=none smtp.remote-ip=162.62.57.252
-Received: from out162-62-57-252.mail.qq.com (out162-62-57-252.mail.qq.com [162.62.57.252])
+	dmarc=pass header.from=dev.tdt.de;
+	spf=pass smtp.mailfrom=dev.tdt.de;
+	dkim=temperror header.d=dev.tdt.de header.i=@dev.tdt.de header.a=rsa-sha256 header.s=z1-selector1 header.b=Y4klHzNh;
+	arc=none smtp.remote-ip=91.198.224.70
+Received: from mxout70.expurgate.net (mxout70.expurgate.net [91.198.224.70])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2896A606A31E;
-	Mon, 23 Nov 2026 10:39:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2896A606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FC70606A31A;
+	Mon, 23 Nov 2026 16:44:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0FC70606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=njNAbrpq
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1795430364; bh=j/tG/UEzIieZgAJph/MrBCvQdKGyZRKklloUXvZ0UYA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=njNAbrpq4KIHGXNhQieMt9cicwl4OezNy2Bmc36lyj5fzU3Cg4cz/acF1SVRGCMQq
-	 t8M7UEwq3HOZIe6ElZk3NEhSGxV/n3rfG1x4TBDcb8Fzx8Y2zcnKgLMdD1xA3QsKVU
-	 cPbXs09tXynPTEqOM3Wtdk75/88eijM8oIM2Owgs=
-Received: from shuai-VMware-Virtual-Platform.. ([117.158.156.199])
-	by newxmesmtplogicsvrszb43-0.qq.com (NewEsmtp) with SMTP
-	id 9D68AA19; Mon, 23 Nov 2026 18:39:22 +0800
-X-QQ-mid: xmsmtpt1795430362t9r4b51ec
-Message-ID: <tencent_72DC05B1DB892BF77B6916964DF9A3263907@qq.com>
-X-QQ-XMAILINFO: N/WmRbclY25Gkdy/Sr2RyBrIzXg5agU7hEvfOAKWwVTxgOiHxpWaZtfr0UXLf1
-	 XVeVwZ1hOlT1SZdJIAosyMolDr4AhWKlk4VDcSTcOCSWtt1ikXPong/lFGIgCTuytxQR68r0RdDn
-	 U9OJ02z0uZkX1Q1eUL2LWxIhDgxvHRltDAG1VTW93KgB5iIqOa2UCGyJPO8nAjNhpxES/NnS6Emo
-	 hV5sfxbOUoLbcxTnvWAWC0JLwCuMZ6WlGtT98m4xvVU97wo5XUWPSmDIKf3fdarsXCsmwlt2ZaND
-	 /tuN10MHRwj3h0EK5pUFdvjj93JOyEN7wpuazmwcJlhjw965Q92O2T7IeUkvXg/E1HBcyBTYTjhB
-	 fs9NGa/7Isig6FIyuUYtlRA6Z6Z/3L9NfSD68Lc5tP4WpA4tLFxzBWhoTWtPGOtdKF+hK9wYpC5Y
-	 a19/HdMvFxOG+ZFB5xesocQ68vVA4HTE9PeH0B5xbZvEiDqoYOHW70VgSOng0i1nAeKcJQsLYc5E
-	 YQmCFitEjByOOhGxwRjb6gEgx69sgP9wApMXBqtCP+gqq2H+5VKcSA7GkgWG/RI3kZqORZoDEEm7
-	 80CCCV/uVm4xTXLHb1Pq46Eq1+sxu3H63XIR9o/pT4PVmZYri97wrHdil0HRdT7tZa9wUVAP2pek
-	 kYDz/egJa+sp5Fw1egH4G+wxBjbemW3Z14mQxMvXG+kh0fmQME5DVc2pna+DGfEce3If0jigxMqv
-	 fxPPY350VI8t8DSrPSfyaO2ZmEpQw8sHHpDjGLYaPSPKYVPpJ/lkgF6qRZSENNP85oInd3izkNo6
-	 TQ/b9Wd6qPu4biI3jSOy+n3Nb33eOc5KSqtdW4CECIETgU0GJbjrhPWnEAaoANCXTw1f/gwP/gQY
-	 cejNSc2sZ/3iPAQiZCafOnoSC1JVMG7ASEVvfGqlPrUqTrWjlyuGyitLont+4tlSKY1ylUxGgwTv
-	 glaoobALT/zNR3FQqWdHu+O6kUFWeSPwwAP/57RFM2Jt3wWQpshbojcrWYLGq9kNWXmIook0DMti
-	 fPA3Ecp4EDhvY7dgvtqWjyzC4wtCtk0Uf75Jknq3YQFxM5cgiZsewkj02VZZ2tSccOIWH2fZ6MYE
-	 Qz4h6k
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-From: Shuai Liu <847807867@qq.com>
-To: netdev@vger.kernel.org
-Cc: ms@dev.tdt.de,
-	linux-x25@vger.kernel.org,
-	syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
-	847807867@qq.com
-Subject: Re: [PATCH v3] x25: defer socket cleanup on link termination to process context
-Date: Mon, 23 Nov 2026 18:39:22 +0800
-X-OQ-MSGID: <20261123103922.1466829-1-847807867@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <mid:11>
-References: <mid:11>
+	dkim=temperror header.d=dev.tdt.de header.i=@dev.tdt.de header.a=rsa-sha256 header.s=z1-selector1 header.b=Y4klHzNh
+Received: from [194.37.255.9] (helo=mxout.expurgate.net)
+	by relay.expurgate.net with smtp (Exim 4.92)
+	(envelope-from <prvs=68018334f9=ms@dev.tdt.de>)
+	id 1xVX9C-00GtH9-2r; Mon, 23 Nov 2026 17:44:06 +0100
+Received: from [195.243.126.94] (helo=securemail.tdt.de)
+	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ms@dev.tdt.de>)
+	id 1xVX9B-002tZ2-Ix; Mon, 23 Nov 2026 17:44:05 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
+	s=z1-selector1; t=1795452245;
+	bh=+j8NlTDkaSolKJC2T/OgIC4R3UPkUPvo0idclAridzw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Y4klHzNhRpNdJtjtlMPEEhin3Zm4SRR/9BU/KQ8b07eaLwlT2b5T7Jb79KXl3RNrT
+	 lqQFNPbbJOoCI3ZW29fke261imKo+P5PYfcSM5Kl4ImAzcFOswVZAhnPaPCwHPjw2v
+	 HrXpKH6dyS9/dSthjbLw0f+NJo0wwFUMGRkOudOtn3qaVvv09dWgtSLIJAZK6th1ut
+	 MIo8JF7vOUHuiw9oytM889tcfBbw98f4PntmWPrIy+oao/lj51plBUz+FgpArjoFDK
+	 +7pOMLhvmllnoCmWWaqfS2i6S7NL9F0qN6M0MxvzWxlPdSOIpibE4afyiNpK8AcQ7F
+	 vjUjNW7YiK2Ew==
+Received: from securemail.tdt.de (localhost [127.0.0.1])
+	by securemail.tdt.de (Postfix) with ESMTP id 0CD5D240041;
+	Mon, 23 Nov 2026 17:44:05 +0100 (CET)
+Received: from mail.dev.tdt.de (unknown [10.2.4.42])
+	by securemail.tdt.de (Postfix) with ESMTP id E789E240036;
+	Mon, 23 Nov 2026 17:44:04 +0100 (CET)
+Received: from mail.dev.tdt.de (localhost [IPv6:::1])
+	by mail.dev.tdt.de (Postfix) with ESMTP id 905C920059;
+	Mon, 23 Nov 2026 17:44:04 +0100 (CET)
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Post: <mailto:linux-x25@vger.kernel.org>
@@ -82,43 +71,32 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-x25+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Nov 2026 17:44:04 +0100 (CET)
+From: Martin Schiller <ms@dev.tdt.de>
+To: shyckless@gmail.com
+Cc: davem@davemloft.net, kuba@kernel.org, edumazet@kernel.org,
+	pabeni@redhat.com, netdev@vger.kernel.org, linux-x25@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+	paul@paul-moore.com, stevewong@hust.edu.cn, kaixuan.li@ntu.edu.sg
+Subject: Re: [PATCH net] net/x25: inherit the listening socket's security
+ label on accept
+Organization: TDT AG
+In-Reply-To: <20261123-x25-v1-1-4432d3892f8b@gmail.com>
+References: <20261123-x25-v1-1-4432d3892f8b@gmail.com>
+Message-ID: <c70bad57add6ff8cd52125c698f3f54a@dev.tdt.de>
+X-Sender: ms@dev.tdt.de
+User-Agent: Roundcube Webmail/1.3.17
+X-purgate-type: clean
+X-purgate-ID: 151534::1795452246-CD763E18-5E6CCF35/0/0
+X-purgate: clean
 
-Hi Martin,
+On Mon, 23 Nov 2026 01:31:20 +0100, Suyuan Wang wrote:
+> x25_make_new() creates the socket that accept() returns by copying
+> fields from the listening socket, but it never clones the listening
+> socket's LSM security state -- there is no security_sk_clone(osk, sk).
 
-Thanks for the detailed test report - it settles the discussion. The
-stalled-owner case is what I had missed: the deferred worker blocks in
-lock_sock() until the owner releases the socket, so the window is as
-long as the send buffer takes to fault in, not microseconds. My
-"runs within microseconds" argument assumed nobody had the socket
-locked, and the workqueue approach is the wrong tool here.
+Thanks!
 
-Please drop this patch. I will not send another version of it, and I'll
-leave the fix to Thang's series.
-
-The bh_lock_sock() pattern is clearly the better fit: clear immediately
-when the socket is not owned, otherwise set X25_KILL_FLAG and disconnect
-from release_cb, skip flagged sockets in __x25_find_socket() and in the
-transmit path, and keep a sleeping sweep for NETDEV_DOWN, where the
-device can be freed right after.
-
-One thing that may be worth keeping in mind when you post it: in the
-October thread sashiko pointed out that x25_make_new() copies the
-parent's flags word (x25->flags = ox25->flags, af_x25.c:607) and only
-clears X25_INTERRUPT_FLAG. If X25_KILL_FLAG lives in that word, a child
-created while the parent is flagged inherits it, and the
-__x25_find_socket() skip and the transmit block would then apply to the
-child as well. The current posting may already handle this; I could not
-tell from the thread.
-
-I have the syzbot repro for this report (extid 300375dfd44665f063a6)
-and a QEMU setup where it reproduces in under two minutes on current
-mainline. If a Tested-by from that setup would be useful when you post
-Thang's series, I'm happy to run it.
-
-And noted, my mistake: new versions as a new thread with the version in
-the patch subject, not as a reply to the previous posting.
-
-Thanks,
-Shuai
-
+Acked-by: Martin Schiller <ms@dev.tdt.de>
