@@ -1,61 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795398009;
-	b=CnQO6dXK4dl96YGywT/A5+JHb+NveRqgopwVWyQOnaMYgQmHiqAUPZd2uPwQWj2CiVoL
-	 HirLGrMEhl2dm79jIY+O891+3fiKXWqLhTkefgTeulduoxtHZJ75h5Icup625zXwcPUbz
-	 RXL4skZzqIR6aWNMzsSCM4YJKNAvHS/Fdb9oeGnZcSnAk0vQ0mD4x+xX8YKbiFD+MRR3r
-	 RWfhHyCMN3dUgatJB4FiBArONSGshRs5y4USzRBqv/qkaO0KEfhuvWRE0Qze1TFLkDgs+
-	 N+MLFwXyrO0+Z2FkRYYb0p2EfNnH9F1xI4ycmp0kXVbyQAkyJoDca4IJFfyYyps7cgg==
+	t=1795405683;
+	b=XXC/29KOBzCZUXi79VDMgTrjs9u09ezbG3p6V16+vFLoXPT2NpHiObWh4LV+1/ePcXN+
+	 ivcPcPgj8WSZD/6vYhexBDNMCeUri77kz7KAEaV1Pm7psyT0X3ZBiUEr7RzoIogkHaP4m
+	 jaDmz8YvGssKjOtiWluysWhG2HUbQNPCrspQFlgrO9DaHJZtlw+fkXj+UqV5cnpVcopnq
+	 uIwyMpXlVIoSfS+k9rFBP58knQ8yc/9MQ1ROuZ77M62SWR30mOITLkVgcgLq6uWSiMNgw
+	 j+NYWso6gS2EpV4YjH8dl9LZAcyjO3BC1kkL0+NOyKlP0ZcO8/cptBpkgL2EZl15pDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795398009;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=ceIIcc4zK+CPfUbBfPOZqR1EDh72ggw2yVO7k0cL/kQ=;
-	b=eDWxxkqAiujz9RkTLw9/gO8On8/o1ApMYjA2+hLc+PaRmNf2BLO60SwOV0BfQXZ9HE3O
-	 bJ4kN8qPwcJbGTfQhMuB9ItQv1sB/RS1xUmZ2LECm4kurpqweApz4B00jM8Whq+ujG2OD
-	 t2MR4W0okAqsdCV5HCsSp0ub19ZFL5XJPNxHHC0Vfm4GRG9eVK/OJIr7cDvsYrMd//10u
-	 omEeb6iuAaRdW7CbdJOPVWolXgrNHm3JdKJw8v2scTCFSUeu9ODIYQWFqwddlYvEleab7
-	 y0fNNaxd4pxePSJH1Y1FdJikbOWdWXiKxUfQbmugfmTgAg9oJxUcPT3dJwnFQwxpckQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795405683;
+	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=MsrGKQGzP+EEZyfx8T7spQGnVkdm377jBo1ms48nKBs=;
+	b=aSNwtgOK3lGbfplM1pqzxiDTGDnpFqDB0mOrNTn8G7EGnRcdGwcgw6qpPwp7kb7e89ah
+	 PEMiVYlvHrkt1m3MpmAQmNySJGviGIip5RgBPgCrqociriUlU0n4A1DetRGXsR7guTOg+
+	 7DDKu8F7TPNUFkp8c1iO7TZWkUvUORg+97vBjiFQcCh/+b6o/V8Srin4EL4AvQcg07EP9
+	 xCO/CcqS7omdvZd2Gj2yQh61wCIBcUmDqgGScR+GhJ/3/ZUJ9n0iZd2qa3SRrJlWWQ5Zv
+	 JHi5rTkmDTGuVhx383LBcEQT28WuHbr1PcwgOKlf3PALwaUK8I+MZL+TdPNb4WcVAtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WsKWYh4s;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=ypSfdRG0;
+	arc=none smtp.remote-ip=162.62.57.49
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DBF5606A31A;
-	Mon, 23 Nov 2026 01:40:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80986606A31E;
+	Mon, 23 Nov 2026 03:48:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 80986606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WsKWYh4s
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4001F000CA;
-	Mon, 23 Nov 2026 01:40:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795398008;
-	bh=ceIIcc4zK+CPfUbBfPOZqR1EDh72ggw2yVO7k0cL/kQ=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=WsKWYh4sY2Lb7noH2Cjog3vul3I/aqK4L4wpahyxWlXhe0ytZeCFa6h9ZbLKFc9X/
-	 cuJyEkerxsU/paW8mFIT8I9hjeaH+tEU3rnHKeMSHXCJj5qOib9s4UNc3Sqs2b+snt
-	 lVVOeiSrfuwmi9lX7jbRqKIWTg86kmHczAGd6YagP6X/7qfqJUFB2VB6YCDAq+uhi/
-	 +oTDFGEVPzPC5V1a/q4UUqtk2DT+oprxjxD8sSKxBYvX0KAyw7VvJU7QTBTPD2kw3z
-	 lWSUZ/GtPcPPzSaKuij8Vy74fwS4RqvE8xCPQg9pf6B/ggaKvBScWh8yzxKX2ohowY
-	 7+nHJUcXHtE5A==
-Subject:
- Re: [PATCH] x25: defer socket cleanup on link termination to process context
-From: netdev-bot+sashiko@kernel.org
-To: 847807867@qq.com
-Cc: ms@dev.tdt.de, linux-x25@vger.kernel.org, netdev@vger.kernel.org,
- davem@davemloft.net, kuba@kernel.org, edumazet@kernel.org, pabeni@redhat.com,
- horms@kernel.org, syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
- linux-kernel@vger.kernel.org, netdev-bot+sashiko@kernel.org,
- stable@vger.kernel.org
-Date: Mon, 23 Nov 2026 01:40:07 +0000
-Message-ID: <179539800759.3135.17245752044060918891@kernel.org>
-In-Reply-To: <tencent_EC124B80BC53531B2EAB18DD04B37BAE7406@qq.com>
-References: <tencent_EC124B80BC53531B2EAB18DD04B37BAE7406@qq.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=ypSfdRG0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1795405672; bh=MsrGKQGzP+EEZyfx8T7spQGnVkdm377jBo1ms48nKBs=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=ypSfdRG0QIzpVxRlXHK2I6UqUosY3jvkso8//n890qLLAvUZEOyzndTvZNhGff1zf
+	 JtspTZL0Lx/awse6nW3bAPC4bzsHmZspj9Yz/XsUPgwJyg1zAcSHVVtmCm/h+SX61v
+	 KBnON4GXwlmsp3x60vvAfROUeQKDzGI1fU9ryGwc=
+Received: from shuai-VMware-Virtual-Platform.. ([117.158.156.199])
+	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
+	id BF083E63; Mon, 23 Nov 2026 11:47:48 +0800
+X-QQ-mid: xmsmtpt1795405668tqjo36uf2
+Message-ID: <tencent_8BA4FF587EE5579AB67149C5062618DC7109@qq.com>
+X-QQ-XMAILINFO: NbgegmlEc3JumeUkE1gRqM72suL6ijtrDDc9aZgBbFWMkMQmDbzihCOKF+oGC9
+	 Ps+IHliJmhXho+7NzR5WzABe5kEEev7XR47AWfBZ0oZdezu0UPECjqxhnXeJ9/QWR+X2R8OwFjPZ
+	 thMLvjYDIzz24W8JAdB4Gos+sSFD8Y3GwqikxiLgU3KVGQw8W5dpeoOULv8WT4yZ8QAg7L+QTIGb
+	 /sv1FjmB9whl0gwHlBXNIM29K8DiWh5uwr3gJox7M8toSLpANMa1aIIKrL5sMhwGwd+Si+F+Ht76
+	 V787l8MHmk+J84Uy6z2visyXCAvAGHnu8ZNnOL5QObMzElXRK4B2b2SyppOJGmUZEGSDF1HuzJyh
+	 b7KuFOo6HosPJsQgPbiRlCpuJKZCiPBSbnmdhqTHcoSEoEU8XwjDi1FMtpMsErOLtCJK2a17OSbT
+	 hMS2ofXExK9d/m/H/L+wQyvc1VzqjA3gU7uThncBHz4wJCX3qjoUElREKqgSv4ucRClq3cZ/kSEq
+	 qdcSHT4xTVpfi6LmnFz3yL/+SnsSxeIkdWJvmEXDH+MJzzb/0Aw1VysI4MUdFAEP+z7BoGLfoiqk
+	 M6fuNRDdaTmd0lYuzCZWo2HbL4NNTgXj0f71hKtKDtKBX95EW7NXwfiv0ybUVGvL81m0jxV5DUPW
+	 LINlbBXZj4HxDQLcENtYlrm8//HAOmIS8Qf4jS/ftX75eoKTd1/Pwdw3Z0/MS0AS6BRKPVPfSphd
+	 nRbbwB0CnwtSTB/Xhh/rEheBY/DsQuoQNErCPQTDpQVA3HQHUJogVKwBPhgeVUwMrikm7oh30A5k
+	 uKuKKx/jOGILTUARUmVtlDp0OolbtWKs09tkPw4qZPkVrivlH4Aw+A/ceX8YVgN8sdcueiyyBzqn
+	 Aw5bPfB4cjImsKzsmZbJu6F+w2VQRawaJwzQtl3wnx+dxMX1FbeHA2OIrvkzdrIt9LUVaGHItCmT
+	 LSHmUaceEdTyF9ww18slfAfYt4jV99L3rBhRg+kkXQBGPThEz37s8Pz5JxWEyfIaKpqk+u8Nr946
+	 g9uGsdsZjb7+um3JiLzEtHTmTfLWqFU6aEJIDleGU61Zad/sXzX4eoYmKlwwNTHou21aGfnahvJY
+	 d6ihNeAZFUoQamOL6MTDNeLDcxjg==
+X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
+From: Shuai Liu <847807867@qq.com>
+To: ms@dev.tdt.de,
+	linux-x25@vger.kernel.org
+Cc: netdev@vger.kernel.org,
+	davem@davemloft.net,
+	kuba@kernel.org,
+	edumazet@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
+	linux-kernel@vger.kernel.org,
+	847807867@qq.com,
+	netdev-bot+sashiko@kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] x25: defer socket cleanup on link termination to process context
+Date: Mon, 23 Nov 2026 11:47:48 +0800
+X-OQ-MSGID: <20261123034748.1269213-1-847807867@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <179539800759.3135.17245752044060918891@kernel.org>
+References: <179539800759.3135.17245752044060918891@kernel.org>
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Post: <mailto:linux-x25@vger.kernel.org>
@@ -65,188 +90,227 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-x25+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+x25_kill_by_neigh() walks all sockets bound to a neighbour and calls
+lock_sock() and x25_disconnect() on each one.  It is invoked from
+x25_link_terminated() and x25_link_control(), which both run in softirq
+context when the LAPB link goes down or a restart frame arrives, e.g.
+from the lapbether NAPI poll path.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 1
+lock_sock() takes a mutex in its slow path, so calling it from softirq
+sleeps in atomic context:
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+  BUG: sleeping function called from invalid context at net/core/sock.c:3839
+    in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 14, name: ksoftirqd/0
+    ...
+    lock_sock_nested+0x66/0x70
+    x25_kill_by_neigh+0x90/0x110
+    x25_link_terminated+0x18/0x50
+    x25_lapb_receive_frame+0x1c2/0x1f0
 
-- [Medium] The patch makes clearing of existing virtual calls
-  asynchronous.
-- [Low] x25_device_event() (net/x25/af_x25.c) calls x25_link_terminated()
-  from two process-context notifier events, and the patch treats them…
+and lockdep flags the sk_lock-AF_X25 usage violation because the same
+lock is registered in process context by x25_bind():
 
---
+  WARNING: inconsistent lock state
+  inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+    ksoftirqd/0/14 [HC0[0]:SC1[1]:HE1:SE0] takes:
+    ...
+    x25_kill_by_neigh+0x90/0x110
+    x25_link_terminated+0x18/0x50
+    x25_lapb_receive_frame+0x1c2/0x1f0
 
-x25: defer socket cleanup on link termination to process context
+Defer the neighbour socket cleanup to a per-neighbour work item so it
+always runs in process context.  The work item holds a reference on the
+neighbour and on its net_device, so the deferred cleanup cannot race
+with neighbour or device teardown; both references are dropped again if
+queueing fails because the work is already pending.  A dedicated
+workqueue is drained in x25_exit() so that the module stays loaded until
+pending work has run, and NETDEV_DOWN flushes the work to keep device
+teardown synchronous as before.
 
-This patch moves x25_kill_by_neigh() out of softirq context and into a
-per-neighbour work item on a new dedicated x25 workqueue, which avoids
-calling lock_sock() from softirq. The work holds references on the
-neighbour and its net_device, and NETDEV_DOWN flushes the work.
-
+Fixes: 7781607938c8 ("net/x25: Fix null-ptr-deref caused by x25_disconnect")
+Reported-by: syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com
 Closes: https://syzkaller.appspot.com/bug?extid=300375dfd44665f063a6
+Cc: stable@vger.kernel.org
+Signed-off-by: Shuai Liu <847807867@qq.com>
+---
 
-> diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-> index f45c9ec7d2c68..a1a8bc203a24f 100644
-> --- a/net/x25/af_x25.c
-> +++ b/net/x25/af_x25.c
-> @@ -222,6 +222,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
->  			nb = x25_get_neigh(dev);
->  			if (nb) {
->  				x25_link_terminated(nb);
-> +				flush_work(&nb->kill_work);
->  				x25_neigh_put(nb);
->  			}
->  			x25_route_device_down(dev);
+Changes in v2:
+  - Use a dedicated workqueue and drain it in x25_exit() so the module
+    stays loaded until pending work has run (Sashiko)
+  - Hold a reference on the neighbour's net_device for the deferred work,
+    and drop it again when queueing fails because the work is already
+    pending (Sashiko)
+  - Flush the work in NETDEV_DOWN to keep device teardown synchronous
+    (Sashiko)
+  - Explicitly request WQ_PERCPU to satisfy the workqueue API
+  - Add Fixes tag and Cc stable
 
-[Severity: Low]
-NETDEV_DOWN now flushes kill_work. Should the NETDEV_CHANGE case in
-x25_device_event() flush it as well?
+Changes in v3:
+  - Flush kill_work in NETDEV_CHANGE as well, restoring synchronous
+    socket cleanup for both process-context notifier events (Sashiko)
 
-net/x25/af_x25.c:x25_device_event() {
-    ...
-		case NETDEV_CHANGE:
-			if (!netif_carrier_ok(dev)) {
-				nb = x25_get_neigh(dev);
-				if (nb) {
-					x25_link_terminated(nb);
-					x25_neigh_put(nb);
-				}
-			}
-			break;
-    ...
-}
+ include/net/x25.h  |  3 +++
+ net/x25/af_x25.c   | 12 +++++++++++-
+ net/x25/x25_link.c | 28 +++++++++++++++++++++++++---
+ 3 files changed, 39 insertions(+), 4 deletions(-)
 
-Both cases run in process context under RTNL. Before this patch, both
-cleared the sockets synchronously.
-
-After carrier loss, the sockets now stay attached to nb with
-nb->state == X25_LINK_STATE_0 until the worker runs. During that window
-they can still send through x25_transmit_link(), which would queue the
-frame and call x25_establish_link().
-
-Only the softirq callers seem to need the deferral. The process-context
-callers could keep the old behaviour with a flush, or by calling
-x25_kill_by_neigh() directly.
-
-[ ... ]
-
-> diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-> index d1e8cd81c2143..424044c1cf974 100644
-> --- a/net/x25/x25_link.c
-> +++ b/net/x25/x25_link.c
-
-[ ... ]
-
-> +static void x25_defer_kill_by_neigh(struct x25_neigh *nb)
-> +{
-> +	x25_neigh_hold(nb);
-> +	dev_hold(nb->dev);
-> +	if (!queue_work(x25_wq, &nb->kill_work)) {
-> +		dev_put(nb->dev);
-> +		x25_neigh_put(nb);
-> +	}
-> +}
-> +
->  /*
->   *	This handles all restart and diagnostic frames.
->   */
-> @@ -82,7 +103,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
->  			break;
->  		case X25_LINK_STATE_3:
->  			/* clear existing virtual calls */
-> -			x25_kill_by_neigh(nb);
-> +			x25_defer_kill_by_neigh(nb);
->  
->  			x25_transmit_restart_confirmation(nb);
->  			break;
-
-[Severity: Medium]
-With this change, does the restart/terminate sequence continue while the
-old virtual calls are still bound to nb?
-
-x25_defer_kill_by_neigh() only queues the work and returns. In
-x25_link_control(), the restart confirmation (or the restart request,
-the move to X25_LINK_STATE_2, and T20 in the RESTART_CONFIRMATION case)
-goes out first. nb->queue is also drained in STATE_3 at the end of the
-function.
-
-The old sockets are still on x25_list at that point, with
-x25->neighbour == nb and their old LCIs. The same applies to
-x25_link_terminated(), which sets STATE_0 but leaves the sockets
-connected. Neither the softirq X25_IFACE_DISCONNECT path nor
-NETDEV_CHANGE flushes the work.
-
-Until the worker runs, a few things look possible.
-
-If the peer reuses an LCI after the restart, x25_receive_data() still
-matches the stale socket:
-
-net/x25/x25_dev.c:x25_receive_data() {
-    ...
-	if ((sk = x25_find_socket(lci, nb)) != NULL) {
-		...
-		queued = x25_process_rx_frame(sk, skb);
-		...
-	}
-
-	if (frametype == X25_CALL_REQUEST)
-		return x25_rx_call_request(skb, nb, lci);
-    ...
-}
-
-So could a new CALL_REQUEST on a reused LCI be handed to the old socket
-instead of reaching x25_rx_call_request()?
-
-A stale socket can also still transmit via x25_transmit_link(). In
-STATE_0 that queues the frame and calls x25_establish_link(), which
-brings the link back up for a dead call. In STATE_1/2 the frame is
-queued and flushed later onto the restarted link.
-
-When x25_kill_by_neigh_work()->x25_kill_by_neigh() finally runs, it
-disconnects every socket whose neighbour == nb at that moment. That
-includes calls set up after the triggering event, such as sockets from
-x25_rx_call_request() or outgoing calls from x25_connect():
-
-	x25->neighbour = x25_get_neigh(rt->dev);
-
-Can valid new calls get torn down with ENETUNREACH this way? The same
-question applies to forwards that x25_clear_forward_by_dev() removes
-after being created post-event.
-
-The comments "clear existing virtual calls" and "Out of order: clear
-existing virtual calls (X.25 03/93 4.6.3)" also no longer match what
-happens synchronously.
-
-One option might be to detach the sockets synchronously in softirq (for
-example, mark them dead or clear lci/neighbour under x25_list_lock or
-bh_lock_sock()) and defer only the part that sleeps.
-
-> @@ -97,7 +118,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
->  			break;
->  		case X25_LINK_STATE_3:
->  			/* clear existing virtual calls */
-> -			x25_kill_by_neigh(nb);
-> +			x25_defer_kill_by_neigh(nb);
->  
->  			x25_transmit_restart_request(nb);
->  			nb->state = X25_LINK_STATE_2;
-> @@ -254,7 +275,7 @@ void x25_link_terminated(struct x25_neigh *nb)
->  	x25_stop_t20timer(nb);
->  
->  	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
-> -	x25_kill_by_neigh(nb);
-> +	x25_defer_kill_by_neigh(nb);
->  }
-
-[ ... ]
-
+diff --git a/include/net/x25.h b/include/net/x25.h
+index 414f3fd993454..125803d4f0ee7 100644
+--- a/include/net/x25.h
++++ b/include/net/x25.h
+@@ -13,6 +13,7 @@
+ #include <linux/x25.h>
+ #include <linux/slab.h>
+ #include <linux/refcount.h>
++#include <linux/workqueue.h>
+ #include <net/sock.h>
+ 
+ #define	X25_ADDR_LEN			16
+@@ -143,6 +144,7 @@ struct x25_neigh {
+ 	struct sk_buff_head	queue;
+ 	unsigned long		t20;
+ 	struct timer_list	t20timer;
++	struct work_struct	kill_work;
+ 	unsigned long		global_facil_mask;
+ 	refcount_t		refcnt;
+ };
+@@ -317,6 +319,7 @@ extern struct list_head x25_forward_list;
+ extern rwlock_t x25_forward_list_lock;
+ extern struct list_head x25_neigh_list;
+ extern rwlock_t x25_neigh_list_lock;
++extern struct workqueue_struct *x25_wq;
+ 
+ int x25_proc_init(void);
+ void x25_proc_exit(void);
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index f45c9ec7d2c68..3696414617db1 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -222,6 +222,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
+ 			nb = x25_get_neigh(dev);
+ 			if (nb) {
+ 				x25_link_terminated(nb);
++				flush_work(&nb->kill_work);
+ 				x25_neigh_put(nb);
+ 			}
+ 			x25_route_device_down(dev);
+@@ -235,6 +236,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
+ 				nb = x25_get_neigh(dev);
+ 				if (nb) {
+ 					x25_link_terminated(nb);
++					flush_work(&nb->kill_work);
+ 					x25_neigh_put(nb);
+ 				}
+ 			}
+@@ -1790,9 +1792,13 @@ static int __init x25_init(void)
+ {
+ 	int rc;
+ 
++	x25_wq = alloc_workqueue("x25", WQ_PERCPU, 0);
++	if (!x25_wq)
++		return -ENOMEM;
++
+ 	rc = proto_register(&x25_proto, 0);
+ 	if (rc)
+-		goto out;
++		goto out_wq;
+ 
+ 	rc = sock_register(&x25_family_ops);
+ 	if (rc)
+@@ -1825,6 +1831,8 @@ static int __init x25_init(void)
+ 	sock_unregister(AF_X25);
+ out_proto:
+ 	proto_unregister(&x25_proto);
++out_wq:
++	destroy_workqueue(x25_wq);
+ 	goto out;
+ }
+ module_init(x25_init);
+@@ -1843,6 +1851,8 @@ static void __exit x25_exit(void)
+ 
+ 	sock_unregister(AF_X25);
+ 	proto_unregister(&x25_proto);
++
++	destroy_workqueue(x25_wq);
+ }
+ module_exit(x25_exit);
+ 
+diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
+index d1e8cd81c2143..424044c1cf974 100644
+--- a/net/x25/x25_link.c
++++ b/net/x25/x25_link.c
+@@ -31,6 +31,8 @@
+ LIST_HEAD(x25_neigh_list);
+ DEFINE_RWLOCK(x25_neigh_list_lock);
+ 
++struct workqueue_struct *x25_wq;
++
+ static void x25_t20timer_expiry(struct timer_list *);
+ 
+ static void x25_transmit_restart_confirmation(struct x25_neigh *nb);
+@@ -58,6 +60,25 @@ static inline void x25_stop_t20timer(struct x25_neigh *nb)
+ 	timer_delete(&nb->t20timer);
+ }
+ 
++static void x25_kill_by_neigh_work(struct work_struct *work)
++{
++	struct x25_neigh *nb = container_of(work, struct x25_neigh, kill_work);
++
++	x25_kill_by_neigh(nb);
++	dev_put(nb->dev);
++	x25_neigh_put(nb);
++}
++
++static void x25_defer_kill_by_neigh(struct x25_neigh *nb)
++{
++	x25_neigh_hold(nb);
++	dev_hold(nb->dev);
++	if (!queue_work(x25_wq, &nb->kill_work)) {
++		dev_put(nb->dev);
++		x25_neigh_put(nb);
++	}
++}
++
+ /*
+  *	This handles all restart and diagnostic frames.
+  */
+@@ -82,7 +103,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
+ 			break;
+ 		case X25_LINK_STATE_3:
+ 			/* clear existing virtual calls */
+-			x25_kill_by_neigh(nb);
++			x25_defer_kill_by_neigh(nb);
+ 
+ 			x25_transmit_restart_confirmation(nb);
+ 			break;
+@@ -97,7 +118,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
+ 			break;
+ 		case X25_LINK_STATE_3:
+ 			/* clear existing virtual calls */
+-			x25_kill_by_neigh(nb);
++			x25_defer_kill_by_neigh(nb);
+ 
+ 			x25_transmit_restart_request(nb);
+ 			nb->state = X25_LINK_STATE_2;
+@@ -254,7 +275,7 @@ void x25_link_terminated(struct x25_neigh *nb)
+ 	x25_stop_t20timer(nb);
+ 
+ 	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
+-	x25_kill_by_neigh(nb);
++	x25_defer_kill_by_neigh(nb);
+ }
+ 
+ /*
+@@ -269,6 +290,7 @@ void x25_link_device_up(struct net_device *dev)
+ 
+ 	skb_queue_head_init(&nb->queue);
+ 	timer_setup(&nb->t20timer, x25_t20timer_expiry, 0);
++	INIT_WORK(&nb->kill_work, x25_kill_by_neigh_work);
+ 
+ 	dev_hold(dev);
+ 	nb->dev      = dev;
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/tencent_EC124B80BC53531B2EAB18DD04B37BAE7406%40qq.com
+2.43.0
+
