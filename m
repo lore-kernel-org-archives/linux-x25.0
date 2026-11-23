@@ -1,79 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.252
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.198.224.70
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795405704;
-	b=DSSSK2sedPjS53d60SOUMGjxTl9iA8R2tKPfxQAlCCViDMrWVrp603QGNXXBFYobFQIc
-	 GSrdQXJjGvo8X57S771mTfA/u5WUUfOxv/iEeBRp2wJ90EZtdRR04NxmYI0+PPgGamae8
-	 9UgUlIPZdtRyM8K8Ky38YG7K9oRk8x7ft6ZSMU/NYUuEDre5SMjDpTEQqarJOlJIfYW6E
-	 dTcey0HPXv9NwV8Jh+W32honz4DQduABZHUr9/hcvD2mZKItTyfxoULKIvzKeqPam31nI
-	 G6AXhFVeB4qznxiyGhVDuclYRXAPwZ97EOVJ4P3WEfCjKULmquClIUS7/WprBratQig==
+	t=1795420685;
+	b=lJavv7W4VdkVHwMagqno6Kingj0HiIIdnw7h1PH+BIV6cdDuawPV16Q+6S/aMHEzp7Et
+	 PU06olEM2x1pQSJU5xi7bToYiVrVAdx12vWS9X19oemgMa4ix1aFqEjIQ9vNIYTIQpy5S
+	 N082CovEAvoriw8hI0JHWb75rERoK89EQJiXxGRPdqOj30eZP8bfafIuB2c5Ib9T79zwE
+	 uyL9eL5oU9mgmpfDy7sUdB+y887hQKtLwPUsicae0J5iwzJ2ZDJPSFbqcOUvYZBY6cZEd
+	 eZ+0l5RSTyl5NeixZUtRSnrBpArIP9kYmh+1DTId6WVjKg/MnTkBAweDQ1tK/ikTI6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795405704;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=YNmHaqmtwbx/EzQOm04VaagFwsQ5IZpEuhdBjG4NZLA=;
-	b=ZN8BqRnKX57BXQBWbR2h4PVMOqVzTDiTW8bcGkUMhJrP3VX2+F2X8Nuipv8fq/uYXSTG
-	 Tefkw8RhdudHqrfG0rEZID2Ga6PTmKtiuNNgpzwZPbT+3Gr58cHdiwuZSZRol2cVrob+L
-	 VVc0UoJXNuC1o62/zlXOOcv+ZOYk6CQKGsqa5/Qv6n4LgZj6cLhFlserRIXqs9TXRQMNd
-	 XnS0XyUnlPFHb2JK8qcXmCKl6SiUEUOxpNg7ukPcdfqQnhAl8axwkz9NEKLBShAam5PKC
-	 6AVVe5pOvu1IuZHcRIkDLMgy75jkeJvkVXrljYqRnULo9uvAmJb5MjFbYXizl61hBKQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795420685;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:Received:Received:
+	 Received:MIME-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 From:To:Cc:Subject:Organization:In-Reply-To:References:Message-ID:
+	 X-Sender:User-Agent:X-Spam-Status:X-Spam-Checker-Version:X-purgate:
+	 X-purgate-type:X-purgate-ID;
+	bh=SNHm202/e+FOtZ2uxCzYO9hiduPnu8am59Fo+bkDzhE=;
+	b=VZehtjyE86rr5s3Y5jl8luAUyNgibUjifMzUWLk0mA2CRZe3z7NL5MB9p7XCBkmAPh7D
+	 /Hyqi9aY7bOCTXR7eUK502oAykgQwI3PMTzslMNwdhruX8b+WyaKDxAQ0zSa60nAh+qqS
+	 +0Sixsn4JtETsgOWDRQWEg3NOMqutBDwtzetJCM9rFp2pPbBAR8+ZTmk9+DKvSOnFzJIJ
+	 x6QLZcvbLzDhtF4pUlOTgHx9oJuT1erQb9GzDxalwcjKaq6vlQ6Tpxme2T83NiBEj6+N9
+	 7D5MRxYjixyG8KFJmdG+dNP1+Goqg1qXYnWwzfVR4uKvaFu/nPC6adZ0J8KsLKsH6bA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=qq.com;
-	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=AVzpacww;
-	arc=none smtp.remote-ip=162.62.57.252
-Received: from out162-62-57-252.mail.qq.com (out162-62-57-252.mail.qq.com [162.62.57.252])
+	dmarc=pass header.from=dev.tdt.de;
+	spf=pass smtp.mailfrom=dev.tdt.de;
+	dkim=temperror header.d=dev.tdt.de header.i=@dev.tdt.de header.a=rsa-sha256 header.s=z1-selector1 header.b=M12l+2D9;
+	arc=none smtp.remote-ip=91.198.224.70
+Received: from mxout70.expurgate.net (mxout70.expurgate.net [91.198.224.70])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68714606A31E;
-	Mon, 23 Nov 2026 03:48:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68714606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 139C7606A31A;
+	Mon, 23 Nov 2026 07:58:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 139C7606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dev.tdt.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dev.tdt.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=AVzpacww
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1795405692; bh=YNmHaqmtwbx/EzQOm04VaagFwsQ5IZpEuhdBjG4NZLA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=AVzpacwwzg44/gz8/MhNrnij/3TmhDkqRv90iaJYnqtLZ8ePhxx2GC4EvJMzgOlCI
-	 MSGc347bdxhdacwFIbhl87N4qD36btIFU5gLmPTDbtdQ2XjXGtwRcU8i7L+sjHEKYp
-	 hr51/6CPkg+v2tH9J6WA2SzLvisrwG6cILfR1qQk=
-Received: from shuai-VMware-Virtual-Platform.. ([117.158.156.199])
-	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id C0AA0A27; Mon, 23 Nov 2026 11:48:10 +0800
-X-QQ-mid: xmsmtpt1795405690tniae0z6g
-Message-ID: <tencent_0B3A9605591EA70906F7462C6282CD7D4305@qq.com>
-X-QQ-XMAILINFO: MA2CfewR0F23ME4Gg7w33qWAEdTs2lFyGItXk+FMPsVR0J1umXSbDUBausOrO0
-	 3vHnxXhov851SX9zF0FZGncogjvBkirGAtcHsFKQcUkPN/SoicShS/pqs7/pvH3BuVzd2ZSL4y0d
-	 jlPw5uml0Oq8wXSZTYtkiQigoCC0irUzbynCfA8gVjeHrUqTriu2j2jq7NoIoKwl1juO346bYVvS
-	 LgGJY3c5qPSRzvjK59G40H7LcSgZCCG/SZNp6xNdqKoQptfPy/DhkkZT7p8MK4bGRSDRQ7tpwPwB
-	 mjGD9fSJ/J+T9svcJsCPaupDXR2yaRZRNnYyvJur2cMPADjcSw5y1TIs0KeN1YlaFoN9Rm2QJeIo
-	 BAOaoOY2EVOwSdB+Or9ZlxaScKx50kzr47UjNsQU9IxNXQ02WHgsbIVnhg+IWI1ccoVDJVlTw9eG
-	 qgdAElqUcWVey1nY7BxasoMWh+SZW81sBPYuJsvP7v4YXupOTgwsfuO6ykT1cPGJrJ7QYIzikp76
-	 BF6fkMgWlmuHg5lyuo3pq3QeaNMAOZ6xBJ/U0c/yk9D8accemMKDQQD7dtNN0fwujAIiwA54J3ik
-	 i7DLq/k/fiNtnmoyPAHj4+Ec3erI3prmGUGAjZ75DkFkxIYoW9smHmcb5nNsx7KsCmwMILkLy4nW
-	 GfsZFAtkP/GHJkLkj6JUEoBtr9pFkZM1AF3LrcGY+eB227hpNgYgEx+Ap1MdG+nMuWiCUJ57vydH
-	 HK0L7YgDETwjmBxqyGw3T2RVr1Ehfaz+PXQsMpAYCS2VbjeQmyGaD5Dw9Js16wE/jeu/PvEVNuYZ
-	 asHCzxt480c9FnQaSZkDjMFp+GEqDbZyo77uz73mK97gybSW9Zc9P/q6k5MGDJZaCecyY90u88Q5
-	 17WHySV71jGwvdqi7/2YUeT3Pr3KpzDPzk6JofuEDAq7gmupGlVLtI0qTk2Xy8M7r1KMSjkS3e26
-	 iERCv4HlnoFEJkOQUHU145pFB8Xpl3lTuKFoIAVsrNCMGBhqDOLTtxvMGkzlCg9nWxQAhO5z8cSB
-	 vuOW4d2LwCX4b/x+DbT8UtbNj9dhju3mQgr4NxEAHADfO4LZgF2PseNv08691gk3eajysFLXejjm
-	 s6OnOM9wL7A4gFtbOocUjDhm/+5fvM5FoeDnGFFoKvwS9F6okeSJ/KuPgStLuD+PakpabB
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-From: Shuai Liu <847807867@qq.com>
-To: netdev@vger.kernel.org
-Cc: ms@dev.tdt.de,
-	linux-x25@vger.kernel.org,
-	netdev-bot+sashiko@kernel.org,
-	syzbot+300375dfd44665f063a6@syzkaller.appspotmail.com,
-	847807867@qq.com
-Subject: [PATCH v3] x25: defer socket cleanup on link termination to process context
-Date: Mon, 23 Nov 2026 11:48:10 +0800
-X-OQ-MSGID: <20261123034810.1269365-1-847807867@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <179539800759.3135.17245752044060918891@kernel.org>
-References: <179539800759.3135.17245752044060918891@kernel.org>
+	dkim=temperror header.d=dev.tdt.de header.i=@dev.tdt.de header.a=rsa-sha256 header.s=z1-selector1 header.b=M12l+2D9
+Received: from [194.37.255.9] (helo=mxout.expurgate.net)
+	by relay.expurgate.net with smtp (Exim 4.92)
+	(envelope-from <prvs=68018334f9=ms@dev.tdt.de>)
+	id 1xVOvp-00CyZa-FF; Mon, 23 Nov 2026 08:57:45 +0100
+Received: from [195.243.126.94] (helo=securemail.tdt.de)
+	by relay.expurgate.net with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ms@dev.tdt.de>)
+	id 1xVOvo-00E5s7-A1; Mon, 23 Nov 2026 08:57:44 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dev.tdt.de;
+	s=z1-selector1; t=1795420663;
+	bh=SNHm202/e+FOtZ2uxCzYO9hiduPnu8am59Fo+bkDzhE=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=M12l+2D9bY8UmGckh0umt8MlP7tLtIr0LGiLPDPqiXFivccj2PhVhCIXGwlA5lxNg
+	 jvcd/Yf1KdkTQVcBMKlfDFtaL3knxenoda9VN1rqhraPe2AGnb9W8c/11Pb0HTTUxw
+	 q0rxS4WQTyug5rchfpgD1BbCRuxclnK7mXGAaIwPcg0XlfdVgP4ilfxlxp2ssQ9fkY
+	 EQDk2FL112jq5Vwmfxh4Zx4vk9ZD1KJf8emfBsn+Pb6LzrTrvPHcVsUuTqEe3+QDnj
+	 4LQ9tr/hb98atujz74Aumo5+49yShs65EUwSULCnO/7aOJntX4n++1bh3sy0veMp4/
+	 gbqKojzB6DxcQ==
+Received: from securemail.tdt.de (localhost [127.0.0.1])
+	by securemail.tdt.de (Postfix) with ESMTP id 914B8240040;
+	Mon, 23 Nov 2026 08:57:43 +0100 (CET)
+Received: from mail.dev.tdt.de (unknown [10.2.4.42])
+	by securemail.tdt.de (Postfix) with ESMTP id 7C29A240036;
+	Mon, 23 Nov 2026 08:57:43 +0100 (CET)
+Received: from mail.dev.tdt.de (localhost [IPv6:::1])
+	by mail.dev.tdt.de (Postfix) with ESMTP id 524CF2AED5;
+	Mon, 23 Nov 2026 08:57:40 +0100 (CET)
 X-Mailing-List: linux-x25@vger.kernel.org
 List-Id: <linux-x25.vger.kernel.org>
 List-Post: <mailto:linux-x25@vger.kernel.org>
@@ -83,54 +71,68 @@ List-Unsubscribe: <mailto:linux-x25+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-x25+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Nov 2026 08:57:40 +0100 (CET)
+From: Martin Schiller <ms@dev.tdt.de>
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+	linux-x25@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+	Lin Ma <linma@zju.edu.cn>,
+	syzbot+9faa82ae2e94c5c7d2ef@syzkaller.appspotmail.com
+Subject: Re: [PATCH net] net/x25: don't call lock_sock() from softirq in
+ x25_kill_by_neigh()
+Organization: TDT AG
+In-Reply-To: <20261001150118.128470-1-ngocthang2710.1999@gmail.com>
+References: <20261001150118.128470-1-ngocthang2710.1999@gmail.com>
+Message-ID: mid:11
+X-Sender: ms@dev.tdt.de
+User-Agent: Roundcube Webmail/1.3.17
+X-purgate: clean
+X-purgate-type: clean
+X-purgate-ID: 151534::1795420665-60C18D96-C18A1F4A/0/0
 
-Hi Sashiko, Martin,
+Hi Thang,
 
-Thanks for the review.
+On Thu, 01 Oct 2026 17:01:18 +0200, Nguyen Ngoc Thang wrote:
+> Take the socket spinlock instead, the same way the x25 timers and 
+> receive
+> path already do. If the socket is not owned by user, disconnect it 
+> right
+> away. If it is, mark it with X25_KILL_FLAG and let a new release_cb do
+> the disconnect when the owner releases the socket.
 
-On the [Low] (NETDEV_CHANGE flush): fixed in v3. The carrier-loss path
-now flushes kill_work right after x25_link_terminated(), so both
-process-context notifier events (NETDEV_DOWN and NETDEV_CHANGE) keep
-the fully synchronous socket cleanup they had before the patch.
+This is the approach I'd like to take, rather than deferring the whole
+cleanup to a workqueue as proposed since. syzbot still hits the bug,
+now also as https://syzkaller.appspot.com/bug?extid=300375dfd44665f063a6
 
-On the [Medium] (restart sequence vs stale virtual calls): I looked at
-each scenario and believe the remaining window is not actionable, so I
-kept the softirq deferral:
+The two new findings of the AI review hold up in practice. I tested
+with two lapbether devices on a veth pair and a sender stalled in
+x25_sendmsg() via userfaultfd, so that the socket is owned when the
+link event arrives:
 
-1. "A reused LCI is matched by a stale socket" cannot happen in the
-   x25_link_terminated() path: that path is entered when LAPB reports
-   the link down (X25_IFACE_DISCONNECT), and any further peer frame
-   (including a CALL_REQUEST on a reused LCI) requires LAPB to be
-   re-established first, i.e. a SABM/UA exchange at least one RTT away.
-   The deferred work runs within microseconds of the event, long before
-   the peer can deliver any new frame.
+- after a RESTART, a CALL REQUEST on the old LCI is queued to the
+   flagged socket's backlog and never reaches the listener;
+- the flagged socket still transmits: a DATA packet on its old LCI
+   after the restart, and after a LAPB disconnect it brings the link
+   back up (SABM) before release_cb runs.
 
-2. In the x25_link_control() restart paths the link is still up, so
-   frames that were already in flight when the restart was processed can
-   land in the window. That is precisely the out-of-order case the
-   existing "Out of order: clear existing virtual calls (X.25 03/93
-   4.6.3)" comment acknowledges: those in-flight frames belong to calls
-   that must be cleared anyway. The workqueue item runs microseconds
-   after the restart handling, so a peer would have to send a new
-   CALL_REQUEST before it has even seen the restart complete for it to
-   matter.
+Skipping flagged sockets in __x25_find_socket() and returning early
+from x25_kick() and x25_write_internal() for them fixes both. Those two
+functions cover everything a socket transmits, and the deferred
+x25_disconnect() only changes local state. Clearing the flag in
+x25_make_new() takes care of the inheritance issue.
 
-3. Detaching the sockets synchronously in softirq would require writing
-   x25->neighbour / lci / state from BH without lock_sock(); those
-   fields are lock_sock-protected, so that trades a microseconds-wide
-   theoretical window for a real data race. Splitting the sleeping part
-   out has the same problem.
+The x25_sendmsg()/x25_output() issue is pre-existing and independent;
+I have a separate patch for it.
 
-4. "Valid new calls torn down by the deferred worker": incoming calls
-   need the LAPB link up (point 1), and an outgoing call would need
-   userspace connect() to land inside the same microseconds window.
+I have these changes on top of your patch, together with the separate
+fix, and the series passes the tests above with lockdep and
+DEBUG_ATOMIC_SLEEP. Unless you'd like to send the v2 yourself, I'll
+post it in a few days, with you as the author of the main patch.
 
-pw-bot: cr
-
-Changes since v2:
-  - Flush kill_work in NETDEV_CHANGE as well, restoring synchronous
-    socket cleanup for both process-context notifier events (Sashiko)
-
-v3: https://lore.kernel.org/netdev/20261123034748.1269213-1-847807867@qq.com/
-
+pw-bot: changes-requested
