@@ -1,67 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795582787;
-	b=omI1yAPTzJMk6Wm5O75dY1bSoBjq5AtegIOCeMGB6mvSOKXs1R5UHLTW2Auc7wjk0k5G
-	 AT5DIHH/SF5ECBEboDnrjiWYKEWLUt63wCHYkffxUpIUuOXRl0vrzAw1PKs/YJya3i5CN
-	 xKybde6SSJ91aq+LtbnOu6/nP5fKXswGEhgkH8mKYWAj1BL77g2UzFozHHULtdWO+LS3Z
-	 pKtEyWAp57tv3mPsVaftkQnH2HMP6vekBn0eJ9kBv8Zs77AaI3isApQBB4YJR37cv3jpX
-	 9j3jxW17GkCUrK+nnt556l/JdrPUjQWTji5MpjFtFRx36p1IlIjKleQC1nLtdIY8AMQ==
+	t=1795582790;
+	b=rPi9Edk9kYot8dR42Oe3OXb66rlryLl4vH+/c3h8Sppdeea02E0gwrR9kb9mTNfiEM4T
+	 Ed51Af0qsNVKAvfUWUtvHoNXQB6RGr+rTa6NWgf6q4Z4mggnMkbGlPLiTnBUOGY0J4C19
+	 D9D2m+uJbKxH54MilZWCk7Ywk9Q4WBgn/VYjtNC68tK5Pk4u/YBOxm1/Q8pQ1Ivbmev0i
+	 S2z2KOsh2bjJSY35EuSPD1t0tcRneoOHwLoG3F11GjsK/ZU5UCqSFRa5x8KB2xBb4tlXO
+	 3GeMN7UqYy780CxHZ+3TrUgOe1rrA6q2fF7uezBJaTL5R0DxodN/wYIeBtbB/ZfnIZw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795582787;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795582790;
 	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
 	 X-QQ-XMAILINFO:X-QQ-XMRINFO:Sender:From:To:Cc:Subject:Date:X-OQ-MSGID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=BgdStbMane67Ahh1dGa8fdGEQVba1CPuymVqjHDDqxE=;
-	b=jda/JMEQj0iO8VUfKFqyD2fB2VF43KCVIcEYRFV7fiJLoLeoiQZh7dtlM43QG+bnwTgz
-	 kv0+1jH7JgopbufvkrT7QifgCJDt7a8J/TKEfTKH6y8wCgsO6cJCup/Idi8o/5tGZ0lGZ
-	 EIanKklxKeh4WPw1l7/uEnxeq6CV5hsXQv+BmUWqKiU6v0uFZVQBwXtrznn7vsMaWf4xz
-	 uuipjvLxfgNHakkKGwIyXfnWUnL5xFqn+IwQQ65NNB5Q8XAR7yEMdOjsU7b5x/o47Abat
-	 EPeigw2y6gp72+nO/G7dxUig6W1HPnJAhdpqiOCJQpkTDYov+Kp08zr7s4O44cOM/kw==
+	bh=y7hMmAkvX9J5Ts9LNfrAigsFzopoqW4RntRQ7UkLy6c=;
+	b=Utp0gNu02lr3PfCvcwKbILjqpBvwTKl/g7xZCcOl73J6KJidifyOtWDMLdr9Lo/uCE+d
+	 xXPM3pEt9jAIId3/t9huiU/7Zjdfd+VrqvZZect8CNxBv55VLIPS9xsReYwDaqUsxgLxf
+	 AOc7dCVcw4RRaHvdqlt1x0Plvaf4useIOZP+u7hUaLfrlqLeA/bSKqEwk2URTvNJadnxd
+	 G+s9DCMa1GBV9ZeowQiKaCq2romWAnDEQTUCAZ/2dwDBGyDcWm53+XHgFbLL3zmc/0Sfs
+	 NQlSapP67bBUCMP/FJ+B4eWAfs3rS2hHnefK5UZ2PSNqF/UAy7E1bc+B6cNNW46+uMw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=qq.com;
 	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=q8pbGwio;
-	arc=none smtp.remote-ip=43.163.128.53
-Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.53])
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=w0+zaYVm;
+	arc=none smtp.remote-ip=43.163.128.49
+Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.49])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD19E606A31E;
-	Wed, 25 Nov 2026 04:59:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD19E606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA51B606A31E;
+	Wed, 25 Nov 2026 04:59:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA51B606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=q8pbGwio
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=w0+zaYVm
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1795582783; bh=BgdStbMane67Ahh1dGa8fdGEQVba1CPuymVqjHDDqxE=;
+	t=1795582787; bh=y7hMmAkvX9J5Ts9LNfrAigsFzopoqW4RntRQ7UkLy6c=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=q8pbGwiom2Wrc+0v1+ZyWUGD4CIYDi8fPZ/3HBuwoIgcSz9GIySEbbQc2saxo898j
-	 4dwUN/0NanxfQ4ixWWNd7uGVEchuzcLHp/l3vdaXDR8pbZI8Aajmx99d9A0qNj5T8f
-	 BdAWwxy1NYrzEwtQ4xWUW7yNi9aoLDbweqoRgjZU=
+	b=w0+zaYVm1lmVe8eyL80tPQAfLLXLBj8CO3G4v9vZMduZsusFSOlblpcHhpg0Etzty
+	 rPkrXl2kmD/CWFsZ1ozV4I7jVp2Ld6RsCeNxORtrB5J5rv6majX6i/NXEd5rbdYKgk
+	 Re+8smUSXK0Nel9ibBk6KxNMOn3qTVdmPZ+ETzrk=
 Received: from localhost.localdomain ([240e:360:b507:6a00:cdc3:f6f1:3f3d:301])
 	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
 	id ECD3BE27; Wed, 25 Nov 2026 12:59:13 +0800
-X-QQ-mid: xmsmtpt1795582761tc1w4i3r5
-Message-ID: <tencent_81EE31BA79E5206415DCD8EE76690A171D08@qq.com>
-X-QQ-XMAILINFO: MAzZFSpB7aMJM8YMAeI0tSkT1k8hVyyOxIx/6QYtPvqoPJINCcftzEoDGgBm/2
-	 aSm3dmmIVRA4yTg79ELIW8wmSLTtrFv+iX7P8cKATSKbdTDmUbjDaDD2ojITxv2WlmsqK1EXV2QH
-	 J7kR4oPB4yTYtF069ZC8bmphCHlW4f0hkoJAa1q0U/XjomrFWBqzWvLez4ji6POkV2AixL6b4N7r
-	 TbCJcfIINDe13ed0ADMy2x37c34YehWqs8I5usui/9xUqBfoZ5wzlQErvAVbQWJPuZ40Ro79zf4F
-	 49S/8ijzBaYjbEHJ8t/kESOLpKXfHxe/0RF+fYHs1C6V3aPyTH0D7O33pGfWWnHbZSRjngxXKSTn
-	 2eB4FAPv2itawXbs9ijSCuigxZZdBlmcUwrRhxrX7W1+KIdjPaZwZmmXnloUvidEgSveUA9zzc4s
-	 EVr1kiwrZ9Bq1SrwYkzLY31AY2+tzN9pIxHF0l7EYQKI6WNxVbL4qylpghgBxTJlY1ID7Pyd6NJP
-	 C960ED9oeSPcjZe8nclDeIvNHx0iR+u8Rn0WE1oTO3kaMQfnmPlH+CgYMdyHL1w2QZrDUCLP/mAl
-	 OmDPEbQMGVHDVJgQf0lVair24uHbIe8kwua3D/d8fMuvD601IXqgFNG6akVRuP2fWrBpsWKVTeFe
-	 Eo3yuaxTWbGa7eFE10Ks2C5S10dTBt5wyNSMR8xIT0DZW/pUy1hyHP5SrTkiz99p/R/GByfXyQgE
-	 f30z/sfh0BuHbJqN1gaGZTPDmmBWswxLaZ8HMc0Em2765EpSycVQA4UzSjSzjymYNociAoGSmVX1
-	 h1FG9lem27UXt4nEFKJoJ1rQPRao8tHyc4HtTVHd2nB8yHldWxLWtdhjKhhOxBW0PlUU5VIAp2PB
-	 e2bZ1JRdmm6j8xLB1nS5QdKjNPPCLRGiPea49+MZjtUqWL48agLIq6r+Uk+QwgMvYlM/PUtoqnnk
-	 cn23b6P6tkiavLl188dq8xqVTg79aVg/lZEAk2EjIWCKIwqFFcUP1iJwIOGZ5oQPMtdoeKjllZ6C
-	 HSSRwku1UKBkm5gZJlyycNry/ed6hMqzykyQ64BWDClcLaUrfbX8BIAUutoIlQt4zQxiE4hZi59D
-	 RBaSPFLW0fSJNvdNLTIUJl33/Z1XG1NEnF3ybxJTT3QEhtQPoK+6da5JqQ9ob63vEBcg/MTrdHXq
-	 3qAdmJWTDqcr1YpQ/IuUj1h8856uft99hyj6HxScWnlxEGqi9mh3ER3Xrx
-X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+X-QQ-mid: xmsmtpt1795582782t9bdqru2h
+Message-ID: <tencent_1010BAB1E5DD6485DC34EE706951175FEE08@qq.com>
+X-QQ-XMAILINFO: M+J86KchSb6F2NBrI5betZ6pKPXskkfCgfy5303+VudZ45AU+fDLdGzJCqRm4l
+	 /KcuYVdBSu5lqKV2nmyUeqmMki2Ev38owRczCt0X9DD6C8iojraIpRKtRnrMCwlqmyVRN1UcMgK8
+	 JjzQU96b6tuB+bMUwRY5USuOorkz4F4C6dLhQFBslHCzC6n5Q7xH3C+yrKc3Yg2MtiI0IRXWX5/w
+	 QfDpOds8d9Mq80PVXIubUvv89xnf0zrIXJDePa3oBEi/KdsCqxwVJw+AEXWDKNB5BfYbYVdP/8KK
+	 XN+ntjgMq/lqWTTdMqBWXKAHn3G4JV5mPNw5A1XMhrgC6uqFI+1i5ob/m5QB+QJHDxTVN9kJwCkp
+	 S4DnEPMWchUV1NFFDG1cW0CV/kvu+6Kcgut7PlAnb0KmqEH+BYvyjI9P5Tk0Fr+4KtZeIcdfoXv7
+	 YncTsKNJ5g2WOrN4HxSwD2FCkFuzL2VlCT3gwgfs2wx9obiRHe26AD4tRya7nL3OWUBP7IwfDI+t
+	 MypL1yeK7xJaqWJfTBTGZ1DEVviajwjQ6gdgmYg4xlYdIihuvUAdrdJ8NU/entC4922jYQiWAy1d
+	 RWA/ReyR20yaAqC+lL47F11W6WvEpnWxAUL+qZM5weNi4pFfeQvi4ySO6E2fr7GRARty7YSp+BNw
+	 rXZcG0PdsVN1lFOH1tkGB3MKzkb35Gok0w9wxp9/u3UVKpV8OqN3Cp0CiNazNJZyBPnINdxjKeeC
+	 qJjHlGJpDpxQMAzAm4LwwEJDT32VFG4GIsHlEWtBQQqZs2miKrDtC9o22j3Zbuaqtfp4djVRjwxT
+	 oMSeCdJK/ZwwOO3eZDlduVvYwoOjvpKiy69TiitWHRKKPIe0WfcbM97d9mHmel6SCvhMVEkmh6/u
+	 JL463nW4E8q5WO+CPLsyaHsInLQ3WGIz2TTrg68abD+eKTZJHtEFFUxhzbmu38d1sWTjdP5BN1Th
+	 0B4tVvonLxmrW2aliGzKqxrCKO2z4WadLsCWdKsMFhjhAaV7nsmF5zbWQbyYu21V4ClogApNwwEW
+	 TD7qtDyHD7pA69MUy6+PGlDZgCNKSmcSJqGI/a2yV/odAdEYqZaeRYoqD7xKUKjqWQQ0A488GL8g
+	 stmCCJjLZRqcbusyYhDaWSqG1Bin16YwZyNNPkfsrMw6uOrNxHjgithrqZDpGztDffUHJDFhPmi2
+	 eBw+LV4q0myD5GSOBQvuTbPj3SGz3IbB+2amnEfBvElIN+ykogX5Larn/bqCvJuzB2t8o=
+X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
 Sender: superskidder@qq.com
 From: Yu Gao <SuperSkidder@qq.com>
 To: Martin Schiller <ms@dev.tdt.de>,
@@ -77,9 +77,9 @@ Cc: linux-x25@vger.kernel.org,
 	syzbot+059a2795ad4cff2a2695@syzkaller.appspotmail.com,
 	syzbot+8328573e4d0514392471@syzkaller.appspotmail.com,
 	Yu Gao <SuperSkidder@qq.com>
-Subject: [PATCH net 1/2] net: lapbether: don't hold up_lock while calling into LAPB
-Date: Wed, 25 Nov 2026 12:59:08 +0800
-X-OQ-MSGID: <20261125045909.77644-2-SuperSkidder@qq.com>
+Subject: [PATCH net 2/2] net: lapbether: use lockless TX
+Date: Wed, 25 Nov 2026 12:59:09 +0800
+X-OQ-MSGID: <20261125045909.77644-3-SuperSkidder@qq.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261125045909.77644-1-SuperSkidder@qq.com>
 References: <20261125045909.77644-1-SuperSkidder@qq.com>
@@ -94,145 +94,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-lapbeth_xmit() and lapbeth_rcv() hold up_lock while they call into
-LAPB, which looks up the device under lapb_list_lock.
-lapb_unregister() takes lapb->lock with lapb_list_lock held for
-writing, and LAPB transmits frames through lapbeth_data_transmit() with
+The core calls lapbeth_xmit() with the TX lock of the lapbeth device
+held, and lapbeth_xmit() calls into LAPB, which looks up the device
+under lapb_list_lock. lapb_unregister() takes lapb->lock with
+lapb_list_lock held for writing, and LAPB transmits frames with
 lapb->lock held. When the Ethernet device under a lapbeth device is a
 tunnel whose packets are routed through a lapbeth device, such a frame
-reaches lapbeth_xmit() again, under the TX lock of that device and
-with its up_lock taken. syzbot reports the resulting cycle as a
-possible deadlock in lapb_data_received():
+is passed to dev_queue_xmit() on that device, which takes its TX lock
+under lapb->lock. With up_lock gone, the syzbot reproducer for a
+possible deadlock in lapb_connect_request() still reports this cycle:
 
-  lapb_list_lock --> _xmit_X25#2 --> &lapbeth->up_lock
+  lapb_list_lock --> &lapb->lock --> _xmit_X25#2
 
-up_lock only makes sure that lapbeth_xmit() and lapbeth_rcv() see the
-device as up and finish their LAPB calls before lapbeth_close() calls
-lapb_unregister(). The same can be had without holding a lock across
-the LAPB calls. Both functions run inside an RCU read-side critical
-section: lapbeth_rcv() takes rcu_read_lock() and ndo_start_xmit is
-called with BH disabled. So clear "up" in lapbeth_close() and wait for
-them with synchronize_net() before calling lapb_unregister(), and drop
-up_lock.
+lapbeth_xmit() does not need the TX lock. Data frames are handed to
+LAPB, which serializes each device with lapb->lock, and connect and
+disconnect notifications are queued on the locked rx_queue. Set lltx
+so that the core does not take the TX lock around lapbeth_xmit().
 
-This also keeps lapbeth_rcv() from deadlocking on up_lock when a frame
-that LAPB sends in reply is routed back into the same lapbeth device.
+Without the TX lock, the core no longer detects a frame that loops
+back into the same lapbeth device on the TX path. If such a frame
+reaches LAPB, it now deadlocks on lapb->lock, as it already does when
+LAPB sends it from a timer or from the receive path. Only frames that
+start with 0x00, 0x01 or 0x02 reach LAPB, so a frame looped back
+through IPv4 or IPv6 routing is simply dropped.
 
-The core still takes the TX lock around lapbeth_xmit(), so a cycle
-through _xmit_X25 remains. The next patch removes it.
-
-Fixes: 5acd0cfbfbb5 ("net: lapbether: Prevent racing when checking whether the netif is running")
-Reported-by: syzbot+059a2795ad4cff2a2695@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=059a2795ad4cff2a2695
+Fixes: b491e6a7391e ("net: lapb: Add locking to the lapb module")
+Reported-by: syzbot+8328573e4d0514392471@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=8328573e4d0514392471
 Signed-off-by: Yu Gao <SuperSkidder@qq.com>
 ---
- drivers/net/wan/lapbether.c | 37 +++++++++++++------------------------
- 1 file changed, 13 insertions(+), 24 deletions(-)
+ drivers/net/wan/lapbether.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index c3630a8..b4dde9b 100644
+index b4dde9b..c7496c7 100644
 --- a/drivers/net/wan/lapbether.c
 +++ b/drivers/net/wan/lapbether.c
-@@ -53,8 +53,7 @@ struct lapbethdev {
- 	struct list_head	node;
- 	struct net_device	*ethdev;	/* link to ethernet device */
- 	struct net_device	*axdev;		/* lapbeth device (lapb#) */
--	bool			up;
--	spinlock_t		up_lock;	/* Protects "up" */
-+	bool			up;		/* See lapbeth_close() */
- 	struct sk_buff_head	rx_queue;
- 	struct napi_struct	napi;
- };
-@@ -126,11 +125,8 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev,
- 
- 	rcu_read_lock();
- 	lapbeth = lapbeth_get_x25_dev(dev);
--	if (!lapbeth)
-+	if (!lapbeth || !READ_ONCE(lapbeth->up))
- 		goto drop_unlock_rcu;
--	spin_lock_bh(&lapbeth->up_lock);
--	if (!lapbeth->up)
--		goto drop_unlock;
- 
- 	len = skb->data[0] + skb->data[1] * 256;
- 	dev->stats.rx_packets++;
-@@ -142,15 +138,10 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev,
- 	err = lapb_data_received(lapbeth->axdev, skb);
- 	if (err != LAPB_OK) {
- 		printk(KERN_DEBUG "lapbether: lapb_data_received err - %d\n", err);
--		goto drop_unlock;
-+		goto drop_unlock_rcu;
- 	}
--out:
--	spin_unlock_bh(&lapbeth->up_lock);
- 	rcu_read_unlock();
- 	return 0;
--drop_unlock:
--	kfree_skb(skb);
--	goto out;
- drop_unlock_rcu:
- 	rcu_read_unlock();
- drop:
-@@ -188,8 +179,7 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
- 	struct lapbethdev *lapbeth = netdev_priv(dev);
- 	int err;
- 
--	spin_lock_bh(&lapbeth->up_lock);
--	if (!lapbeth->up)
-+	if (!READ_ONCE(lapbeth->up))
- 		goto drop;
- 
- 	/* There should be a pseudo header of 1 byte added by upper layers.
-@@ -226,12 +216,10 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
- 		pr_err("lapb_data_request error - %d\n", err);
- 		goto drop;
- 	}
--out:
--	spin_unlock_bh(&lapbeth->up_lock);
- 	return NETDEV_TX_OK;
- drop:
- 	kfree_skb(skb);
--	goto out;
-+	return NETDEV_TX_OK;
- }
- 
- static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
-@@ -331,9 +319,7 @@ static int lapbeth_open(struct net_device *dev)
- 		return -ENODEV;
- 	}
- 
--	spin_lock_bh(&lapbeth->up_lock);
--	lapbeth->up = true;
--	spin_unlock_bh(&lapbeth->up_lock);
-+	WRITE_ONCE(lapbeth->up, true);
- 
- 	return 0;
- }
-@@ -343,9 +329,13 @@ static int lapbeth_close(struct net_device *dev)
- 	struct lapbethdev *lapbeth = netdev_priv(dev);
- 	int err;
- 
--	spin_lock_bh(&lapbeth->up_lock);
--	lapbeth->up = false;
--	spin_unlock_bh(&lapbeth->up_lock);
-+	/* lapbeth_xmit() and lapbeth_rcv() only call into LAPB after seeing
-+	 * "up" set, from within an RCU read-side critical section. Wait for
-+	 * them to finish so that none of these calls races with
-+	 * lapb_unregister().
+@@ -364,6 +364,11 @@ static void lapbeth_setup(struct net_device *dev)
+ 	dev->hard_header_len = 0;
+ 	dev->mtu             = 1000;
+ 	dev->addr_len        = 0;
++	/* LAPB serializes transmission under its own lock and may transmit
++	 * through another lapbeth device while holding it, so the TX lock
++	 * must not be taken around lapbeth_xmit().
 +	 */
-+	WRITE_ONCE(lapbeth->up, false);
-+	synchronize_net();
++	dev->lltx            = true;
+ }
  
- 	err = lapb_unregister(dev);
- 	if (err != LAPB_OK)
-@@ -411,7 +401,6 @@ static int lapbeth_new_device(struct net_device *dev)
- 	lapbeth->ethdev = dev;
- 
- 	lapbeth->up = false;
--	spin_lock_init(&lapbeth->up_lock);
- 
- 	skb_queue_head_init(&lapbeth->rx_queue);
- 	netif_napi_add_weight(ndev, &lapbeth->napi, lapbeth_napi_poll, 16);
+ /*	Setup a new device.
 -- 
 2.54.0 (Apple Git-157)
 
